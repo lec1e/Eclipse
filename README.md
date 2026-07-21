@@ -1,7 +1,7 @@
 <h1 align="center">Eclipse</h1>
 
 <p align="center">
-  <img src="./Froststrap/Eclipse.png" height="160" alt="Eclipse logo"/>
+  <img src="./.resources/Eclipse.png" height="160" alt="Eclipse logo"/>
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 - **Eclipse themes** — default black/purple plus Purple Haze, Ocean, Emerald, Sunset, Mono, Blood Red
 - **BanAsync** (Windows) — clean Roblox traces, MAC / MachineGuid helpers
 - **Multi-instance + window tiling**
-- **VIP / Server Browser / News / Alt Gen / Obfuscator / Deobfuscator / Link Bypasser** tabs
+- **VIP / Server Browser / News** tabs
 - **Privacy mode** — truncate `RobloxCookies.dat` before launch
 - **Stream mode** — hide account-identifying UI while streaming
 
