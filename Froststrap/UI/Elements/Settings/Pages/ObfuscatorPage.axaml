@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
+             x:Class="Froststrap.UI.Elements.Settings.Pages.ObfuscatorPage"
+             x:DataType="vm:ObfuscatorViewModel">
+  <Grid Margin="14" RowDefinitions="Auto,Auto,Auto,*,Auto">
+    <StackPanel Grid.Row="0" Margin="0,0,0,10" Spacing="4">
+      <TextBlock FontSize="14" TextWrapping="Wrap" Opacity="0.75"
+                 Text="Obfuscate a Lua / Luau script. Pick an engine, paste your script, and hit Obfuscate." />
+      <TextBlock FontSize="11.5" Opacity="0.55"
+                 Text="Heads up: your script is uploaded to the third-party obfuscation API to be processed." />
+    </StackPanel>
+
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto" Margin="0,0,0,8">
+      <TextBlock Grid.Column="0" Text="Engine" VerticalAlignment="Center" Margin="0,0,8,0" Opacity="0.7" />
+      <ComboBox Grid.Column="1" MinWidth="175" ItemsSource="{Binding Engines}"
+                SelectedItem="{Binding SelectedEngine}" />
+      <TextBlock Grid.Column="2" Text="Target" VerticalAlignment="Center" Margin="16,0,8,0" Opacity="0.7"
+                 IsVisible="{Binding ShowLeakdOptions}" />
+      <ComboBox Grid.Column="3" MinWidth="150" ItemsSource="{Binding Presets}"
+                SelectedItem="{Binding SelectedPreset}" IsVisible="{Binding ShowLeakdOptions}" />
+      <Button Grid.Column="5" Content="Beautify" Margin="0,0,8,0"
+              Command="{Binding BeautifyCommand}" IsEnabled="{Binding NotBusy}" />
+      <Button Grid.Column="6" Content="Obfuscate" Classes="accent"
+              Command="{Binding ObfuscateCommand}" IsEnabled="{Binding NotBusy}" />
+    </Grid>
+
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,8"
+          IsVisible="{Binding ShowLuaObfuscatorOptions}">
+      <TextBlock Grid.Column="0" Text="API key" VerticalAlignment="Center" Margin="0,0,8,0" Opacity="0.7" />
+      <TextBox Grid.Column="1" Watermark="Your luaobfuscator.com API key" Text="{Binding ApiKey}" />
+      <TextBlock Grid.Column="2" Text="saved locally only" VerticalAlignment="Center" Margin="10,0,0,0"
+                 FontSize="11" Opacity="0.55" />
+    </Grid>
+
+    <Grid Grid.Row="3" ColumnDefinitions="*,*">
+      <Grid Grid.Column="0" Margin="0,0,6,0" RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,4">
+          <TextBlock Grid.Column="0" Text="Script" FontWeight="SemiBold" VerticalAlignment="Center" />
+          <Button Grid.Column="1" Content="Paste" Padding="8,3" FontSize="12" Command="{Binding PasteCommand}" />
+          <Button Grid.Column="2" Content="Clear" Padding="8,3" FontSize="12" Margin="6,0,0,0"
+                  Command="{Binding ClearCommand}" />
+        </Grid>
+        <TextBox Grid.Row="1" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas"
+                 FontSize="12.5" MinHeight="240" Text="{Binding ScriptInput}"
+                 VerticalContentAlignment="Top" />
+      </Grid>
+      <Grid Grid.Column="1" Margin="6,0,0,0" RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,4">
+          <TextBlock Grid.Column="0" Text="Result" FontWeight="SemiBold" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="Busy…" FontSize="11" Opacity="0.6" Margin="0,0,6,0"
+                     VerticalAlignment="Center" IsVisible="{Binding IsBusy}" />
+          <Button Grid.Column="2" Content="Copy" Padding="8,3" FontSize="12"
+                  Command="{Binding CopyOutputCommand}" IsEnabled="{Binding HasOutput}" />
+        </Grid>
+        <TextBox Grid.Row="1" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas"
+                 FontSize="12.5" MinHeight="240" IsReadOnly="True" Text="{Binding Output}"
+                 VerticalContentAlignment="Top" />
+      </Grid>
+    </Grid>
+
+    <TextBlock Grid.Row="4" Margin="0,8,0,0" TextWrapping="Wrap" Opacity="0.75"
+               Text="{Binding StatusText}" />
+  </Grid>
+</UserControl>

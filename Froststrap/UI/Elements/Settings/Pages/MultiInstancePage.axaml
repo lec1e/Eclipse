@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Froststrap.UI.Elements.Controls"
+             xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
+             xmlns:models="clr-namespace:Froststrap.Models"
+             x:Class="Froststrap.UI.Elements.Settings.Pages.MultiInstancePage"
+             x:Name="Root"
+             x:DataType="vm:MultiInstanceViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="14" Spacing="12">
+      <TextBlock Text="Multi Instance" FontSize="18" FontWeight="SemiBold" />
+      <TextBlock TextWrapping="Wrap" Opacity="0.7" FontSize="13"
+                 Text="Hold Roblox's single-instance lock so multiple clients can run side by side. Manage accounts and bulk launches on the AltMan tab." />
+
+      <Border Padding="12" CornerRadius="6" BorderThickness="1">
+        <TextBlock FontSize="12" TextWrapping="Wrap" Opacity="0.75"
+                   Text="Only run accounts you own. Running multiple clients can break Roblox's rules and risk bans — use at your own risk." />
+      </Border>
+
+      <controls:OptionControl Header="Multi-instance (run more than one Roblox client)"
+                              Description="Holds ROBLOX_singletonMutex so normal launches open alongside clients that are already running. Same-user only, no admin needed.">
+        <ToggleSwitch IsChecked="{Binding MultiInstanceEnabled}" />
+      </controls:OptionControl>
+
+      <controls:OptionControl Header="Window tiling"
+                              Description="After launch, arrange Roblox windows into a grid (Windows).">
+        <ToggleSwitch IsChecked="{Binding WindowTilingEnabled}" />
+      </controls:OptionControl>
+
+      <controls:OptionControl Header="Tiling layout"
+                              Description="Grid used when tiling is enabled.">
+        <ComboBox MinWidth="160" ItemsSource="{Binding TilingLayouts}"
+                  SelectedItem="{Binding SelectedTilingLayout}" />
+      </controls:OptionControl>
+
+      <Button Content="Tile windows now" Command="{Binding TileNowCommand}" HorizontalAlignment="Left" />
+
+      <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+        <TextBlock Grid.Column="0" Text="{Binding RunningInstancesHeader}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Content="Refresh" Command="{Binding RefreshRunningInstancesCommand}" />
+      </Grid>
+      <TextBlock IsVisible="{Binding HasNoRunningInstances}" Opacity="0.7" FontSize="12"
+                 Text="No Roblox processes are currently running." />
+
+      <ItemsControl ItemsSource="{Binding RunningInstances}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="models:RobloxInstanceInfo">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" Margin="0,4">
+              <TextBlock Grid.Column="0" Text="{Binding Pid}" FontFamily="Consolas" FontSize="12" MinWidth="60" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="{Binding Uptime}" FontSize="12" Margin="12,0,0,0" MinWidth="80" Opacity="0.7" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="2" FontSize="12" Margin="12,0,0,0" MinWidth="80" Opacity="0.7" VerticalAlignment="Center"
+                         Text="{Binding MemoryMb, StringFormat='{}{0} MB'}" />
+              <TextBlock Grid.Column="3" Text="{Binding WindowTitle}" FontSize="12" Margin="12,0,8,0" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+              <Button Grid.Column="4" Content="Kill"
+                      Command="{Binding #Root.((vm:MultiInstanceViewModel)DataContext).KillInstanceCommand}"
+                      CommandParameter="{Binding Pid}" />
+            </Grid>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

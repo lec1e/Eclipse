@@ -1,0 +1,103 @@
+<UserControl
+    x:Class="Froststrap.UI.Elements.Settings.Pages.VersionsManagerPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:Froststrap.UI.Elements.Controls"
+    xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:DataType="vm:VersionsManagerViewModel"
+    mc:Ignorable="d"
+    d:DesignWidth="900"
+    d:DesignHeight="1200">
+
+    <ScrollViewer>
+        <StackPanel Margin="14" Spacing="12">
+            <TextBlock Text="Versions Manager" FontSize="22" FontWeight="SemiBold" />
+            <TextBlock Text="One profile per executor — switch builds with one click. Active profile drives the next Roblox launch."
+                       Opacity="0.7" TextWrapping="Wrap" />
+
+            <Border Background="{DynamicResource BrandSurfaceBrush}" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource BrandHairlineBrush}" BorderThickness="1">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel>
+                        <TextBlock Text="{Binding ActiveName, StringFormat='Active: {0}'}" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding ActiveHash}" Opacity="0.7" FontFamily="Consolas" />
+                        <TextBlock Text="{Binding DiskUsageText}" Margin="0,6,0,0" Opacity="0.6" />
+                        <TextBlock Text="{Binding RefreshStatus}" IsVisible="{Binding HasRefreshStatus}" Margin="0,4,0,0" Opacity="0.7" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Button Content="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding IsNotRefreshing}" />
+                        <Button Content="Add profile" Command="{Binding AddProfileCommand}" Classes="accent" />
+                        <Button Content="Open folder" Command="{Binding OpenVersionsFolderCommand}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <controls:OptionControl Header="Show profile picker on launch"
+                                    Description="Ask which profile to use before each Roblox launch.">
+                <ToggleSwitch IsChecked="{Binding ShowVersionPickerOnLaunch}" />
+            </controls:OptionControl>
+
+            <controls:OptionControl Header="Confirm non-LIVE launches"
+                                    Description="Prompt when launching a pinned (downgraded) build.">
+                <ToggleSwitch IsChecked="{Binding ConfirmNonLiveLaunch}" />
+            </controls:OptionControl>
+
+            <controls:OptionControl Header="Prefer robloxscripts.com API"
+                                    Description="Try the WEAO mirror first if weao.xyz is blocked on your network.">
+                <ToggleSwitch IsChecked="{Binding PreferRobloxScriptsApi}" />
+            </controls:OptionControl>
+
+            <ItemsControl ItemsSource="{Binding Tiles}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:VersionProfileTile">
+                        <Border Width="260" Margin="0,0,12,12" Padding="12" CornerRadius="10"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource BrandHairlineBrush}"
+                                Background="{DynamicResource BrandSurfaceBrush}">
+                            <StackPanel Spacing="8">
+                                <Grid ColumnDefinitions="48,*,Auto">
+                                    <Border Width="40" Height="40" CornerRadius="8" Background="#22A855F7" ClipToBounds="True">
+                                        <Panel>
+                                            <TextBlock Text="{Binding Letter}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       FontWeight="Bold" FontSize="18" IsVisible="{Binding !HasLogo}" />
+                                            <Image Source="{Binding Logo}" Stretch="UniformToFill" IsVisible="{Binding HasLogo}" />
+                                        </Panel>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Subtitle}" Opacity="0.65" FontSize="12" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                    <Border Grid.Column="2" IsVisible="{Binding IsActive}" Background="{DynamicResource BrandAccentBrush}"
+                                            CornerRadius="4" Padding="6,2" VerticalAlignment="Top">
+                                        <TextBlock Text="ACTIVE" FontSize="10" FontWeight="Bold" Foreground="White" />
+                                    </Border>
+                                </Grid>
+
+                                <TextBlock Text="{Binding VersionLabel}" FontFamily="Consolas" FontSize="11" Opacity="0.8" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding DiskUsage, StringFormat='Disk: {0}'}" FontSize="11" Opacity="0.6" />
+                                <TextBlock Text="Install target" FontSize="11" Opacity="0.8" IsVisible="{Binding IsInstallTarget}" Foreground="{DynamicResource BrandAccentBrush}" />
+
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <Button Content="Activate" Command="{Binding $parent[ItemsControl].((vm:VersionsManagerViewModel)DataContext).ActivateCommand}"
+                                            CommandParameter="{Binding Id}" Classes="accent" Padding="8,4" />
+                                    <Button Content="Install tgt" Command="{Binding $parent[ItemsControl].((vm:VersionsManagerViewModel)DataContext).SetAsInstallTargetCommand}"
+                                            CommandParameter="{Binding Id}" Padding="8,4"
+                                            IsVisible="{Binding !IsBuiltIn}" />
+                                    <Button Content="Delete" Command="{Binding $parent[ItemsControl].((vm:VersionsManagerViewModel)DataContext).DeleteCommand}"
+                                            CommandParameter="{Binding Id}" Padding="8,4"
+                                            IsVisible="{Binding !IsBuiltIn}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

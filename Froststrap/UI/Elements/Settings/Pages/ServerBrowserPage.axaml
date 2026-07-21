@@ -1,0 +1,79 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
+             x:Class="Froststrap.UI.Elements.Settings.Pages.ServerBrowserPage"
+             x:Name="Root"
+             x:DataType="vm:ServerBrowserViewModel">
+  <Grid Margin="14" RowDefinitions="Auto,Auto,Auto,*,Auto">
+    <TextBlock Grid.Row="0" Margin="0,0,0,10" FontSize="13" TextWrapping="Wrap" Opacity="0.75"
+               Text="Browse live public servers and jump into the one you want. Region detection needs a saved AltMan account and is best-effort / rate-limited. Sorting and joining the emptiest server need no account." />
+
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,8">
+      <TextBox Grid.Column="0" Watermark="Place ID or game link"
+               Text="{Binding PlaceIdInput}" />
+      <Button Grid.Column="1" Margin="8,0,0,0" Content="Load servers"
+              Command="{Binding LoadCommand}" IsEnabled="{Binding NotBusy}" />
+      <Button Grid.Column="2" Margin="8,0,0,0" Content="Join emptiest" Classes="accent"
+              Command="{Binding JoinEmptiestCommand}" IsEnabled="{Binding NotBusy}" />
+    </Grid>
+
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto" Margin="0,0,0,8">
+      <TextBlock Grid.Column="0" Text="Sort" VerticalAlignment="Center" Margin="0,0,8,0" Opacity="0.7" />
+      <ComboBox Grid.Column="1" MinWidth="140" ItemsSource="{Binding SortOptions}"
+                SelectedItem="{Binding SelectedSort}" />
+      <TextBlock Grid.Column="2" Text="Region" VerticalAlignment="Center" Margin="16,0,8,0" Opacity="0.7" />
+      <ComboBox Grid.Column="3" MinWidth="150" ItemsSource="{Binding RegionFilters}"
+                SelectedItem="{Binding SelectedRegionFilter}" />
+      <Button Grid.Column="4" Margin="8,0,0,0" Content="Detect regions"
+              Command="{Binding DetectAllRegionsCommand}" IsEnabled="{Binding HasServers}" />
+      <TextBlock Grid.Column="6" VerticalAlignment="Center" TextAlignment="Right" Opacity="0.7"
+                 IsVisible="{Binding HasStatus}" Text="{Binding Status}" TextTrimming="CharacterEllipsis" />
+    </Grid>
+
+    <Border Grid.Row="3" CornerRadius="6" BorderThickness="1">
+      <Grid RowDefinitions="Auto,*">
+        <Border Grid.Row="0" Padding="14,9" BorderThickness="0,0,0,1">
+          <Grid ColumnDefinitions="90,80,90,*,130">
+            <TextBlock Grid.Column="0" Text="Players" FontWeight="SemiBold" FontSize="12" Opacity="0.7" />
+            <TextBlock Grid.Column="1" Text="Ping" FontWeight="SemiBold" FontSize="12" Opacity="0.7" />
+            <TextBlock Grid.Column="2" Text="FPS" FontWeight="SemiBold" FontSize="12" Opacity="0.7" />
+            <TextBlock Grid.Column="3" Text="Region" FontWeight="SemiBold" FontSize="12" Opacity="0.7" />
+          </Grid>
+        </Border>
+        <ScrollViewer Grid.Row="1">
+          <ItemsControl ItemsSource="{Binding Servers}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:ServerRowViewModel">
+                <Border Padding="14,7" BorderThickness="0,0,0,1">
+                  <Grid ColumnDefinitions="90,80,90,*,130">
+                    <TextBlock Grid.Column="0" Text="{Binding PlayersText}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding PingText}" VerticalAlignment="Center" Opacity="0.7" />
+                    <TextBlock Grid.Column="2" Text="{Binding FpsText}" VerticalAlignment="Center" Opacity="0.7" />
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding RegionDisplay}" VerticalAlignment="Center" />
+                      <Button Content="Detect" FontSize="11" Padding="8,2"
+                              IsVisible="{Binding CanDetect}"
+                              Command="{Binding #Root.((vm:ServerBrowserViewModel)DataContext).DetectRegionCommand}"
+                              CommandParameter="{Binding}" />
+                      <TextBlock Text="…" IsVisible="{Binding IsDetecting}" Opacity="0.6" />
+                    </StackPanel>
+                    <Button Grid.Column="4" Content="Join" Classes="accent" HorizontalAlignment="Right"
+                            Command="{Binding #Root.((vm:ServerBrowserViewModel)DataContext).JoinCommand}"
+                            CommandParameter="{Binding}" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="4" ColumnDefinitions="*,Auto" Margin="0,10,0,0">
+      <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="12" Opacity="0.6" TextWrapping="Wrap"
+                 Text="Joining lands you in the chosen server as your currently signed-in Roblox account." />
+      <Button Grid.Column="1" Content="Load more" Command="{Binding LoadMoreCommand}"
+              IsEnabled="{Binding CanLoadMore}" />
+    </Grid>
+  </Grid>
+</UserControl>

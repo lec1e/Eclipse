@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Froststrap.UI.Elements.Controls"
+             xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
+             x:Class="Froststrap.UI.Elements.Settings.Pages.VipServerPage"
+             x:DataType="vm:VipServerViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="14" Spacing="12">
+      <TextBlock Text="VIP Server" FontSize="18" FontWeight="SemiBold" />
+      <TextBlock TextWrapping="Wrap" Opacity="0.7" FontSize="13"
+                 Text="Before you join a Roblox game, Eclipse can show a list of free shared VIP servers from rbxservers.xyz. Pick one to land in that server, or skip to launch normally." />
+
+      <controls:OptionControl Header="Show VIP server picker before launching games"
+                              Description="Opens a small dialog just before Roblox starts. Only appears for game launches that include a place ID.">
+        <ToggleSwitch IsChecked="{Binding VipServerPromptEnabled}" />
+      </controls:OptionControl>
+
+      <Border Padding="12" CornerRadius="6" BorderThickness="1">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Heads up" FontWeight="SemiBold" FontSize="13" />
+          <TextBlock TextWrapping="Wrap" FontSize="12" Opacity="0.75"
+                     Text="Servers in the list are uploaded by other users on rbxservers.xyz. We don't run that site and we don't vet servers. If a server is full or expired, pick another or skip." />
+        </StackPanel>
+      </Border>
+
+      <Border Padding="12" CornerRadius="6" BorderThickness="1">
+        <StackPanel Spacing="4">
+          <TextBlock Text="How it works" FontWeight="SemiBold" FontSize="13" />
+          <TextBlock TextWrapping="Wrap" FontSize="12" Opacity="0.75"
+                     Text="The picker embeds rbxservers.xyz for your place ID. When you click a server, Eclipse reads the access code from the link and joins that server." />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

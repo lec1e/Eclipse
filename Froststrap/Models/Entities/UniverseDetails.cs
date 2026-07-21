@@ -1,0 +1,59 @@
+﻿using Froststrap.RobloxInterfaces;
+
+namespace Froststrap.Models.Entities
+{
+    /// <summary>
+    /// Explicit loading. Load from cache before and after a fetch.
+    /// </summary>
+    public class UniverseDetails
+    {
+        private static List<UniverseDetails> Cache { get; set; } = [];
+
+        public GameDetailResponse Data { get; set; } = null!;
+
+        /// <summary>
+        /// Returns data for a 128x128 icon
+        /// </summary>
+        public ThumbnailResponse Thumbnail { get; set; } = null!;
+
+        public static UniverseDetails? LoadFromCache(long id)
+        {
+            return Cache.FirstOrDefault(x => x.Data?.Id == id);
+        }
+
+        public static Task FetchSingle(long id) => FetchBulk(id.ToString());
+
+        public static async Task FetchBulk(string ids)
+        {
+            Uri gameDetailsUrl = UrlBuilder.BuildApiUrl("games", $"v1/games?universeIds={ids}");
+            Uri thumbnailsUrl = UrlBuilder.BuildApiUrl("thumbnails", $"v1/games/icons?universeIds={ids}&returnPolicy=PlaceHolder&size=128x128&format=Png&isCircular=false");
+
+            ApiArrayResponse<GameDetailResponse> gameDetailResponse;
+
+            // some universes can't be viewed by logged out user (ex. 18+)
+            if (App.Cookies.Loaded)
+                gameDetailResponse = await Http.AuthGetJson<ApiArrayResponse<GameDetailResponse>>(gameDetailsUrl);
+            else
+                gameDetailResponse = await Http.GetJson<ApiArrayResponse<GameDetailResponse>>(gameDetailsUrl);
+
+            if (!gameDetailResponse.Data.Any())
+                return;
+
+            var universeThumbnailResponse = await Http.GetJson<ApiArrayResponse<ThumbnailResponse>>(thumbnailsUrl);
+
+            if (!universeThumbnailResponse.Data.Any())
+                throw new InvalidHTTPResponseException("Roblox API for Game Thumbnails returned invalid data");
+
+            foreach (string strId in ids.Split(','))
+            {
+                long id = long.Parse(strId);
+
+                Cache.Add(new UniverseDetails
+                {
+                    Data = gameDetailResponse.Data.FirstOrDefault(x => x.Id == id) ?? gameDetailResponse.Data.First(),
+                    Thumbnail = universeThumbnailResponse.Data.FirstOrDefault(x => x.TargetId == id) ?? universeThumbnailResponse.Data.First(),
+                });
+            }
+        }
+    }
+}

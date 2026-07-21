@@ -1,0 +1,76 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
+             x:Class="Froststrap.UI.Elements.Settings.Pages.HwidSpooferPage"
+             x:DataType="vm:HwidSpooferViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="14" Spacing="10">
+      <TextBlock Text="HWID Spoofer" FontSize="18" FontWeight="SemiBold" />
+      <TextBlock TextWrapping="Wrap" Opacity="0.7" FontSize="13"
+                 Text="Read, spoof, and revert machine-wide Windows identifiers. Use only on your own PC." />
+
+      <Border Padding="12" CornerRadius="6" BorderThickness="1" Background="#28D97706" BorderBrush="#66D97706">
+        <StackPanel Spacing="4">
+          <TextBlock FontWeight="SemiBold" Text="Machine-wide changes — proceed with caution" />
+          <TextBlock TextWrapping="Wrap" FontSize="12.5" Opacity="0.85"
+                     Text="These edits touch HKLM registry keys and physical NIC MACs. They require administrator rights, can affect activation / licensing / Windows Update identity, and some values (especially ComputerName) may need a reboot before apps notice them. Eclipse stores backups in Settings so you can Revert All." />
+        </StackPanel>
+      </Border>
+
+      <Border IsVisible="{Binding ShowElevationWarning}" Padding="12" CornerRadius="6" BorderThickness="1"
+              Background="#28D97706" BorderBrush="#66D97706">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center"
+                     Text="{Binding ElevationStatusText}" FontSize="12" />
+          <Button Grid.Column="1" Margin="12,0,0,0" Content="Relaunch as administrator" Classes="accent"
+                  Command="{Binding RelaunchAsAdminCommand}" />
+        </Grid>
+      </Border>
+
+      <Border IsVisible="{Binding ShowAdminFeatures}" Padding="12" CornerRadius="6" BorderThickness="1"
+              Background="#2822C55E" BorderBrush="#6622C55E">
+        <TextBlock TextWrapping="Wrap" Text="{Binding ElevationStatusText}" FontSize="12" />
+      </Border>
+
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,4,0,0">
+        <TextBlock Grid.Column="0" Text="Identifiers" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Content="Select all" Command="{Binding SelectAllCommand}" Margin="0,0,6,0" />
+        <Button Grid.Column="2" Content="Select none" Command="{Binding SelectNoneCommand}" Margin="0,0,6,0" />
+        <Button Grid.Column="3" Content="Refresh" Command="{Binding RefreshCommand}" />
+      </Grid>
+
+      <DataGrid ItemsSource="{Binding Identifiers}"
+                AutoGenerateColumns="False"
+                CanUserReorderColumns="False"
+                CanUserResizeColumns="True"
+                CanUserSortColumns="False"
+                IsReadOnly="False"
+                GridLinesVisibility="Horizontal"
+                MinHeight="220"
+                MaxHeight="360">
+        <DataGrid.Columns>
+          <DataGridCheckBoxColumn Header="" Binding="{Binding IsSelected}" Width="40" />
+          <DataGridTextColumn Header="Identifier" Binding="{Binding DisplayName}" Width="160" IsReadOnly="True" />
+          <DataGridTextColumn Header="Current" Binding="{Binding CurrentValue}" Width="*" IsReadOnly="True" />
+          <DataGridTextColumn Header="Backup" Binding="{Binding BackupValue}" Width="*" IsReadOnly="True" />
+          <DataGridTextColumn Header="Preview" Binding="{Binding PreviewValue}" Width="*" IsReadOnly="True" />
+        </DataGrid.Columns>
+      </DataGrid>
+
+      <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0" IsEnabled="{Binding IsElevated}">
+        <Button Content="Spoof All" Command="{Binding SpoofAllCommand}" Classes="accent" />
+        <Button Content="Spoof Selected" Command="{Binding SpoofSelectedCommand}" Classes="accent" />
+        <Button Content="Revert All" Command="{Binding RevertAllCommand}" />
+        <Button Content="Generate Preview" Command="{Binding GeneratePreviewCommand}" />
+      </StackPanel>
+
+      <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+        <TextBlock Grid.Column="0" Text="Activity log" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Content="Clear" Command="{Binding ClearLogCommand}" />
+      </Grid>
+      <Border CornerRadius="4" BorderThickness="1" Padding="0" MinHeight="160" MaxHeight="240">
+        <ListBox ItemsSource="{Binding ActivityLog}" FontFamily="Consolas" FontSize="12" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

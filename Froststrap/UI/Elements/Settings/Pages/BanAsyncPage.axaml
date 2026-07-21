@@ -1,0 +1,142 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Froststrap.UI.Elements.Controls"
+             xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
+             xmlns:gv="clr-namespace:Froststrap.UI.ViewModels"
+             x:Class="Froststrap.UI.Elements.Settings.Pages.BanAsyncPage"
+             x:DataType="vm:BanAsyncViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="14" Spacing="10">
+      <TextBlock Text="BanAsync tools" FontSize="18" FontWeight="SemiBold" />
+      <TextBlock TextWrapping="Wrap" Opacity="0.7" FontSize="13"
+                 Text="Clean Roblox traces and spoof your MAC / MachineGuid. Use on your own machine." />
+
+      <Border Padding="12" CornerRadius="6" BorderThickness="1" Background="#28D97706" BorderBrush="#66D97706">
+        <StackPanel Spacing="4">
+          <TextBlock FontWeight="SemiBold" Text="Doesn't cover device bans" />
+          <TextBlock TextWrapping="Wrap" FontSize="12.5" Opacity="0.8"
+                     Text="These tools clear account and IP-level ban traces — they don't beat a hardware (device / HWID) ban." />
+        </StackPanel>
+      </Border>
+
+      <Border IsVisible="{Binding ShowElevationWarning}" Padding="12" CornerRadius="6" BorderThickness="1"
+              Background="#28D97706" BorderBrush="#66D97706">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center"
+                     Text="{Binding ElevationStatusText}" FontSize="12" />
+          <Button Grid.Column="1" Margin="12,0,0,0" Content="Relaunch as administrator" Classes="accent"
+                  Command="{Binding RelaunchAsAdminCommand}" />
+        </Grid>
+      </Border>
+
+      <Border IsVisible="{Binding ShowAdminFeatures}" Padding="12" CornerRadius="6" BorderThickness="1"
+              Background="#2822C55E" BorderBrush="#6622C55E">
+        <TextBlock TextWrapping="Wrap" Text="{Binding ElevationStatusText}" FontSize="12" />
+      </Border>
+
+      <TextBlock Margin="0,8,0,0" Text="Clean Roblox traces" FontSize="15" FontWeight="SemiBold" />
+      <TextBlock TextWrapping="Wrap" FontSize="12" Opacity="0.7"
+                 Text="Closes Roblox and wipes its caches, logs, and HKCU registry. Eclipse settings stay untouched." />
+
+      <controls:OptionControl Header="Preserve in-game settings"
+                              Description="Keeps camera / graphics / keybind choices through the wipe.">
+        <ToggleSwitch IsChecked="{Binding PreserveInGameSettings}" />
+      </controls:OptionControl>
+      <controls:OptionControl Header="Preserve vanilla Roblox FastFlags"
+                              Description="Keeps Roblox's own ClientAppSettings. Doesn't affect Eclipse flags.">
+        <ToggleSwitch IsChecked="{Binding PreserveFastFlags}" />
+      </controls:OptionControl>
+      <controls:OptionControl Header="Include Roblox Studio folders"
+                              Description="Also wipe Studio caches. Off by default.">
+        <ToggleSwitch IsChecked="{Binding IncludeStudioFolders}" />
+      </controls:OptionControl>
+      <controls:OptionControl Header="Also wipe downloaded Roblox installs"
+                              Description="Deletes every downloaded Roblox client — forces a full re-download.">
+        <ToggleSwitch IsChecked="{Binding CleanMrExVersions}" />
+      </controls:OptionControl>
+      <controls:OptionControl Header="Also clear Roblox browser cookies"
+                              Description="Clears only roblox.com cookies from browsers. Close browsers first.">
+        <ToggleSwitch IsChecked="{Binding ClearBrowserCookies}" />
+      </controls:OptionControl>
+
+      <Button Content="Clean traces now" Command="{Binding CleanTracesCommand}" Classes="accent"
+              HorizontalAlignment="Left" Margin="0,4,0,0" />
+
+      <TextBlock Margin="0,16,0,0" Text="MAC address spoofing" FontSize="15" FontWeight="SemiBold" />
+      <TextBlock TextWrapping="Wrap" FontSize="12" Opacity="0.7"
+                 Text="Randomizes network adapter MAC addresses. Needs administrator." />
+
+      <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+        <TextBlock Grid.Column="0" Text="Detected adapters" FontWeight="SemiBold" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Content="Refresh" Command="{Binding RefreshAdaptersCommand}" />
+      </Grid>
+
+      <controls:OptionControl Header="Advanced mode"
+                              Description="Pick one adapter and optionally type a MAC. Off = randomize every adapter.">
+        <ToggleSwitch IsChecked="{Binding AdvancedMode}" />
+      </controls:OptionControl>
+      <controls:OptionControl Header="OUI mirror"
+                              Description="Keep your card's vendor prefix and randomize the rest.">
+        <ToggleSwitch IsChecked="{Binding OuiMirror}" />
+      </controls:OptionControl>
+      <controls:OptionControl Header="Refresh DHCP after spoof"
+                              Description="Renews DHCP lease after spoofing — brief network drop.">
+        <ToggleSwitch IsChecked="{Binding DhcpRefreshAfterSpoof}" />
+      </controls:OptionControl>
+      <controls:OptionControl Header="Persistent"
+                              Description="Keeps the spoofed MAC across reboots. Revert still works.">
+        <ToggleSwitch IsChecked="{Binding Persistent}" />
+      </controls:OptionControl>
+
+      <StackPanel IsVisible="{Binding ShowAdvanced}" Spacing="6" Margin="0,4,0,0">
+        <TextBlock Text="Pick adapter" FontWeight="SemiBold" />
+        <ComboBox ItemsSource="{Binding Adapters}" SelectedItem="{Binding SelectedAdapter}"
+                  MinWidth="320" HorizontalAlignment="Left">
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding DisplayLine}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <TextBlock Opacity="0.7" FontSize="12" Text="{Binding CurrentMacFormatted, StringFormat='Current MAC: {0}'}" />
+        <TextBlock Opacity="0.7" FontSize="12" Text="{Binding OriginalMacFormatted, StringFormat='Original MAC: {0}'}" />
+        <TextBlock Text="Custom MAC (leave blank for random)" FontWeight="SemiBold" Margin="0,8,0,0" />
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBox Grid.Column="0" Text="{Binding CustomMac}" Watermark="AA-BB-CC-DD-EE-FF" />
+          <Button Grid.Column="1" Margin="8,0,0,0" Content="Shuffle" Command="{Binding ShuffleMacCommand}" />
+        </Grid>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0" IsEnabled="{Binding IsElevated}">
+        <Button Content="Spoof MAC" Command="{Binding SpoofCommand}" Classes="accent" />
+        <Button Content="Revert MAC" Command="{Binding RevertCommand}" />
+      </StackPanel>
+
+      <TextBlock Margin="0,16,0,0" Text="MachineGuid (optional)" FontSize="15" FontWeight="SemiBold" />
+      <TextBlock TextWrapping="Wrap" FontSize="12" Opacity="0.7"
+                 Text="Randomizes a Windows machine identifier. Can drop Office / app activation until restored." />
+
+      <controls:OptionControl Header="I understand the risk"
+                              Description="Unlocks the Randomize / Restore buttons.">
+        <ToggleSwitch IsChecked="{Binding MachineGuidAcknowledged}" />
+      </controls:OptionControl>
+
+      <TextBlock FontFamily="Consolas" FontSize="12" Opacity="0.7"
+                 Text="{Binding CurrentMachineGuid, StringFormat='Current MachineGuid: {0}'}" />
+      <TextBlock FontFamily="Consolas" FontSize="12" Opacity="0.7" Text="{Binding MachineGuidBackupText}" />
+
+      <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0" IsEnabled="{Binding MachineGuidActionsEnabled}">
+        <Button Content="Randomize MachineGuid" Command="{Binding RandomizeMachineGuidCommand}" Classes="accent" />
+        <Button Content="Restore original" Command="{Binding RestoreMachineGuidCommand}" />
+      </StackPanel>
+
+      <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+        <TextBlock Grid.Column="0" Text="Activity log" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Content="Clear" Command="{Binding ClearLogCommand}" />
+      </Grid>
+      <Border CornerRadius="4" BorderThickness="1" Padding="0" MinHeight="160" MaxHeight="240">
+        <ListBox ItemsSource="{Binding ActivityLog}" FontFamily="Consolas" FontSize="12" />
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

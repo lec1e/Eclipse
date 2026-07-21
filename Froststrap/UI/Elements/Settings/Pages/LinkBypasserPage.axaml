@@ -1,0 +1,58 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
+             xmlns:gv="clr-namespace:Froststrap.UI.ViewModels"
+             x:Class="Froststrap.UI.Elements.Settings.Pages.LinkBypasserPage"
+             x:DataType="vm:LinkBypasserViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="14" Spacing="10">
+      <TextBlock Text="Link Bypasser" FontSize="18" FontWeight="SemiBold" />
+      <TextBlock TextWrapping="Wrap" Opacity="0.7" FontSize="13"
+                 Text="Unlock the real destination behind a locked link — Linkvertise, Lootlabs, Work.ink and more — using the bypass.tools API." />
+
+      <Border Padding="14,12" CornerRadius="8" BorderThickness="1">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Grid.Column="0" Spacing="4">
+            <TextBlock FontSize="15" FontWeight="SemiBold" Text="Powered by bypass.tools" />
+            <TextBlock FontSize="12.5" TextWrapping="Wrap" Opacity="0.75"
+                       Text="No API key yet? Sign up free and grab one — then paste it below." />
+          </StackPanel>
+          <Button Grid.Column="1" VerticalAlignment="Center" Content="Get an API key" Classes="accent"
+                  Command="{x:Static gv:GlobalViewModel.OpenWebpageCommand}"
+                  CommandParameter="https://api.bypass.tools/register?ref=BT-E06777" />
+        </Grid>
+      </Border>
+
+      <TextBlock Text="Your bypass.tools API key" FontWeight="SemiBold" />
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBox Grid.Column="0" Watermark="bt_..." Text="{Binding ApiKey}" />
+        <TextBlock Grid.Column="1" Text="saved locally only" VerticalAlignment="Center" Margin="10,0,0,0"
+                   FontSize="11" Opacity="0.55" />
+      </Grid>
+
+      <TextBlock Text="Locked link" FontWeight="SemiBold" Margin="0,8,0,0" />
+      <Grid ColumnDefinitions="*,Auto,Auto">
+        <TextBox Grid.Column="0" Watermark="https://linkvertise.com/…" Text="{Binding LinkInput}" />
+        <Button Grid.Column="1" Margin="8,0,0,0" Content="Paste" Command="{Binding PasteCommand}" />
+        <Button Grid.Column="2" Margin="8,0,0,0" Content="Bypass" Classes="accent"
+                Command="{Binding BypassCommand}" IsEnabled="{Binding NotBusy}" />
+      </Grid>
+
+      <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+        <TextBlock Text="Busy…" FontSize="12" Opacity="0.6" IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
+        <TextBlock TextWrapping="Wrap" Opacity="0.75" Text="{Binding StatusText}" VerticalAlignment="Center" />
+      </StackPanel>
+
+      <StackPanel Spacing="6" Margin="0,12,0,0" IsVisible="{Binding HasResult}">
+        <TextBlock Text="Destination" FontWeight="SemiBold" />
+        <Grid ColumnDefinitions="*,Auto,Auto">
+          <TextBox Grid.Column="0" IsReadOnly="True" Text="{Binding ResultUrl}" />
+          <Button Grid.Column="1" Margin="8,0,0,0" Content="Copy" Command="{Binding CopyResultCommand}" />
+          <Button Grid.Column="2" Margin="8,0,0,0" Content="Open" Classes="accent"
+                  Command="{x:Static gv:GlobalViewModel.OpenWebpageCommand}"
+                  CommandParameter="{Binding ResultUrl}" />
+        </Grid>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

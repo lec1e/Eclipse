@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
+             x:Class="Froststrap.UI.Elements.Settings.Pages.DeobfuscatorPage"
+             x:DataType="vm:DeobfuscatorViewModel">
+  <Grid Margin="14" RowDefinitions="Auto,Auto,*,Auto">
+    <StackPanel Grid.Row="0" Margin="0,0,0,10" Spacing="4">
+      <TextBlock FontSize="14" TextWrapping="Wrap" Opacity="0.75"
+                 Text="Deobfuscate a Lua / Luau script through the LeakD API. Pick the obfuscator — or Auto-detect — then Deobfuscate." />
+      <TextBlock FontSize="11.5" Opacity="0.55"
+                 Text="Heads up: your script is uploaded to the third-party LeakD API to be processed." />
+    </StackPanel>
+
+    <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto,Auto" Margin="0,0,0,8">
+      <TextBlock Grid.Column="0" Text="Obfuscator" VerticalAlignment="Center" Margin="0,0,8,0" Opacity="0.7" />
+      <ComboBox Grid.Column="1" MinWidth="160" ItemsSource="{Binding Methods}"
+                SelectedItem="{Binding SelectedMethod}" />
+      <Button Grid.Column="3" Content="Auto-detect" Margin="0,0,8,0"
+              Command="{Binding DetectCommand}" IsEnabled="{Binding NotBusy}" />
+      <Button Grid.Column="4" Content="Deobfuscate" Classes="accent"
+              Command="{Binding DeobfuscateCommand}" IsEnabled="{Binding NotBusy}" />
+    </Grid>
+
+    <Grid Grid.Row="2" ColumnDefinitions="*,*">
+      <Grid Grid.Column="0" Margin="0,0,6,0" RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,4">
+          <TextBlock Grid.Column="0" Text="Obfuscated script" FontWeight="SemiBold" VerticalAlignment="Center" />
+          <Button Grid.Column="1" Content="Paste" Padding="8,3" FontSize="12" Command="{Binding PasteCommand}" />
+          <Button Grid.Column="2" Content="Clear" Padding="8,3" FontSize="12" Margin="6,0,0,0"
+                  Command="{Binding ClearCommand}" />
+        </Grid>
+        <TextBox Grid.Row="1" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas"
+                 FontSize="12.5" MinHeight="240" Text="{Binding ScriptInput}"
+                 VerticalContentAlignment="Top" />
+      </Grid>
+      <Grid Grid.Column="1" Margin="6,0,0,0" RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,4">
+          <TextBlock Grid.Column="0" Text="Deobfuscated" FontWeight="SemiBold" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="Busy…" FontSize="11" Opacity="0.6" Margin="0,0,6,0"
+                     VerticalAlignment="Center" IsVisible="{Binding IsBusy}" />
+          <Button Grid.Column="2" Content="Copy" Padding="8,3" FontSize="12"
+                  Command="{Binding CopyOutputCommand}" IsEnabled="{Binding HasOutput}" />
+        </Grid>
+        <TextBox Grid.Row="1" AcceptsReturn="True" TextWrapping="NoWrap" FontFamily="Consolas"
+                 FontSize="12.5" MinHeight="240" IsReadOnly="True" Text="{Binding Output}"
+                 VerticalContentAlignment="Top" />
+      </Grid>
+    </Grid>
+
+    <TextBlock Grid.Row="3" Margin="0,8,0,0" TextWrapping="Wrap" Opacity="0.75"
+               Text="{Binding StatusText}" />
+  </Grid>
+</UserControl>
