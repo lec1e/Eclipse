@@ -37,7 +37,7 @@
                 Padding="28,28,28,24"
                 CornerRadius="18"
                 VerticalAlignment="Top"
-                Background="{DynamicResource GlassStageBrush}"
+                Background="#66101018"
                 BorderBrush="{DynamicResource BrandHairlineBrush}"
                 BorderThickness="1">
             <StackPanel>
