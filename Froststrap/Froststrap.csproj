@@ -6,8 +6,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <Version>2.0.16</Version>
-    <FileVersion>2.0.16</FileVersion>
+    <Version>2.0.17</Version>
+    <FileVersion>2.0.17</FileVersion>
     <Company>Eclipse</Company>
     <Product>Eclipse</Product>
     <AssemblyName>Eclipse</AssemblyName>
@@ -28,6 +28,8 @@
     <AvaloniaResource Include="Eclipse.png" />
     <AvaloniaResource Include="EclipseMark.png" />
     <AvaloniaResource Include="Eclipse.ico" />
+    <AvaloniaResource Include="Assets\aurora-dark.gif" />
+    <AvaloniaResource Include="Assets\aurora-dark-still.png" />
   </ItemGroup>
 
   <ItemGroup>
