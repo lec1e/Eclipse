@@ -4,28 +4,74 @@
         xmlns:base="clr-namespace:Froststrap.UI.Elements.Base"
         xmlns:md="clr-namespace:Froststrap.UI.Elements.Controls"
         Title="Eclipse"
-        MinWidth="320" MaxWidth="480" SizeToContent="WidthAndHeight" CanResize="False"
-        WindowStartupLocation="CenterScreen">
+        MinWidth="360" MaxWidth="520" SizeToContent="WidthAndHeight" CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        CornerRadius="14"
+        Background="#121018">
 
-    <Grid Background="{DynamicResource ApplicationBackgroundColor}" RowDefinitions="Auto,*,Auto">
-        <md:TitleBar Grid.Row="0" x:Name="RootTitleBar" Icon="avares://Eclipse/Eclipse.ico" Title="Eclipse" />
+    <Border CornerRadius="14"
+            Background="#121018"
+            BorderBrush="#2E2640"
+            BorderThickness="1"
+            ClipToBounds="True">
+        <Grid RowDefinitions="Auto,*,Auto">
+            <Border Grid.Row="0"
+                    Background="#18151F"
+                    BorderBrush="#2E2640"
+                    BorderThickness="0,0,0,1">
+                <md:TitleBar x:Name="RootTitleBar"
+                             Icon="avares://Eclipse/Eclipse.ico"
+                             Title="Eclipse"
+                             ShowMaximize="False" />
+            </Border>
 
-        <Grid Grid.Row="1" Margin="20" ColumnDefinitions="Auto,*">
-            <Image x:Name="IconImage" Grid.Column="0" Width="32" Height="32"
-                   Margin="0,0,15,0" VerticalAlignment="Top" />
+            <Grid Grid.Row="1" Margin="22,20" ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                <Border Width="40" Height="40"
+                        CornerRadius="20"
+                        Background="#3B82F6"
+                        VerticalAlignment="Top">
+                    <Panel>
+                        <Image x:Name="IconImage" Width="22" Height="22"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Panel>
+                </Border>
 
-            <md:MarkdownTextBlock x:Name="MessageMarkdownTextBlock" Grid.Column="1"
-                                     VerticalAlignment="Center"
-                                     TextWrapping="Wrap"
-                                     Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                <md:MarkdownTextBlock x:Name="MessageMarkdownTextBlock" Grid.Column="1"
+                                         VerticalAlignment="Center"
+                                         TextWrapping="Wrap"
+                                         FontSize="14"
+                                         Foreground="#F3F4F6" />
+            </Grid>
+
+            <Border Grid.Row="2"
+                    Padding="16"
+                    Background="#18151F"
+                    BorderBrush="#2E2640"
+                    BorderThickness="0,1,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                    <Button x:Name="ButtonOne"
+                            MinWidth="88" Height="36"
+                            CornerRadius="10"
+                            Background="#2A2438"
+                            BorderThickness="0"
+                            Content="Button 1"
+                            IsVisible="False" />
+                    <Button x:Name="ButtonTwo"
+                            MinWidth="88" Height="36"
+                            CornerRadius="10"
+                            Background="#2A2438"
+                            BorderThickness="0"
+                            Content="Button 2"
+                            IsVisible="False" />
+                    <Button x:Name="ButtonThree"
+                            MinWidth="88" Height="36"
+                            CornerRadius="10"
+                            Background="#2A2438"
+                            BorderThickness="0"
+                            Content="Button 3"
+                            IsVisible="False" />
+                </StackPanel>
+            </Border>
         </Grid>
-
-        <Border Grid.Row="2" Padding="15" Background="{DynamicResource PrimaryBackgroundColor}">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Name="ButtonOne" MinWidth="80" Content="Button 1" IsVisible="False" />
-                <Button x:Name="ButtonTwo" MinWidth="80" Margin="12,0,0,0" Content="Button 2" IsVisible="False" />
-                <Button x:Name="ButtonThree" MinWidth="80" Margin="12,0,0,0" Content="Button 3" IsVisible="False" />
-            </StackPanel>
-        </Border>
-    </Grid>
+    </Border>
 </base:AvaloniaWindow>

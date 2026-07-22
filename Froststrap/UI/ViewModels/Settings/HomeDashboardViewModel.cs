@@ -11,14 +11,14 @@ namespace Froststrap.UI.ViewModels.Settings
         private readonly MainWindowViewModel _host;
 
         public string Greeting => "Welcome back";
-        public string DisplayName => "Eclipse";
+        public string DisplayName => "Eclipse User";
         public string Tagline => "Your Roblox bootstrapper for a better experience.";
         public string VersionText => $"v{App.Version}";
         public string StatusText => "Online";
 
         public ObservableCollection<HomeRecentItem> RecentGames { get; } = [];
         public ObservableCollection<HomeQuickLink> QuickLinks { get; } = [];
-        public bool HasRecentGames => RecentGames.Count > 0;
+        public ObservableCollection<HomeNewsItem> NewsItems { get; } = [];
 
         public ICommand LaunchRobloxCommand { get; }
         public ICommand OpenFolderCommand { get; }
@@ -57,12 +57,16 @@ namespace Froststrap.UI.ViewModels.Settings
                 }
             });
 
-            QuickLinks.Add(new HomeQuickLink("Quick Play", "Jump back into games", "quickplay", LucideIconNames.Gamepad2));
-            QuickLinks.Add(new HomeQuickLink("AltMan", "Accounts & friends", "altman", LucideIconNames.Users));
-            QuickLinks.Add(new HomeQuickLink("Mods", "Presets & custom mods", "mods", LucideIconNames.BookOpen));
-            QuickLinks.Add(new HomeQuickLink("Appearance", "Theme & aurora", "appearance", LucideIconNames.Palette));
-            QuickLinks.Add(new HomeQuickLink("Fast Flags", "Client tuning", "fastflags", LucideIconNames.Flag));
-            QuickLinks.Add(new HomeQuickLink("News", "Roblox updates", "news", LucideIconNames.Newspaper));
+            QuickLinks.Add(new HomeQuickLink("Quick Play", "Jump back into games instantly", "quickplay", LucideIconNames.Gamepad2));
+            QuickLinks.Add(new HomeQuickLink("AltMan", "Accounts, friends, and joins", "altman", LucideIconNames.Users));
+            QuickLinks.Add(new HomeQuickLink("Mods", "Presets and custom mods", "mods", LucideIconNames.BookOpen));
+            QuickLinks.Add(new HomeQuickLink("Appearance", "Theme, glass, and aurora", "appearance", LucideIconNames.Palette));
+            QuickLinks.Add(new HomeQuickLink("Fast Flags", "Tune the Roblox client", "fastflags", LucideIconNames.Flag));
+            QuickLinks.Add(new HomeQuickLink("Server Browser", "Browse public servers", "serverbrowser", LucideIconNames.Server));
+
+            NewsItems.Add(new HomeNewsItem("Eclipse 2.0", "Midnight Rail UI and Home dashboard", "now", LucideIconNames.Sparkles));
+            NewsItems.Add(new HomeNewsItem("Roblox updates", "Check the latest platform notes", "feed", LucideIconNames.Box));
+            NewsItems.Add(new HomeNewsItem("Tips", "Enable Animated background in Appearance", "tip", LucideIconNames.Wrench));
 
             LoadRecent();
         }
@@ -73,30 +77,42 @@ namespace Froststrap.UI.ViewModels.Settings
             try
             {
                 string path = Path.Combine(Paths.Cache, "GameHistory.json");
-                if (!File.Exists(path))
+                if (File.Exists(path))
                 {
-                    OnPropertyChanged(nameof(HasRecentGames));
-                    return;
-                }
-
-                var entries = JsonSerializer.Deserialize<List<GameHistoryEntry>>(File.ReadAllText(path)) ?? [];
-                foreach (var e in entries.Take(4))
-                {
-                    RecentGames.Add(new HomeRecentItem
+                    var entries = JsonSerializer.Deserialize<List<GameHistoryEntry>>(File.ReadAllText(path)) ?? [];
+                    foreach (var e in entries.Take(4))
                     {
-                        PlaceId = e.PlaceId,
-                        UniverseId = e.UniverseId,
-                        Name = e.PlaceId > 0 ? $"Place {e.PlaceId}" : "Recent game",
-                        Subtitle = e.UniverseId > 0 ? $"Universe {e.UniverseId}" : "From history"
-                    });
+                        RecentGames.Add(new HomeRecentItem
+                        {
+                            PlaceId = e.PlaceId,
+                            UniverseId = e.UniverseId,
+                            Name = e.PlaceId > 0 ? $"Place {e.PlaceId}" : "Recent game",
+                            Subtitle = "From your history"
+                        });
+                    }
                 }
             }
-            catch
-            {
-                /* ignore */
-            }
+            catch { /* ignore */ }
 
-            OnPropertyChanged(nameof(HasRecentGames));
+            // Always show four cards so Home matches the mockup layout.
+            string[] placeholders =
+            [
+                "Quick Play",
+                "VIP Server",
+                "Server Browser",
+                "Mods"
+            ];
+            int i = 0;
+            while (RecentGames.Count < 4)
+            {
+                RecentGames.Add(new HomeRecentItem
+                {
+                    Name = placeholders[i % placeholders.Length],
+                    Subtitle = "Open from Featured",
+                    PlaceId = 0
+                });
+                i++;
+            }
         }
     }
 
@@ -114,5 +130,13 @@ namespace Froststrap.UI.ViewModels.Settings
         public long UniverseId { get; set; }
         public string Name { get; set; } = "";
         public string Subtitle { get; set; } = "";
+    }
+
+    public sealed class HomeNewsItem(string title, string subtitle, string when, LucideIconNames icon)
+    {
+        public string Title { get; } = title;
+        public string Subtitle { get; } = subtitle;
+        public string When { get; } = when;
+        public LucideIconNames Icon { get; } = icon;
     }
 }
