@@ -14,12 +14,14 @@
              x:Class="Froststrap.UI.Elements.SearchBar"
              x:DataType="vm:SearchBarViewModel">
 
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="400">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="280">
         <TextBox x:Name="SearchTextBox"
                  PlaceholderText="{x:Static resources:Strings.Menu_SearchBar_SearchSomething}"
                  Text="{Binding SearchQuery}"
                  VerticalAlignment="Center"
-                 VerticalContentAlignment="Center">
+                 VerticalContentAlignment="Center"
+                 Background="Transparent"
+                 BorderThickness="0">
 
             <TextBox.InnerLeftContent>
                 <controls:IconButton Command="{Binding ToggleSearchListCommand}"

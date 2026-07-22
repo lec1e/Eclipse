@@ -61,9 +61,9 @@ namespace Froststrap.UI.ViewModels.Settings
             FeaturedGames.Clear();
             NewsItems.Clear();
 
-            // Showcase cards matching mockup layout (popular experiences).
+            // placeId first arg, universeId second — GameThumbnail needs universeId
             RecentGames.Add(new HomeGameCard("Midnight Rail", "Last played recently", 4924922222, 4924922222));
-            RecentGames.Add(new HomeGameCard("Deepwoken", "Last played 2h ago", 5735554555, 5735554555));
+            RecentGames.Add(new HomeGameCard("Deepwoken", "Last played 2h ago", 4116491888, 4116491888));
             RecentGames.Add(new HomeGameCard("Catalog Avatar Creator", "Last played 5h ago", 16617882081, 16617882081));
             RecentGames.Add(new HomeGameCard("Da Hood", "Last played 1d ago", 2788229376, 2788229376));
 
@@ -92,11 +92,12 @@ namespace Froststrap.UI.ViewModels.Settings
             try
             {
                 var cards = RecentGames.Cast<HomeThumbTarget>().Concat(FeaturedGames).ToList();
-                var requests = cards.Select((c, i) => new ThumbnailRequest
+                // Landscape thumbnails so cards match the mockup scenic look
+                var requests = cards.Select(c => new ThumbnailRequest
                 {
-                    TargetId = (ulong)Math.Max(c.UniverseId, c.PlaceId),
-                    Type = i < RecentGames.Count ? ThumbnailType.GameIcon : ThumbnailType.GameThumbnail,
-                    Size = i < RecentGames.Count ? "512x512" : "768x432",
+                    TargetId = (ulong)(c.UniverseId > 0 ? c.UniverseId : c.PlaceId),
+                    Type = ThumbnailType.GameThumbnail,
+                    Size = "768x432",
                     Format = ThumbnailFormat.Png
                 }).ToList();
 
