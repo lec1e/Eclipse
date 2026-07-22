@@ -18,18 +18,18 @@
     <Style Selector="Button.rail-labeled">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="CornerRadius" Value="11" />
         <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="Foreground" Value="#CCFFFFFF" />
+        <Setter Property="Foreground" Value="#E2E8F0" />
     </Style>
 
     <Style Selector="Button.rail-labeled:pointerover">
-        <Setter Property="Background" Value="#22A855F7" />
+        <Setter Property="Background" Value="#338B5CF6" />
         <Setter Property="Foreground" Value="White" />
     </Style>
 
     <Style Selector="Button.rail-labeled:pressed">
-        <Setter Property="Background" Value="#33A855F7" />
+        <Setter Property="Background" Value="#558B5CF6" />
     </Style>
 
     <Style Selector="Button.rail-labeled:disabled">

@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
 using Froststrap.Enums;
 using Froststrap.Models.APIs.Roblox;
@@ -14,7 +15,6 @@ namespace Froststrap.UI.ViewModels.Settings
         public string Greeting => "Welcome back";
         public string DisplayName => "Eclipse User";
         public string Tagline => "Your Roblox bootstrapper for a better experience.";
-        public string VersionText => $"v{App.Version}";
 
         public ObservableCollection<HomeGameCard> RecentGames { get; } = [];
         public ObservableCollection<HomeFeaturedItem> FeaturedGames { get; } = [];
@@ -61,11 +61,11 @@ namespace Froststrap.UI.ViewModels.Settings
             FeaturedGames.Clear();
             NewsItems.Clear();
 
-            // placeId first arg, universeId second — GameThumbnail needs universeId
-            RecentGames.Add(new HomeGameCard("Midnight Rail", "Last played recently", 4924922222, 4924922222));
-            RecentGames.Add(new HomeGameCard("Deepwoken", "Last played 2h ago", 4116491888, 4116491888));
-            RecentGames.Add(new HomeGameCard("Catalog Avatar Creator", "Last played 5h ago", 16617882081, 16617882081));
-            RecentGames.Add(new HomeGameCard("Da Hood", "Last played 1d ago", 2788229376, 2788229376));
+            // placeId used for launch; tint matches mockup card moods
+            RecentGames.Add(new HomeGameCard("Midnight Rail", "Last played recently", 4924922222, "#4C1D95"));
+            RecentGames.Add(new HomeGameCard("Deepwoken", "Last played 2h ago", 5735554555, "#1E293B"));
+            RecentGames.Add(new HomeGameCard("Catalog Avatar Creator", "Last played 5h ago", 16617882081, "#9A3412"));
+            RecentGames.Add(new HomeGameCard("Da Hood", "Last played 1d ago", 2788229376, "#0F172A"));
 
             FeaturedGames.Add(new HomeFeaturedItem(
                 "Brookhaven",
@@ -73,14 +73,14 @@ namespace Froststrap.UI.ViewModels.Settings
                 "94%",
                 "12.4K",
                 4924922222,
-                4924922222));
+                "#312E81"));
             FeaturedGames.Add(new HomeFeaturedItem(
                 "The Strongest Battlegrounds",
                 "Anime battling with flashy combat.",
                 "83%",
                 "45.7K",
                 10450266301,
-                10450266301));
+                "#7F1D1D"));
 
             NewsItems.Add(new HomeNewsItem("Eclipse v1.0.0 Released", "Midnight Rail UI and Home dashboard", "2 days ago", LucideIconNames.Sparkles));
             NewsItems.Add(new HomeNewsItem("Roblox Update", "Client and platform notes", "5 days ago", LucideIconNames.Box));
@@ -92,25 +92,47 @@ namespace Froststrap.UI.ViewModels.Settings
             try
             {
                 var cards = RecentGames.Cast<HomeThumbTarget>().Concat(FeaturedGames).ToList();
-                // Landscape thumbnails so cards match the mockup scenic look
                 var requests = cards.Select(c => new ThumbnailRequest
                 {
-                    TargetId = (ulong)(c.UniverseId > 0 ? c.UniverseId : c.PlaceId),
+                    TargetId = (ulong)c.PlaceId,
+                    Type = ThumbnailType.PlaceIcon,
+                    Size = "512x512",
+                    Format = ThumbnailFormat.Png
+                }).ToList();
+
+                // Prefer wide game thumbnails when the batch accepts place/universe ids
+                var wideRequests = cards.Select(c => new ThumbnailRequest
+                {
+                    TargetId = (ulong)c.PlaceId,
                     Type = ThumbnailType.GameThumbnail,
                     Size = "768x432",
                     Format = ThumbnailFormat.Png
                 }).ToList();
 
-                var urls = await Thumbnails.GetThumbnailUrlsAsync(requests, CancellationToken.None);
-                for (int i = 0; i < cards.Count && i < urls.Length; i++)
+                var urls = await Thumbnails.GetThumbnailUrlsAsync(wideRequests, CancellationToken.None);
+                var missing = new List<ThumbnailRequest>();
+                var missingIdx = new List<int>();
+                for (int i = 0; i < cards.Count; i++)
                 {
-                    if (!string.IsNullOrEmpty(urls[i]))
+                    if (!string.IsNullOrEmpty(urls.ElementAtOrDefault(i)))
                         cards[i].ImageUrl = urls[i]!;
+                    else
+                    {
+                        missing.Add(requests[i]);
+                        missingIdx.Add(i);
+                    }
                 }
 
-                // Refresh bindings
-                OnPropertyChanged(nameof(RecentGames));
-                OnPropertyChanged(nameof(FeaturedGames));
+                if (missing.Count > 0)
+                {
+                    var fallback = await Thumbnails.GetThumbnailUrlsAsync(missing, CancellationToken.None);
+                    for (int j = 0; j < missingIdx.Count && j < fallback.Length; j++)
+                    {
+                        if (!string.IsNullOrEmpty(fallback[j]))
+                            cards[missingIdx[j]].ImageUrl = fallback[j]!;
+                    }
+                }
+
                 foreach (var c in RecentGames) c.NotifyImage();
                 foreach (var c in FeaturedGames) c.NotifyImage();
             }
@@ -123,7 +145,6 @@ namespace Froststrap.UI.ViewModels.Settings
 
     public interface HomeThumbTarget
     {
-        long UniverseId { get; }
         long PlaceId { get; }
         string ImageUrl { get; set; }
         void NotifyImage();
@@ -131,42 +152,52 @@ namespace Froststrap.UI.ViewModels.Settings
 
     public sealed class HomeGameCard : NotifyPropertyChangedViewModel, HomeThumbTarget
     {
-        public HomeGameCard(string name, string subtitle, long universeId, long placeId)
+        public HomeGameCard(string name, string subtitle, long placeId, string tintHex)
         {
             Name = name;
             Subtitle = subtitle;
-            UniverseId = universeId;
             PlaceId = placeId;
+            TintBrush = new SolidColorBrush(Color.Parse(tintHex));
         }
 
         public string Name { get; }
         public string Subtitle { get; }
-        public long UniverseId { get; }
         public long PlaceId { get; }
+        public IBrush TintBrush { get; }
         public string ImageUrl { get; set; } = "";
-        public void NotifyImage() => OnPropertyChanged(nameof(ImageUrl));
+        public bool HasImage => !string.IsNullOrWhiteSpace(ImageUrl);
+        public void NotifyImage()
+        {
+            OnPropertyChanged(nameof(ImageUrl));
+            OnPropertyChanged(nameof(HasImage));
+        }
     }
 
     public sealed class HomeFeaturedItem : NotifyPropertyChangedViewModel, HomeThumbTarget
     {
-        public HomeFeaturedItem(string name, string description, string rating, string players, long universeId, long placeId)
+        public HomeFeaturedItem(string name, string description, string rating, string players, long placeId, string tintHex)
         {
             Name = name;
             Description = description;
             Rating = rating;
             Players = players;
-            UniverseId = universeId;
             PlaceId = placeId;
+            TintBrush = new SolidColorBrush(Color.Parse(tintHex));
         }
 
         public string Name { get; }
         public string Description { get; }
         public string Rating { get; }
         public string Players { get; }
-        public long UniverseId { get; }
         public long PlaceId { get; }
+        public IBrush TintBrush { get; }
         public string ImageUrl { get; set; } = "";
-        public void NotifyImage() => OnPropertyChanged(nameof(ImageUrl));
+        public bool HasImage => !string.IsNullOrWhiteSpace(ImageUrl);
+        public void NotifyImage()
+        {
+            OnPropertyChanged(nameof(ImageUrl));
+            OnPropertyChanged(nameof(HasImage));
+        }
     }
 
     public sealed class HomeNewsItem(string title, string subtitle, string when, LucideIconNames icon)
