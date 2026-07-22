@@ -40,7 +40,7 @@ namespace Froststrap.UI.Elements.Controls
             IsHitTestVisible = false;
             ClipToBounds = true;
             Background = new SolidColorBrush(Color.FromRgb(0x06, 0x06, 0x0C));
-            Effect = new BlurEffect { Radius = 48 };
+            Effect = new BlurEffect { Radius = 56 };
 
             Children.Add(_wash);
             Children.Add(_streakA);
@@ -51,7 +51,7 @@ namespace Froststrap.UI.Elements.Controls
             Children.Add(_bloomPurple);
             Children.Add(_core);
 
-            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
             _timer.Tick += (_, _) => Tick();
 
             AttachedToVisualTree += OnAttached;
@@ -141,8 +141,8 @@ namespace Froststrap.UI.Elements.Controls
             if (_paused || !IsActive || !IsEffectivelyVisible || Opacity <= 0.01)
                 return;
 
-            // Slow drift — mockup-style, not frantic
-            _t += 0.006;
+            // Gentle slow drift — clearly animated, never frantic
+            _t += 0.0028;
             LayoutOrbs(Bounds.Size);
         }
 
@@ -159,20 +159,20 @@ namespace Froststrap.UI.Elements.Controls
             if (size.Width <= 0 || size.Height <= 0)
                 return;
 
-            // Soft haze across the upper-middle stage (matches mockup concentration)
-            Place(_wash, size, 0.58 + Math.Sin(_t * 0.04) * 0.015, 0.18);
-            Place(_core, size, 0.60 + Math.Sin(_t * 0.07) * 0.02, 0.14 + Math.Cos(_t * 0.05) * 0.015);
-            Place(_bloomPurple, size, 0.46 + Math.Cos(_t * 0.06) * 0.02, 0.20 + Math.Sin(_t * 0.08) * 0.015);
-            Place(_bloomCyan, size, 0.78 + Math.Sin(_t * 0.08) * 0.02, 0.16 + Math.Cos(_t * 0.07) * 0.02);
-            Place(_bloomMagenta, size, 0.34 + Math.Cos(_t * 0.05) * 0.018, 0.26 + Math.Sin(_t * 0.06) * 0.015);
+            // Soft haze across the upper-middle stage
+            Place(_wash, size, 0.58 + Math.Sin(_t * 0.028) * 0.02, 0.18);
+            Place(_core, size, 0.60 + Math.Sin(_t * 0.04) * 0.025, 0.14 + Math.Cos(_t * 0.032) * 0.018);
+            Place(_bloomPurple, size, 0.46 + Math.Cos(_t * 0.035) * 0.025, 0.20 + Math.Sin(_t * 0.045) * 0.018);
+            Place(_bloomCyan, size, 0.78 + Math.Sin(_t * 0.042) * 0.025, 0.16 + Math.Cos(_t * 0.038) * 0.02);
+            Place(_bloomMagenta, size, 0.34 + Math.Cos(_t * 0.03) * 0.022, 0.26 + Math.Sin(_t * 0.036) * 0.018);
 
-            Place(_streakA, size, 0.58, 0.12 + Math.Sin(_t * 0.05) * 0.012);
-            Place(_streakB, size, 0.72, 0.22 + Math.Cos(_t * 0.055) * 0.012);
-            Place(_streakC, size, 0.44, 0.08 + Math.Sin(_t * 0.045) * 0.01);
+            Place(_streakA, size, 0.58, 0.12 + Math.Sin(_t * 0.03) * 0.015);
+            Place(_streakB, size, 0.72, 0.22 + Math.Cos(_t * 0.033) * 0.015);
+            Place(_streakC, size, 0.44, 0.08 + Math.Sin(_t * 0.026) * 0.012);
 
-            _streakA.RenderTransform = new RotateTransform(-22 + Math.Sin(_t * 0.035) * 1.8);
-            _streakB.RenderTransform = new RotateTransform(-30 + Math.Cos(_t * 0.04) * 1.8);
-            _streakC.RenderTransform = new RotateTransform(-16 + Math.Sin(_t * 0.03) * 1.5);
+            _streakA.RenderTransform = new RotateTransform(-22 + Math.Sin(_t * 0.022) * 2.2);
+            _streakB.RenderTransform = new RotateTransform(-30 + Math.Cos(_t * 0.025) * 2.2);
+            _streakC.RenderTransform = new RotateTransform(-16 + Math.Sin(_t * 0.02) * 1.8);
         }
 
         private static void Place(Ellipse orb, Size size, double nx, double ny)
@@ -190,14 +190,14 @@ namespace Froststrap.UI.Elements.Controls
             Color cyan = Color.FromRgb(0x67, 0xE8, 0xF9);
             Color teal = Color.FromRgb(0x5E, 0xEA, 0xD4);
 
-            _wash.Fill = Radial(deep, 0x70);
-            _core.Fill = Radial(violet, 0xC8);
-            _bloomPurple.Fill = Radial(purple, 0xB8);
-            _bloomCyan.Fill = Radial(cyan, 0x90);
-            _bloomMagenta.Fill = Radial(magenta, 0x80);
-            _streakA.Fill = Streak(purple, cyan, 0xA8);
-            _streakB.Fill = Streak(cyan, teal, 0x78);
-            _streakC.Fill = Streak(magenta, purple, 0x68);
+            _wash.Fill = Radial(deep, 0x88);
+            _core.Fill = Radial(violet, 0xE0);
+            _bloomPurple.Fill = Radial(purple, 0xD0);
+            _bloomCyan.Fill = Radial(cyan, 0xA8);
+            _bloomMagenta.Fill = Radial(magenta, 0x98);
+            _streakA.Fill = Streak(purple, cyan, 0xC0);
+            _streakB.Fill = Streak(cyan, teal, 0x90);
+            _streakC.Fill = Streak(magenta, purple, 0x80);
         }
 
         private static Ellipse CreateOrb(double size, double opacity) => new()
