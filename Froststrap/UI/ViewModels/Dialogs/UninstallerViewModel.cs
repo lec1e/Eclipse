@@ -11,7 +11,7 @@ namespace Froststrap.UI.ViewModels.Dialogs
             Paths.Base
         );
 
-        private bool _keepData = true;
+        private bool _keepData = false;
         public bool KeepData
         {
             get => _keepData;

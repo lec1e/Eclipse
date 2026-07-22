@@ -1,16 +1,28 @@
 using System.Collections.ObjectModel;
+using System.Text.Json;
 using System.Windows.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using Froststrap.Enums;
+using Froststrap.Integrations;
+using Froststrap.Models;
 using Froststrap.Models.APIs.Roblox;
+using Froststrap.Utility;
 using LucideAvalonia.Enum;
 
 namespace Froststrap.UI.ViewModels.Settings
 {
     public class HomeDashboardViewModel : NotifyPropertyChangedViewModel
     {
+        private static readonly string[] TintPalette =
+        [
+            "#4C1D95", "#1E293B", "#9A3412", "#0F172A",
+            "#312E81", "#7F1D1D", "#164E63", "#3B0764"
+        ];
+
         private readonly MainWindowViewModel _host;
+        private readonly string _historyPath = Path.Combine(Paths.Cache, "GameHistory.json");
 
         public string Greeting => "Welcome back";
         public string DisplayName => "Eclipse User";
@@ -21,6 +33,7 @@ namespace Froststrap.UI.ViewModels.Settings
         public ObservableCollection<HomeNewsItem> NewsItems { get; } = [];
 
         public bool HasRecentGames => RecentGames.Count > 0;
+        public bool HasNoRecentGames => RecentGames.Count == 0;
 
         public ICommand LaunchRobloxCommand { get; }
         public ICommand OpenFolderCommand { get; }
@@ -53,19 +66,14 @@ namespace Froststrap.UI.ViewModels.Settings
                 catch { /* ignore */ }
             });
 
-            SeedContent();
-            _ = LoadThumbnailsAsync();
+            SeedStaticContent();
+            _ = LoadRecentGamesAsync();
         }
 
-        private void SeedContent()
+        private void SeedStaticContent()
         {
-            RecentGames.Clear();
             FeaturedGames.Clear();
             NewsItems.Clear();
-            OnPropertyChanged(nameof(HasRecentGames));
-
-            // Recently Played stays empty until real activity history is wired —
-            // do not seed fake mockup games (wrong placeIds / wrong titles).
 
             FeaturedGames.Add(new HomeFeaturedItem(
                 "Midnight Rail",
@@ -87,6 +95,152 @@ namespace Froststrap.UI.ViewModels.Settings
             NewsItems.Add(new HomeNewsItem("Maintenance Scheduled", "Brief downtime window this week", "1w ago", LucideIconNames.Wrench));
         }
 
+        private async Task LoadRecentGamesAsync()
+        {
+            try
+            {
+                var cards = new List<HomeGameCard>();
+
+                var history = LoadLocalHistory();
+                var universeIds = history.Select(x => x.UniverseId).Where(id => id > 0).Distinct().ToList();
+                if (universeIds.Count > 0)
+                {
+                    try { await UniverseDetails.FetchBulk(string.Join(",", universeIds)); }
+                    catch { /* ignore */ }
+                }
+
+                // 1) Local activity history (GameHistory.json)
+                foreach (var entry in history.Take(8))
+                {
+                    if (entry.UniverseId <= 0 && entry.PlaceId <= 0)
+                        continue;
+
+                    var details = entry.UniverseId > 0
+                        ? UniverseDetails.LoadFromCache(entry.UniverseId)
+                        : null;
+                    var last = entry.Servers.OrderByDescending(s => s.JoinedAt).FirstOrDefault();
+                    long placeId = entry.PlaceId > 0
+                        ? entry.PlaceId
+                        : details?.Data?.RootPlaceId ?? 0;
+                    if (placeId <= 0)
+                        continue;
+
+                    cards.Add(new HomeGameCard(
+                        details?.Data?.Name ?? $"Place {placeId}",
+                        FormatLastPlayed(last?.JoinedAt),
+                        placeId,
+                        TintFor(placeId)));
+                }
+
+                // 2) Roblox "Recently Visited" when an AltMan account is active
+                if (cards.Count < 4)
+                {
+                    foreach (var api in await FetchRecentlyVisitedFromApiAsync())
+                    {
+                        if (cards.Any(c => c.PlaceId == api.PlaceId))
+                            continue;
+                        cards.Add(api);
+                        if (cards.Count >= 4)
+                            break;
+                    }
+                }
+
+                var top = cards.Take(4).ToList();
+
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    RecentGames.Clear();
+                    foreach (var c in top)
+                        RecentGames.Add(c);
+                    OnPropertyChanged(nameof(HasRecentGames));
+                    OnPropertyChanged(nameof(HasNoRecentGames));
+                });
+
+                await LoadThumbnailsAsync();
+            }
+            catch (Exception ex)
+            {
+                App.Logger.WriteLine("HomeDashboardViewModel", $"Recent games load failed: {ex.Message}");
+            }
+        }
+
+        private List<GameHistoryEntry> LoadLocalHistory()
+        {
+            try
+            {
+                if (!File.Exists(_historyPath))
+                    return [];
+                string json = File.ReadAllText(_historyPath);
+                return JsonSerializer.Deserialize<List<GameHistoryEntry>>(json) ?? [];
+            }
+            catch (Exception ex)
+            {
+                App.Logger.WriteLine("HomeDashboardViewModel", $"GameHistory read failed: {ex.Message}");
+                return [];
+            }
+        }
+
+        private static async Task<List<HomeGameCard>> FetchRecentlyVisitedFromApiAsync()
+        {
+            try
+            {
+                var accountManager = AccountManager.Shared;
+                var active = accountManager?.ActiveAccount;
+                if (active is null)
+                    return [];
+
+                string? cookie = accountManager!.GetRoblosecurityForUser(active.UserIdLong);
+                if (string.IsNullOrEmpty(cookie))
+                    return [];
+
+                var url = UrlBuilder.BuildApiUrl("apis", "search-landing-page-api/v1?sessionId=EclipseHome");
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("Cookie", $".ROBLOSECURITY={cookie}");
+
+                var response = await Http.SendJson<RecentlyVisitedResponse>(request);
+                var recentSort = response?.Sorts?.FirstOrDefault(s => s.SortId == "RecentlyVisited");
+                if (recentSort?.Games is null)
+                    return [];
+
+                var list = new List<HomeGameCard>();
+                for (int i = 0; i < recentSort.Games.Count && list.Count < 4; i++)
+                {
+                    var g = recentSort.Games[i];
+                    if (g.RootPlaceId <= 0)
+                        continue;
+                    list.Add(new HomeGameCard(
+                        string.IsNullOrWhiteSpace(g.Name) ? $"Place {g.RootPlaceId}" : g.Name,
+                        "Recently visited",
+                        g.RootPlaceId,
+                        TintFor(g.RootPlaceId)));
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                App.Logger.WriteLine("HomeDashboardViewModel", $"API recent failed: {ex.Message}");
+                return [];
+            }
+        }
+
+        private static string FormatLastPlayed(DateTime? joinedAt)
+        {
+            if (joinedAt is null)
+                return "Last played recently";
+
+            var age = DateTime.UtcNow - joinedAt.Value.ToUniversalTime();
+            if (age.TotalMinutes < 60)
+                return "Last played just now";
+            if (age.TotalHours < 24)
+                return $"Last played {(int)age.TotalHours}h ago";
+            if (age.TotalDays < 7)
+                return $"Last played {(int)age.TotalDays}d ago";
+            return $"Last played {joinedAt.Value.ToLocalTime():MMM d}";
+        }
+
+        private static string TintFor(long placeId)
+            => TintPalette[Math.Abs(placeId.GetHashCode()) % TintPalette.Length];
+
         private async Task LoadThumbnailsAsync()
         {
             try
@@ -103,7 +257,6 @@ namespace Froststrap.UI.ViewModels.Settings
                     Format = ThumbnailFormat.Png
                 }).ToList();
 
-                // Prefer wide game thumbnails when the batch accepts place/universe ids
                 var wideRequests = cards.Select(c => new ThumbnailRequest
                 {
                     TargetId = (ulong)c.PlaceId,
