@@ -90,7 +90,7 @@ namespace Froststrap.UI.ViewModels.Settings
                 10450266301,
                 "#7F1D1D"));
 
-            NewsItems.Add(new HomeNewsItem("Eclipse v2.0.21 Released", "Visible animated aurora in Home stage", "just now", LucideIconNames.Sparkles));
+            NewsItems.Add(new HomeNewsItem("Eclipse v2.0.22 Released", "Real smooth aurora clip background", "just now", LucideIconNames.Sparkles));
             NewsItems.Add(new HomeNewsItem("Roblox Update", "Client and platform notes", "5d ago", LucideIconNames.Box));
             NewsItems.Add(new HomeNewsItem("Maintenance Scheduled", "Brief downtime window this week", "1w ago", LucideIconNames.Wrench));
         }
