@@ -7,20 +7,45 @@
         xmlns:controls="clr-namespace:Froststrap.UI.Elements.Controls">
 
     <Style Selector="Button">
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="10" />
     </Style>
 
     <Style Selector="Button.accent">
         <Setter Property="Background" Value="{DynamicResource BrandAccentBrush}" />
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="10" />
+    </Style>
+
+    <Style Selector="Button.rail">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+    </Style>
+
+    <Style Selector="Button.rail:pointerover">
+        <Setter Property="Background" Value="#28FFFFFF" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="Button.rail:pressed">
+        <Setter Property="Background" Value="#33FFFFFF" />
+    </Style>
+
+    <Style Selector="Button.rail:disabled">
+        <Setter Property="Opacity" Value="0.4" />
     </Style>
 
     <Style Selector="TextBox">
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="10" />
     </Style>
 
     <Style Selector="TabControl">
         <Setter Property="Padding" Value="0,8,0,0" />
+    </Style>
+
+    <Style Selector="controls|Card">
+        <Setter Property="CornerRadius" Value="12" />
     </Style>
 
     <Style Selector="controls|Hyperlink">

@@ -47,6 +47,14 @@
             <FontFamily x:Key="BuilderIconsRegular">avares://Eclipse/Resources/Fonts#BuilderIcons-Regular</FontFamily>
             <FontFamily x:Key="BuilderIconsFilled">avares://Eclipse/Resources/Fonts#BuilderIcons-Filled</FontFamily>
 
+            <SolidColorBrush x:Key="BrandInkBrush" Color="#07060C" />
+            <SolidColorBrush x:Key="BrandAccentBrush" Color="#C084FC" />
+            <SolidColorBrush x:Key="BrandHairlineBrush" Color="#2E2640" />
+            <SolidColorBrush x:Key="GlassHeaderBrush" Color="#AA07060C" />
+            <SolidColorBrush x:Key="GlassRailBrush" Color="#9907060C" />
+            <SolidColorBrush x:Key="GlassStageBrush" Color="#5512101A" />
+            <SolidColorBrush x:Key="GlassFillBrush" Color="#6612101A" />
+
             <converters:StringFormatConverter x:Key="StringFormatConverter" />
             <converters:EnumNameConverter x:Key="EnumNameConverter" />
             <converters:EnumToBoolConverter x:Key="EnumToBoolConverter" />
