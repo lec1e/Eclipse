@@ -324,18 +324,10 @@ namespace Froststrap.Integrations
             return null;
         }
 
-        private static async Task<string?> GetCookieFromRemoteDataAsync()
+        private static Task<string?> GetCookieFromRemoteDataAsync()
         {
-            try
-            {
-                if (App.RemoteData != null)
-                {
-                    await App.RemoteData.WaitUntilDataFetched();
-                    return App.RemoteData.Prop?.Dummy;
-                }
-            }
-            catch (Exception ex) { App.Logger.WriteException($"{LOG_IDENT}::GetCookieFromRemoteData", ex); }
-            return null;
+            // Intentionally disabled — Eclipse does not pull shared cookies from remote config.
+            return Task.FromResult<string?>(null);
         }
 
         public async Task<string?> ResolveCookieAsync()
@@ -352,13 +344,6 @@ namespace Froststrap.Integrations
             {
                 App.Logger.WriteLine(LOG_IDENT, "Account Manager cookie failed or missing. Using valid cookie from Cookies Manager.");
                 return cookiesManagerCookie;
-            }
-
-            var remoteDataCookie = await GetCookieFromRemoteDataAsync();
-            if (!string.IsNullOrWhiteSpace(remoteDataCookie) && await ValidateCookieAsync(remoteDataCookie))
-            {
-                App.Logger.WriteLine(LOG_IDENT, "Cookies Manager cookie failed or missing. Using valid cookie from Remote Data.");
-                return remoteDataCookie;
             }
 
             App.Logger.WriteLine(LOG_IDENT, "Failed to resolve any valid .ROBLOSECURITY cookie.");

@@ -112,9 +112,8 @@
             <controls:CardExpander Header="{x:Static resources:Strings.Menu_Integrations_BlockCardExpander_Title}" Description="{x:Static resources:Strings.Menu_Integrations_BlockCardExpander_Description}" IsExpanded="True">
                 <StackPanel>
                     <controls:OptionControl
-                        Description="{Binding Source={x:Static resources:Strings.Menu_Integrations_DesktopApp_Description}, Converter={StaticResource StringFormatConverter}, ConverterParameter='https://github.com/bloxstraplabs/bloxstrap/wiki/What-is-activity-tracking%3F#dont-exit-to-desktop-app'}"
+                        Description="{x:Static resources:Strings.Menu_Integrations_DesktopApp_Description}"
                         Header="{x:Static resources:Strings.Menu_Integrations_DesktopApp_Title}"
-                        HelpLink="https://github.com/bloxstraplabs/bloxstrap/wiki/What-is-activity-tracking%3F#dont-exit-to-desktop-app"
                         IsEnabled="{Binding ActivityTrackingEnabled}">
                         <ToggleSwitch IsChecked="{Binding DisableAppPatchEnabled, Mode=TwoWay}" />
                     </controls:OptionControl>

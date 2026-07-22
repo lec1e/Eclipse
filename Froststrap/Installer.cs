@@ -12,23 +12,166 @@ namespace Froststrap
         /// </summary>
         private const bool OpenReleaseNotes = false;
 
+        private static string DesktopShortcut => Path.Combine(Paths.Desktop, $"{App.ProjectName}.lnk");
+        private static string StartMenuShortcut => Path.Combine(Paths.WindowsStartMenu, $"{App.ProjectName}.lnk");
+
+        /// <summary>Default install root: %LOCALAPPDATA%\Eclipse (same pattern as Froststrap).</summary>
+        public string InstallLocation { get; set; } = Path.Combine(Paths.LocalAppData, App.ProjectName);
+
+        public bool CreateDesktopShortcuts { get; set; } = true;
+        public bool CreateStartMenuShortcuts { get; set; } = true;
+        public bool IsImplicitInstall { get; set; }
+        public string InstallLocationError { get; set; } = "";
+
         /// <summary>
-        /// Kills any running Roblox processes and cleans up app data files.
-        /// Registry entries, shortcuts, and the executable itself are managed by NSIS.
+        /// Copies the running EXE into LocalAppData, writes Apps &amp; features uninstall
+        /// entries, and creates Start Menu / Desktop shortcuts — same as Froststrap.
+        /// </summary>
+        public async Task DoInstall()
+        {
+            const string LOG_IDENT = "Installer::DoInstall";
+
+            App.Logger.WriteLine(LOG_IDENT, $"Beginning installation to '{InstallLocation}'");
+
+            Directory.CreateDirectory(InstallLocation);
+            Paths.Initialize(InstallLocation);
+
+            if (!IsImplicitInstall)
+            {
+                Filesystem.AssertReadOnly(Paths.Application);
+
+                try
+                {
+                    File.Copy(Paths.Process, Paths.Application, true);
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.WriteLine(LOG_IDENT, "Could not overwrite executable");
+                    App.Logger.WriteException(LOG_IDENT, ex);
+                    await Frontend.ShowMessageBox(
+                        "Eclipse could not be installed because the existing file could not be overwritten. Close any running Eclipse processes and try again.",
+                        MessageBoxImage.Error);
+                    App.Terminate(ErrorCode.ERROR_INSTALL_FAILURE);
+                    return;
+                }
+            }
+
+            if (OperatingSystem.IsWindows())
+            {
+                using (var uninstallKey = Registry.CurrentUser.CreateSubKey(App.UninstallKey))
+                {
+                    uninstallKey.SetValueSafe("DisplayIcon", $"{Paths.Application},0");
+                    uninstallKey.SetValueSafe("DisplayName", App.ProjectName);
+                    uninstallKey.SetValueSafe("DisplayVersion", App.Version);
+
+                    if (uninstallKey.GetValue("InstallDate") is null)
+                        uninstallKey.SetValueSafe("InstallDate", DateTime.Now.ToString("yyyyMMdd"));
+
+                    uninstallKey.SetValueSafe("InstallLocation", Paths.Base);
+                    uninstallKey.SetValue("NoModify", 1, RegistryValueKind.DWord);
+                    uninstallKey.SetValue("NoRepair", 1, RegistryValueKind.DWord);
+                    uninstallKey.SetValueSafe("Publisher", App.ProjectOwner);
+                    uninstallKey.SetValueSafe("ModifyPath", $"\"{Paths.Application}\" -settings");
+                    uninstallKey.SetValueSafe("QuietUninstallString", $"\"{Paths.Application}\" -uninstall -quiet");
+                    uninstallKey.SetValueSafe("UninstallString", $"\"{Paths.Application}\" -uninstall");
+                    uninstallKey.SetValueSafe("HelpLink", App.ProjectHelpLink);
+                    uninstallKey.SetValueSafe("URLInfoAbout", App.ProjectSupportLink);
+                    uninstallKey.SetValueSafe("URLUpdateInfo", App.ProjectDownloadLink);
+                }
+
+                WindowsRegistry.RegisterApis();
+                WindowsRegistry.RegisterPlayer();
+
+                if (App.IsStudioInstalled)
+                    WindowsRegistry.RegisterStudio();
+
+                try
+                {
+                    Registry.CurrentUser.DeleteSubKeyTree(
+                        @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Froststrap",
+                        throwOnMissingSubKey: false);
+                }
+                catch { /* ignore */ }
+            }
+
+            if (CreateDesktopShortcuts)
+                Shortcut.Create(Paths.Application, "", DesktopShortcut);
+
+            if (CreateStartMenuShortcuts)
+                Shortcut.Create(Paths.Application, "", StartMenuShortcut);
+
+            App.Settings.Load(false);
+            App.State.Load(false);
+            App.FastFlags.Load(false);
+            App.Settings.Save();
+
+            App.Logger.WriteLine(LOG_IDENT, "Installation finished");
+        }
+
+        public bool CheckInstallLocation()
+        {
+            InstallLocationError = "";
+
+            if (string.IsNullOrWhiteSpace(InstallLocation))
+            {
+                InstallLocationError = "Install location is not set.";
+                return false;
+            }
+
+            if (InstallLocation.StartsWith(Path.GetTempPath(), StringComparison.OrdinalIgnoreCase)
+                || InstallLocation.Contains("OneDrive", StringComparison.OrdinalIgnoreCase)
+                || InstallLocation == Path.GetPathRoot(InstallLocation))
+            {
+                InstallLocationError = "Eclipse cannot be installed to this location.";
+                return false;
+            }
+
+            try
+            {
+                string testFile = Path.Combine(InstallLocation, $"{App.ProjectName}WriteTest.txt");
+                Directory.CreateDirectory(InstallLocation);
+                File.WriteAllText(testFile, "");
+                File.Delete(testFile);
+            }
+            catch (Exception ex)
+            {
+                InstallLocationError = $"No write permission: {ex.Message}";
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Uninstalls Eclipse: restores Roblox protocols, removes shortcuts / registry /
+        /// app files under LocalAppData, then schedules deletion of the running EXE
+        /// (and the whole install folder when keepData is false).
         /// </summary>
         public static async Task DoUninstall(bool keepData)
         {
             const string LOG_IDENT = "Installer::DoUninstall";
 
+            KillOtherEclipseProcesses();
+
             var processes = new List<Process>();
 
             if (App.IsPlayerInstalled)
-                processes.AddRange(Process.GetProcessesByName(App.RobloxPlayerAppName));
+                processes.AddRange(Process.GetProcessesByName(Path.GetFileNameWithoutExtension(App.RobloxPlayerAppName)));
 
             if (App.IsStudioInstalled)
-                processes.AddRange(Process.GetProcessesByName(App.RobloxStudioAppName));
+                processes.AddRange(Process.GetProcessesByName(Path.GetFileNameWithoutExtension(App.RobloxStudioAppName)));
 
-            // prompt to shut down Roblox if it is currently running
+            // Also catch common Roblox process names that may still hold files.
+            processes.AddRange(Process.GetProcessesByName("RobloxPlayerBeta"));
+            processes.AddRange(Process.GetProcessesByName("RobloxCrashHandler"));
+            processes.AddRange(Process.GetProcessesByName("Roblox"));
+
+            processes = processes
+                .Where(p => { try { return !p.HasExited; } catch { return false; } })
+                .GroupBy(p => p.Id)
+                .Select(g => g.First())
+                .ToList();
+
             if (processes.Count != 0)
             {
                 var result = await Frontend.ShowMessageBox(
@@ -48,7 +191,7 @@ namespace Froststrap
                 {
                     try
                     {
-                        process.Kill();
+                        process.Kill(entireProcessTree: true);
                         process.Close();
                     }
                     catch (Exception ex)
@@ -61,46 +204,247 @@ namespace Froststrap
             if (OperatingSystem.IsWindows())
                 RestoreRobloxRegistryHandlers();
 
-            // When invoked by NSIS (-nsis flag), stop here.
+            // When invoked by NSIS (-nsis flag), stop here (NSIS finishes the rest).
             if (App.LaunchSettings.NsisFlag.Active)
                 return;
 
-            var cleanupSequence = new List<Action>
-            {
-                () => Directory.Delete(Paths.Versions, true),
-                () => Directory.Delete(Paths.Downloads, true),
-                () => File.Delete(App.State.FileLocation),
-                () =>
-                {
-                    // only delete the Roblox subfolder if it lives inside the Froststrap base
-                    // directory, to avoid accidentally deleting a standalone Roblox install
-                    if (Paths.Roblox == Path.Combine(Paths.Base, "Roblox"))
-                        Directory.Delete(Paths.Roblox, true);
-                }
-            };
+            string installRoot = Paths.Base;
+            string applicationPath = Paths.Application;
+
+            // Always remove launcher leftovers + regenerable cache / versions.
+            try { Shortcut.Delete(DesktopShortcut); } catch { /* ignore */ }
+            try { Shortcut.Delete(StartMenuShortcut); } catch { /* ignore */ }
+            // Legacy shortcut names from earlier branding.
+            try { Shortcut.Delete(Path.Combine(Paths.Desktop, "Froststrap.lnk")); } catch { /* ignore */ }
+            try { Shortcut.Delete(Path.Combine(Paths.WindowsStartMenu, "Froststrap.lnk")); } catch { /* ignore */ }
+
+            TryDeleteDirectory(Paths.Versions);
+            TryDeleteDirectory(Paths.Downloads);
+            TryDeleteDirectory(Paths.Cache);
+            TryDeleteDirectory(Paths.Logs);
+            TryDeleteDirectory(Paths.Integrations);
+            TryDeleteDirectory(Paths.TempUpdates);
+            TryDeleteDirectory(Paths.Temp);
+            TryDeleteDirectory(Path.Combine(installRoot, "Updates"));
+            TryDeleteDirectory(Path.Combine(installRoot, "WebViewProfiles"));
+            TryDeleteDirectory(Path.Combine(installRoot, "Wine"));
+            TryDeleteDirectory(Path.Combine(installRoot, "ModBackup"));
+
+            TryDeleteFile(App.State.FileLocation);
+            TryDeleteFile(Path.Combine(installRoot, "State.json.bak"));
+            TryDeleteFile(Path.Combine(installRoot, "Data.json"));
+            TryDeleteFile(Path.Combine(installRoot, "Profiles.json"));
+            TryDeleteFile(Path.Combine(installRoot, "ModManifest.txt"));
+            TryDeleteFile(Path.Combine(installRoot, ".version"));
+            TryDeleteFile(Path.Combine(installRoot, "eclipse.png"));
+            TryDeleteFile(Path.Combine(installRoot, "froststrap.png"));
+
+            if (Paths.Roblox == Path.Combine(installRoot, "Roblox"))
+                TryDeleteDirectory(Paths.Roblox);
 
             if (!keepData)
             {
-                cleanupSequence.AddRange(
-                [
-                    () => Directory.Delete(Paths.Modifications, true),
-                    () => Directory.Delete(Paths.CustomCursors, true),
-                    () => File.Delete(App.Settings.FileLocation),
-                    () => File.Delete(App.State.FileLocation),
-                ]);
+                // Wipe user data so nothing Eclipse-owned remains under LocalAppData.
+                TryDeleteDirectory(Paths.Modifications);
+                TryDeleteDirectory(Paths.CustomCursors);
+                TryDeleteDirectory(Paths.CustomThemes);
+                TryDeleteDirectory(Paths.FastFlagProfiles);
+                TryDeleteDirectory(Paths.SavedFlagProfiles);
+                TryDeleteDirectory(Path.Combine(installRoot, "AltMan"));
+                TryDeleteDirectory(Path.Combine(installRoot, "CustomThemes"));
+                TryDeleteDirectory(Path.Combine(installRoot, "CustomCursorsSets"));
+                TryDeleteDirectory(Path.Combine(installRoot, "SavedFlagProfiles"));
+                TryDeleteDirectory(Path.Combine(installRoot, "FastFlagProfiles"));
+                TryDeleteDirectory(Path.Combine(installRoot, "Modifications"));
+
+                TryDeleteFile(App.Settings.FileLocation);
+                TryDeleteFile(Path.Combine(installRoot, "Settings.json.bak"));
+                TryDeleteFile(App.State.FileLocation);
+
+                // Best-effort wipe now (EXE may still be locked).
+                TryDeleteLooseFiles(installRoot, preserveExe: true);
             }
 
-            foreach (var step in cleanupSequence)
+            if (OperatingSystem.IsWindows())
             {
-                try
+                try { Registry.CurrentUser.DeleteSubKeyTree(App.ApisKey, throwOnMissingSubKey: false); }
+                catch (Exception ex) { App.Logger.WriteLine(LOG_IDENT, $"Failed to remove ApisKey: {ex.Message}"); }
+
+                try { Registry.CurrentUser.DeleteSubKeyTree(App.UninstallKey, throwOnMissingSubKey: false); }
+                catch (Exception ex) { App.Logger.WriteLine(LOG_IDENT, $"Failed to remove UninstallKey: {ex.Message}"); }
+
+                // Remove Apps & features entries left by older brands / QA builds.
+                foreach (string legacyName in new[] { "Froststrap", "Eclipse-QA", "Bloxstrap" })
                 {
-                    step();
+                    try
+                    {
+                        Registry.CurrentUser.DeleteSubKeyTree(
+                            $@"Software\Microsoft\Windows\CurrentVersion\Uninstall\{legacyName}",
+                            throwOnMissingSubKey: false);
+                    }
+                    catch { /* ignore */ }
                 }
-                catch (Exception ex)
+            }
+
+            // EXE (and optionally the whole install folder) is locked while we run —
+            // finish cleanup after this process exits.
+            if (OperatingSystem.IsWindows() && !string.IsNullOrEmpty(installRoot))
+                SchedulePostExitCleanup(installRoot, applicationPath, wipeFolder: !keepData);
+            else if (!OperatingSystem.IsWindows() && !keepData)
+                TryDeleteDirectory(installRoot);
+        }
+
+        private static void KillOtherEclipseProcesses()
+        {
+            const string LOG_IDENT = "Installer::KillOtherEclipseProcesses";
+            int self = Environment.ProcessId;
+
+            foreach (string name in new[] { App.ProjectName, "Eclipse", "Eclipse-QA", "Froststrap" })
+            {
+                foreach (var proc in Process.GetProcessesByName(name))
                 {
-                    App.Logger.WriteLine(LOG_IDENT, $"Encountered exception during cleanup step #{cleanupSequence.IndexOf(step)}");
-                    App.Logger.WriteException(LOG_IDENT, ex);
+                    try
+                    {
+                        if (proc.Id == self)
+                            continue;
+                        App.Logger.WriteLine(LOG_IDENT, $"Killing leftover {proc.ProcessName} ({proc.Id})");
+                        proc.Kill(entireProcessTree: true);
+                    }
+                    catch (Exception ex)
+                    {
+                        App.Logger.WriteLine(LOG_IDENT, $"Could not kill {name}: {ex.Message}");
+                    }
+                    finally
+                    {
+                        try { proc.Dispose(); } catch { /* ignore */ }
+                    }
                 }
+            }
+        }
+
+        private static void TryDeleteFile(string path)
+        {
+            const string LOG_IDENT = "Installer::TryDeleteFile";
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                    return;
+                Filesystem.AssertReadOnly(path);
+                File.Delete(path);
+            }
+            catch (Exception ex)
+            {
+                App.Logger.WriteLine(LOG_IDENT, $"Could not delete file '{path}': {ex.Message}");
+            }
+        }
+
+        private static void TryDeleteDirectory(string path)
+        {
+            const string LOG_IDENT = "Installer::TryDeleteDirectory";
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
+                    return;
+
+                foreach (string file in Directory.GetFiles(path, "*", SearchOption.AllDirectories))
+                {
+                    try { Filesystem.AssertReadOnly(file); } catch { /* ignore */ }
+                }
+
+                Directory.Delete(path, recursive: true);
+            }
+            catch (Exception ex)
+            {
+                App.Logger.WriteLine(LOG_IDENT, $"Could not delete directory '{path}': {ex.Message}");
+            }
+        }
+
+        private static void TryDeleteLooseFiles(string directory, bool preserveExe)
+        {
+            if (!Directory.Exists(directory))
+                return;
+
+            string? appName = Path.GetFileName(Paths.Application);
+
+            foreach (string file in Directory.GetFiles(directory))
+            {
+                if (preserveExe && appName is not null
+                    && Path.GetFileName(file).Equals(appName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                TryDeleteFile(file);
+            }
+
+            foreach (string dir in Directory.GetDirectories(directory))
+                TryDeleteDirectory(dir);
+        }
+
+        /// <summary>
+        /// Writes a short batch script that waits for this process to exit, then
+        /// deletes Eclipse.exe and (optionally) the entire install folder.
+        /// </summary>
+        private static void SchedulePostExitCleanup(string installRoot, string applicationPath, bool wipeFolder)
+        {
+            const string LOG_IDENT = "Installer::SchedulePostExitCleanup";
+
+            try
+            {
+                string scriptPath = Path.Combine(Path.GetTempPath(), $"eclipse-uninstall-{Guid.NewGuid():N}.cmd");
+                int pid = Environment.ProcessId;
+                string tempAppDir = Paths.Temp;
+
+                // Escape for batch: double quotes inside quoted strings.
+                string Safe(string p) => p.Replace("\"", "");
+
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine("@echo off");
+                sb.AppendLine("setlocal");
+                sb.AppendLine($":wait");
+                sb.AppendLine($"tasklist /FI \"PID eq {pid}\" 2>NUL | find \"{pid}\" >NUL");
+                sb.AppendLine("if not errorlevel 1 (");
+                sb.AppendLine("  timeout /t 1 /nobreak >NUL");
+                sb.AppendLine("  goto wait");
+                sb.AppendLine(")");
+                sb.AppendLine("timeout /t 1 /nobreak >NUL");
+
+                if (wipeFolder)
+                {
+                    sb.AppendLine($"set \"TARGET={Safe(installRoot)}\"");
+                    sb.AppendLine("for /L %%i in (1,1,15) do (");
+                    sb.AppendLine("  if exist \"%TARGET%\" (");
+                    sb.AppendLine("    attrib -r -s -h \"%TARGET%\\*.*\" /s /d >NUL 2>&1");
+                    sb.AppendLine("    rd /s /q \"%TARGET%\" >NUL 2>&1");
+                    sb.AppendLine("    if exist \"%TARGET%\" (");
+                    sb.AppendLine("      del /f /q \"%TARGET%\\*.*\" >NUL 2>&1");
+                    sb.AppendLine("      timeout /t 1 /nobreak >NUL");
+                    sb.AppendLine("    )");
+                    sb.AppendLine("  )");
+                    sb.AppendLine(")");
+                }
+                else
+                {
+                    sb.AppendLine($"del /f /q \"{Safe(applicationPath)}\" >NUL 2>&1");
+                }
+
+                sb.AppendLine($"if exist \"{Safe(tempAppDir)}\" rd /s /q \"{Safe(tempAppDir)}\" >NUL 2>&1");
+                sb.AppendLine("del \"%~f0\" >NUL 2>&1");
+
+                File.WriteAllText(scriptPath, sb.ToString());
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c \"{scriptPath}\"",
+                    UseShellExecute = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true
+                });
+
+                App.Logger.WriteLine(LOG_IDENT, $"Scheduled post-exit cleanup (wipeFolder={wipeFolder}) via {scriptPath}");
+            }
+            catch (Exception ex)
+            {
+                App.Logger.WriteLine(LOG_IDENT, $"Failed to schedule post-exit cleanup: {ex.Message}");
+                App.Logger.WriteException(LOG_IDENT, ex);
             }
         }
 
@@ -330,12 +674,7 @@ namespace Froststrap
             {
                 if (OperatingSystem.IsWindows())
                 {
-                    using var uninstallKey = Registry.CurrentUser.CreateSubKey(App.UninstallKey);
-                    uninstallKey.SetValueSafe("DisplayVersion", App.Version);
-                    uninstallKey.SetValueSafe("Publisher", App.ProjectOwner);
-                    uninstallKey.SetValueSafe("HelpLink", App.ProjectHelpLink);
-                    uninstallKey.SetValueSafe("URLInfoAbout", App.ProjectSupportLink);
-                    uninstallKey.SetValueSafe("URLUpdateInfo", App.ProjectDownloadLink);
+                    WindowsRegistry.RegisterUninstallEntry();
                 }
                 else if (OperatingSystem.IsMacOS())
                 {
@@ -484,12 +823,7 @@ namespace Froststrap
         [SupportedOSPlatform("windows")]
         public static void UpdateUninstallRegistryVersion()
         {
-            using var uninstallKey = Registry.CurrentUser.CreateSubKey(App.UninstallKey);
-            uninstallKey.SetValueSafe("DisplayVersion", App.Version);
-            uninstallKey.SetValueSafe("Publisher", App.ProjectOwner);
-            uninstallKey.SetValueSafe("HelpLink", App.ProjectHelpLink);
-            uninstallKey.SetValueSafe("URLInfoAbout", App.ProjectSupportLink);
-            uninstallKey.SetValueSafe("URLUpdateInfo", App.ProjectDownloadLink);
+            WindowsRegistry.RegisterUninstallEntry();
         }
 
         [System.Runtime.Versioning.SupportedOSPlatform("linux")]

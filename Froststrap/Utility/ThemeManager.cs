@@ -10,7 +10,17 @@ namespace Froststrap.Utility
     {
         public static readonly Dictionary<string, ThemePalette> Presets = new()
         {
-            ["Eclipse"] = new ThemePalette(),
+            ["Eclipse"] = new ThemePalette
+            {
+                Accent = "#C084FC",
+                GradientStart = "#A855F7",
+                GradientEnd = "#22D3EE",
+                Purple = "#E879F9",
+                Glow = "#A855F7",
+                Background = "#07060C",
+                Surface = "#12101A",
+                Hairline = "#2E2640"
+            },
             ["Purple Haze"] = new ThemePalette
             {
                 Accent = "#A855F7",

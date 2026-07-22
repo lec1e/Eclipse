@@ -1,13 +1,10 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input.Platform;
-using System.Web;
 
 namespace Froststrap.UI.Elements.Dialogs
 {
     public partial class ExceptionDialog : Base.AvaloniaWindow
     {
-        const int MAX_GITHUB_URL_LENGTH = 8192;
-
         public ExceptionDialog()
         {
             InitializeComponent();
@@ -25,29 +22,13 @@ namespace Froststrap.UI.Elements.Dialogs
             string repoUrl = $"https://github.com/{App.ProjectRepository}";
             string wikiUrl = $"{repoUrl}/wiki";
 
-            string title = HttpUtility.UrlEncode($"[BUG] {exception.GetType()}: {exception.Message}");
-            string log = HttpUtility.UrlEncode(App.Logger.AsDocument);
-
-            string issueUrl = $"{repoUrl}/issues/new?template=bug_report.yaml&title={title}&log={log}";
-
-            // GUARD: Shorten url since too long
-            if (issueUrl.Length > MAX_GITHUB_URL_LENGTH) {
-                issueUrl = $"{repoUrl}/issues/new?template=bug_report.yaml&title={title}";
-
-                // GUARD: Shorten url (again) since too long
-                if (issueUrl.Length > MAX_GITHUB_URL_LENGTH)
-                    issueUrl = $"{repoUrl}/issues/new?template=bug_report.yaml";
-            }
-
-            string helpMessage = String.Format(Strings.Dialog_Exception_Info_2, wikiUrl, issueUrl);
-
-            if (!App.IsActionBuild)
-                helpMessage = String.Format(Strings.Dialog_Exception_Info_2_Alt, wikiUrl);
+            // Do not auto-attach logs into a remote issue URL.
+            string helpMessage = String.Format(Strings.Dialog_Exception_Info_2_Alt, wikiUrl);
 
             HelpMessageMarkdown.MarkdownText = helpMessage;
             VersionText.Text = String.Format(Strings.Menu_About_Version, App.Version);
 
-            ReportExceptionButton.Click += (_, _) => Utilities.ShellExecute(issueUrl);
+            ReportExceptionButton.IsVisible = false;
 
             LocateLogFileButton.Click += async delegate
             {

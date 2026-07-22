@@ -154,6 +154,58 @@ namespace Froststrap.Utility
             currentApis?.Dispose();
         }
 
+        /// <summary>
+        /// Registers Eclipse in Windows Apps &amp; features so it can be uninstalled
+        /// from Settings → Apps (works for both Setup and portable EXE installs).
+        /// </summary>
+        public static void RegisterUninstallEntry()
+        {
+            if (!OperatingSystem.IsWindows())
+                return;
+
+            try
+            {
+                string appPath = Paths.Application;
+                if (string.IsNullOrWhiteSpace(appPath) || !File.Exists(appPath))
+                    appPath = Environment.ProcessPath ?? appPath;
+
+                using var uninstallKey = Registry.CurrentUser.CreateSubKey(App.UninstallKey);
+                uninstallKey.SetValueSafe("DisplayName", App.ProjectName);
+                uninstallKey.SetValueSafe("DisplayVersion", App.Version);
+                uninstallKey.SetValueSafe("Publisher", App.ProjectOwner);
+                uninstallKey.SetValueSafe("InstallLocation", Paths.Base);
+                uninstallKey.SetValueSafe("DisplayIcon", $"{appPath},0");
+                uninstallKey.SetValueSafe("UninstallString", $"\"{appPath}\" -uninstall");
+                uninstallKey.SetValueSafe("QuietUninstallString", $"\"{appPath}\" -uninstall -quiet");
+                uninstallKey.SetValueSafe("ModifyPath", $"\"{appPath}\" -settings");
+                uninstallKey.SetValueSafe("HelpLink", App.ProjectHelpLink);
+                uninstallKey.SetValueSafe("URLInfoAbout", App.ProjectSupportLink);
+                uninstallKey.SetValueSafe("URLUpdateInfo", App.ProjectDownloadLink);
+                uninstallKey.SetValue("NoModify", 1, RegistryValueKind.DWord);
+                uninstallKey.SetValue("NoRepair", 1, RegistryValueKind.DWord);
+
+                using var apisKey = Registry.CurrentUser.CreateSubKey(App.ApisKey);
+                apisKey.SetValueSafe("ApplicationPath", appPath);
+                apisKey.SetValueSafe("InstallationPath", Paths.Base);
+
+                // Remove leftover Froststrap ARP entry if present from older installs
+                try
+                {
+                    Registry.CurrentUser.DeleteSubKeyTree(
+                        @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Froststrap",
+                        throwOnMissingSubKey: false);
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Logger.WriteLine("WindowsRegistry::RegisterUninstallEntry", $"Failed: {ex.Message}");
+            }
+        }
+
         public static void RegisterClientLocation(bool isStudio, string? clientPath)
         {
             if (!OperatingSystem.IsWindows())

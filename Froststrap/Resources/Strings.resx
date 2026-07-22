@@ -818,7 +818,7 @@ More information:
     <value>Configure additional functionality to go alongside Roblox.</value>
   </data>
   <data name="Menu.Integrations.DesktopApp.Description" xml:space="preserve">
-    <value>Roblox will fully close when you leave a game instead of going back to the app. [Will break some things!]({0})</value>
+    <value>When you leave a game, Eclipse force-closes Roblox completely so it does not stay in the system tray / background. Requires activity tracking.</value>
   </data>
   <data name="Menu.Integrations.DesktopApp.Title" xml:space="preserve">
     <value>Close To Desktop</value>
@@ -988,11 +988,9 @@ Some text might not be translated to preferred language.</value>
     <value>Uninstall Eclipse</value>
   </data>
   <data name="Uninstaller.Text" xml:space="preserve">
-    <value>Uninstalling will remove Eclipse from your system, and automatically reconfigure the default Roblox launcher if it's still installed.
+    <value>Uninstalling will remove Eclipse from your system (including Apps &amp; features, shortcuts, and the install folder), and automatically reconfigure the default Roblox launcher if it's still installed.
 
 If you're uninstalling or reinstalling because you are having issues with Roblox, read [this help page]({0}) first.
-
-The uninstall process may not be able to fully clean up itself, so you may need to manually clean up leftover files where Eclipse was installed.
 
 Eclipse was installed at "{1}".</value>
   </data>

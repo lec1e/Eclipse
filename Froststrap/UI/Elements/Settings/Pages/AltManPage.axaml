@@ -16,58 +16,79 @@
       <!-- Accounts -->
       <TabItem Header="Accounts">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-          <StackPanel Margin="8" Spacing="8" DataContext="{Binding Accounts}">
-            <TextBlock Text="{Binding Description}" Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
-            <TextBlock Text="{Binding EncryptionInfo}" FontSize="11" Opacity="0.55" TextWrapping="Wrap" />
+          <StackPanel Margin="8" Spacing="12" DataContext="{Binding Accounts}">
+            <StackPanel Spacing="2">
+              <TextBlock Text="{Binding Description}" Opacity="0.7" TextWrapping="Wrap" FontSize="12" />
+              <TextBlock Text="{Binding EncryptionInfo}" FontSize="11" Opacity="0.55" TextWrapping="Wrap" />
+            </StackPanel>
 
-            <WrapPanel Orientation="Horizontal">
-              <Button Content="WebView login" Classes="accent" Margin="0,0,8,8" Command="{Binding AddBrowserCommand}" IsEnabled="{Binding IsIdle}" />
-              <Button Content="Quick Sign-In" Margin="0,0,8,8" Command="{Binding AddQuickSignCommand}" IsEnabled="{Binding IsIdle}" />
-              <Button Content="Refresh selected" Margin="0,0,8,8" Command="{Binding RefreshStatusCommand}" IsEnabled="{Binding IsIdle}" />
-              <Button Content="Refresh all" Margin="0,0,8,8" Command="{Binding RefreshAllCommand}" IsEnabled="{Binding IsIdle}" />
-              <Button Content="Select all" Margin="0,0,8,8" Command="{Binding SelectAllCommand}" />
-              <Button Content="Clear selection" Margin="0,0,8,8" Command="{Binding ClearSelectionCommand}" />
-              <Button Content="Set default" Margin="0,0,8,8" Command="{Binding SetDefaultCommand}" />
-              <Button Content="Favorite" Margin="0,0,8,8" Command="{Binding ToggleFavoriteCommand}" />
-              <Button Content="Open with cookie" Margin="0,0,8,8" Command="{Binding OpenBrowserCommand}" IsEnabled="{Binding IsIdle}" />
-              <Button Content="Export cookies" Margin="0,0,8,8" Command="{Binding ExportCookiesCommand}" IsEnabled="{Binding IsIdle}" />
-              <Button Content="Kill Roblox" Margin="0,0,8,8" Command="{Binding KillRobloxCommand}" />
-              <Button Content="Clear cache" Margin="0,0,8,8" Command="{Binding ClearCacheCommand}" />
-              <Button Content="Delete" Margin="0,0,8,8" Command="{Binding DeleteSelectedCommand}" />
-              <Button Content="Save notes" Margin="0,0,8,8" Command="{Binding SaveNotesCommand}" />
-            </WrapPanel>
+            <Border Padding="12" CornerRadius="10" BorderThickness="1"
+                    BorderBrush="{DynamicResource BrandHairlineBrush}" Background="#3312101A">
+              <StackPanel Spacing="8">
+                <TextBlock Text="Add account" FontWeight="SemiBold" />
+                <WrapPanel>
+                  <Button Content="WebView login" Classes="accent" Margin="0,0,8,0" Command="{Binding AddBrowserCommand}" IsEnabled="{Binding IsIdle}" />
+                  <Button Content="Quick Sign-In" Margin="0,0,8,0" Command="{Binding AddQuickSignCommand}" IsEnabled="{Binding IsIdle}" />
+                </WrapPanel>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                  <TextBox Grid.Column="0" Watermark="Paste .ROBLOSECURITY cookie" Text="{Binding CookieInput}" />
+                  <Button Grid.Column="1" Content="Add cookie" Command="{Binding AddCookieCommand}" IsEnabled="{Binding IsIdle}" Classes="accent" />
+                </Grid>
+              </StackPanel>
+            </Border>
 
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-              <TextBox Grid.Column="0" Watermark="Paste .ROBLOSECURITY cookie" Text="{Binding CookieInput}" />
-              <Button Grid.Column="1" Content="Add cookie" Command="{Binding AddCookieCommand}" IsEnabled="{Binding IsIdle}" Classes="accent" />
-            </Grid>
+            <Border Padding="12" CornerRadius="10" BorderThickness="1"
+                    BorderBrush="{DynamicResource BrandHairlineBrush}" Background="#3312101A">
+              <StackPanel Spacing="8">
+                <TextBlock Text="Launch" FontWeight="SemiBold" />
+                <Grid ColumnDefinitions="*,*,Auto,Auto" ColumnSpacing="8">
+                  <TextBox Grid.Column="0" Watermark="Place ID" Text="{Binding JoinPlaceId}" />
+                  <TextBox Grid.Column="1" Watermark="Job ID / VIP" Text="{Binding JoinJobId}" />
+                  <Button Grid.Column="2" Content="Join" Command="{Binding JoinSelectedCommand}" IsEnabled="{Binding IsIdle}" />
+                  <Button Grid.Column="3" Content="Join VIP" Command="{Binding JoinSelectedVipCommand}" IsEnabled="{Binding IsIdle}" />
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
+                  <TextBox Grid.Column="0" Watermark="Follow User ID" Text="{Binding FollowUserId}" />
+                  <Button Grid.Column="1" Content="Follow" Command="{Binding FollowUserCommand}" IsEnabled="{Binding IsIdle}" />
+                  <Button Grid.Column="2" Content="Join presence" Command="{Binding JoinPresenceCommand}" IsEnabled="{Binding IsIdle}" />
+                  <Button Grid.Column="3" Content="Fill presence" Command="{Binding FillJoinFromPresenceCommand}" />
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                  <TextBox Grid.Column="0" Watermark="Custom URL" Text="{Binding CustomUrl}" />
+                  <Button Grid.Column="1" Content="Open URL" Command="{Binding OpenCustomUrlCommand}" IsEnabled="{Binding IsIdle}" />
+                </Grid>
+              </StackPanel>
+            </Border>
 
-            <Grid ColumnDefinitions="*,*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
-              <TextBox Grid.Column="0" Watermark="Place ID" Text="{Binding JoinPlaceId}" />
-              <TextBox Grid.Column="1" Watermark="Job ID / VIP" Text="{Binding JoinJobId}" />
-              <Button Grid.Column="2" Content="Join" Command="{Binding JoinSelectedCommand}" IsEnabled="{Binding IsIdle}" />
-              <Button Grid.Column="3" Content="Join VIP" Command="{Binding JoinSelectedVipCommand}" IsEnabled="{Binding IsIdle}" />
-              <Button Grid.Column="4" Content="Join presence" Command="{Binding JoinPresenceCommand}" IsEnabled="{Binding IsIdle}" />
-              <Button Grid.Column="5" Content="Fill presence" Command="{Binding FillJoinFromPresenceCommand}" />
-            </Grid>
-
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
-              <TextBox Grid.Column="0" Watermark="Follow User ID" Text="{Binding FollowUserId}" />
-              <Button Grid.Column="1" Content="Follow" Command="{Binding FollowUserCommand}" IsEnabled="{Binding IsIdle}" />
-              <CheckBox Grid.Column="2" Content="Kill on launch" IsChecked="{Binding KillRobloxOnLaunch}" VerticalAlignment="Center" />
-              <CheckBox Grid.Column="3" Content="Clear cache on launch" IsChecked="{Binding ClearCacheOnLaunch}" VerticalAlignment="Center" />
-            </Grid>
-
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-              <TextBox Grid.Column="0" Watermark="Custom URL" Text="{Binding CustomUrl}" />
-              <Button Grid.Column="1" Content="Open URL" Command="{Binding OpenCustomUrlCommand}" IsEnabled="{Binding IsIdle}" />
-            </Grid>
-
-            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-              <TextBox Grid.Column="0" Watermark="Backup password" Text="{Binding BackupPassword}" PasswordChar="*" />
-              <Button Grid.Column="1" Content="Export backup" Command="{Binding ExportBackupCommand}" />
-              <Button Grid.Column="2" Content="Import latest" Command="{Binding ImportBackupCommand}" />
-            </Grid>
+            <Border Padding="12" CornerRadius="10" BorderThickness="1"
+                    BorderBrush="{DynamicResource BrandHairlineBrush}" Background="#3312101A">
+              <StackPanel Spacing="8">
+                <TextBlock Text="Manage" FontWeight="SemiBold" />
+                <WrapPanel>
+                  <Button Content="Refresh selected" Margin="0,0,8,8" Command="{Binding RefreshStatusCommand}" IsEnabled="{Binding IsIdle}" />
+                  <Button Content="Refresh all" Margin="0,0,8,8" Command="{Binding RefreshAllCommand}" IsEnabled="{Binding IsIdle}" />
+                  <Button Content="Select all" Margin="0,0,8,8" Command="{Binding SelectAllCommand}" />
+                  <Button Content="Clear selection" Margin="0,0,8,8" Command="{Binding ClearSelectionCommand}" />
+                  <Button Content="Set default" Margin="0,0,8,8" Command="{Binding SetDefaultCommand}" />
+                  <Button Content="Favorite" Margin="0,0,8,8" Command="{Binding ToggleFavoriteCommand}" />
+                  <Button Content="Open with cookie" Margin="0,0,8,8" Command="{Binding OpenBrowserCommand}" IsEnabled="{Binding IsIdle}" />
+                  <Button Content="Export cookies" Margin="0,0,8,8" Command="{Binding ExportCookiesCommand}" IsEnabled="{Binding IsIdle}" />
+                  <Button Content="Save notes" Margin="0,0,8,8" Command="{Binding SaveNotesCommand}" />
+                  <Button Content="Delete" Margin="0,0,8,8" Command="{Binding DeleteSelectedCommand}" />
+                </WrapPanel>
+                <WrapPanel>
+                  <CheckBox Content="Kill on launch" IsChecked="{Binding KillRobloxOnLaunch}" Margin="0,0,16,0" />
+                  <CheckBox Content="Clear cache on launch" IsChecked="{Binding ClearCacheOnLaunch}" Margin="0,0,16,0" />
+                  <Button Content="Kill Roblox" Margin="0,0,8,0" Command="{Binding KillRobloxCommand}" />
+                  <Button Content="Clear cache" Command="{Binding ClearCacheCommand}" />
+                </WrapPanel>
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                  <TextBox Grid.Column="0" Watermark="Backup password" Text="{Binding BackupPassword}" PasswordChar="*" />
+                  <Button Grid.Column="1" Content="Export backup" Command="{Binding ExportBackupCommand}" />
+                  <Button Grid.Column="2" Content="Import latest" Command="{Binding ImportBackupCommand}" />
+                </Grid>
+              </StackPanel>
+            </Border>
 
             <Expander Header="Privacy settings" IsExpanded="False">
               <StackPanel Spacing="8" Margin="0,8,0,0">

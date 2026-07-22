@@ -26,11 +26,11 @@ public partial class App : Application
 #else
     public const string ProjectName = "Eclipse";
 #endif
-    public const string ProjectOwner = "Eclipse";
-    public const string ProjectRepository = "Eclipse/Eclipse";
-    public const string ProjectDownloadLink = "https://github.com/Eclipse/Eclipse/releases";
-    public const string ProjectHelpLink = "https://github.com/bloxstraplabs/bloxstrap/wiki";
-    public const string ProjectSupportLink = "https://github.com/Eclipse/Eclipse/issues/new";
+    public const string ProjectOwner = "lec1e";
+    public const string ProjectRepository = "lec1e/Eclipse";
+    public const string ProjectDownloadLink = "https://github.com/lec1e/Eclipse/releases";
+    public const string ProjectHelpLink = "https://github.com/lec1e/Eclipse";
+    public const string ProjectSupportLink = "https://github.com/lec1e/Eclipse/issues/new";
     public const string ProjectRemoteDataLink = "https://raw.githubusercontent.com/RealMeddsam/config/refs/heads/main/Data.json";
 
     public const string LiveBuiltInProfileId = "live-builtin";
@@ -330,6 +330,7 @@ public partial class App : Application
             LaunchSettings = new LaunchSettings(Environment.GetCommandLineArgs());
 
             string? installLocation = null;
+            bool fixInstallLocation = false;
 
             if (OperatingSystem.IsWindows())
             {
@@ -349,9 +350,24 @@ public partial class App : Application
                             if (Directory.Exists(newLocation))
                             {
                                 installLocation = newLocation;
+                                fixInstallLocation = true;
                             }
                         }
                     }
+                }
+            }
+
+            // Already living under %LOCALAPPDATA%\Eclipse counts as installed
+            if (installLocation == null && Directory.GetParent(Paths.Process)?.FullName is string processParent)
+            {
+                string defaultRoot = Path.Combine(Paths.LocalAppData, ProjectName);
+                if (string.Equals(
+                        Path.GetFullPath(processParent).TrimEnd(Path.DirectorySeparatorChar),
+                        Path.GetFullPath(defaultRoot).TrimEnd(Path.DirectorySeparatorChar),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    installLocation = defaultRoot;
+                    fixInstallLocation = true;
                 }
             }
 
@@ -361,52 +377,91 @@ public partial class App : Application
                 if (files.Length <= 3 && files.Contains("Settings.json") && files.Contains("State.json"))
                 {
                     installLocation = processDir;
+                    fixInstallLocation = true;
+                }
+            }
+
+            if (fixInstallLocation && installLocation != null && OperatingSystem.IsWindows())
+            {
+                var repairInstaller = new Installer
+                {
+                    InstallLocation = installLocation,
+                    IsImplicitInstall = true
+                };
+
+                if (repairInstaller.CheckInstallLocation())
+                {
+                    Logger.WriteLine(LOG_IDENT, $"Repairing install registration at '{installLocation}'");
+                    Logger.Initialize(true);
+                    await repairInstaller.DoInstall();
+                }
+                else
+                {
+                    installLocation = null;
                 }
             }
 
             if (installLocation == null)
             {
-                installLocation = Directory.GetParent(Paths.Process)?.FullName;
-
-                if (string.IsNullOrWhiteSpace(installLocation))
+                if (OperatingSystem.IsWindows())
                 {
+                    // First run: install into %LOCALAPPDATA%\Eclipse like Froststrap
                     Logger.Initialize(true);
-                    Logger.WriteLine(LOG_IDENT, "No install location could be resolved, terminating.");
-                    Terminate();
-                    return;
+                    Logger.WriteLine(LOG_IDENT, "Not installed — installing to LocalAppData");
+
+                    var installer = new Installer();
+                    if (!installer.CheckInstallLocation())
+                    {
+                        Logger.WriteLine(LOG_IDENT, $"Install location invalid: {installer.InstallLocationError}");
+                        await Frontend.ShowMessageBox(
+                            $"Eclipse could not be installed.\n\n{installer.InstallLocationError}",
+                            MessageBoxImage.Error);
+                        Terminate(ErrorCode.ERROR_INSTALL_FAILURE);
+                        return;
+                    }
+
+                    await installer.DoInstall();
                 }
+                else
+                {
+                    installLocation = Directory.GetParent(Paths.Process)?.FullName;
+                    if (string.IsNullOrWhiteSpace(installLocation))
+                    {
+                        Logger.Initialize(true);
+                        Logger.WriteLine(LOG_IDENT, "No install location could be resolved, terminating.");
+                        Terminate();
+                        return;
+                    }
 
-                Paths.Initialize(installLocation);
+                    Paths.Initialize(installLocation);
+                    Logger.Initialize(LaunchSettings.UninstallFlag.Active);
 
-                Logger.Initialize(LaunchSettings.UninstallFlag.Active);
-
-                Logger.WriteLine(LOG_IDENT, $"Not installed, running in portable mode from '{installLocation}'");
+                    if (OperatingSystem.IsLinux() && Paths.Process != Paths.Application)
+                    {
+                        string escapedProcessPath = Paths.Process.Replace("\"", "\\\"");
+                        string launcherScript = $"#!/bin/sh\nexec \"{escapedProcessPath}\" \"$@\"\n";
+                        bool needsUpdate = !File.Exists(Paths.Application)
+                            || File.ReadAllText(Paths.Application) != launcherScript;
+                        if (needsUpdate)
+                            File.WriteAllText(Paths.Application, launcherScript);
+                        Process.Start("chmod", $"+x \"{Paths.Application}\"")?.WaitForExit();
+                    }
+                }
             }
             else
             {
                 Paths.Initialize(installLocation);
+
+                if (Paths.Process != Paths.Application && !File.Exists(Paths.Application))
+                {
+                    try { File.Copy(Paths.Process, Paths.Application); }
+                    catch (Exception ex)
+                    {
+                        Logger.WriteLine(LOG_IDENT, $"Failed to copy executable into install folder: {ex.Message}");
+                    }
+                }
+
                 Logger.Initialize(LaunchSettings.UninstallFlag.Active);
-            }
-
-            if (Paths.Process != Paths.Application)
-            {
-                if (OperatingSystem.IsLinux())
-                {
-                    string escapedProcessPath = Paths.Process.Replace("\"", "\\\"");
-                    string launcherScript = $"#!/bin/sh\nexec \"{escapedProcessPath}\" \"$@\"\n";
-
-                    bool needsUpdate = !File.Exists(Paths.Application)
-                        || File.ReadAllText(Paths.Application) != launcherScript;
-
-                    if (needsUpdate)
-                        File.WriteAllText(Paths.Application, launcherScript);
-
-                    Process.Start("chmod", $"+x \"{Paths.Application}\"")?.WaitForExit();
-                }
-                else if (!File.Exists(Paths.Application))
-                {
-                    File.Copy(Paths.Process, Paths.Application);
-                }
             }
 
             if (!Logger.Initialized && !Logger.NoWriteMode)
@@ -436,7 +491,7 @@ public partial class App : Application
             {
                 try
                 {
-                    using var key = Registry.CurrentUser.OpenSubKey("Software\\Froststrap");
+                    using var key = Registry.CurrentUser.OpenSubKey("Software\\Eclipse");
                     if (key != null)
                     {
                         string? lang = key.GetValue("Language") as string;
@@ -472,6 +527,7 @@ public partial class App : Application
             if (OperatingSystem.IsWindows())
             {
                 WindowsRegistry.RegisterApis();
+                WindowsRegistry.RegisterUninstallEntry();
 
                 try
                 {

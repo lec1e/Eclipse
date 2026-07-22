@@ -73,13 +73,16 @@ namespace Froststrap
             {
                 ActivityWatcher = new(_watcherData.LogFile, _watcherData.LaunchMode, _watcherData.ProcessId);
 
-                if (App.Settings.Prop.UseDisableAppPatch)
+                if (App.Settings.Prop.UseDisableAppPatch || App.Settings.Prop.FullyCloseRobloxOnExit)
                 {
+                    // Migrate old FullyClose toggle into Close To Desktop
+                    if (App.Settings.Prop.FullyCloseRobloxOnExit && !App.Settings.Prop.UseDisableAppPatch)
+                        App.Settings.Prop.UseDisableAppPatch = true;
+
                     ActivityWatcher.OnAppClose += delegate
                     {
-                        App.Logger.WriteLine(LOG_IDENT, "Received desktop app exit, closing Roblox");
-                        using var process = Process.GetProcessById(_watcherData.ProcessId);
-                        process.CloseMainWindow();
+                        App.Logger.WriteLine(LOG_IDENT, "Leave-game detected — force-closing Roblox (Close To Desktop)");
+                        KillAllRobloxPlayerProcesses();
                     };
                 }
 
@@ -335,8 +338,40 @@ namespace Froststrap
                     CloseProcess(pid);
             }
 
+            if ((App.Settings.Prop.UseDisableAppPatch || App.Settings.Prop.FullyCloseRobloxOnExit)
+                && OperatingSystem.IsWindows())
+                KillAllRobloxPlayerProcesses();
+
             if (App.LaunchSettings.TestModeFlag.Active)
                 Process.Start(Paths.Process, "-settings -testmode");
+        }
+
+        private static void KillAllRobloxPlayerProcesses()
+        {
+            const string LOG_IDENT = "Watcher::KillAllRobloxPlayerProcesses";
+
+            foreach (string name in new[] { "RobloxPlayerBeta", "RobloxCrashHandler", "Roblox" })
+            {
+                foreach (var proc in Process.GetProcessesByName(name))
+                {
+                    try
+                    {
+                        if (!proc.HasExited)
+                        {
+                            App.Logger.WriteLine(LOG_IDENT, $"Force-killing {proc.ProcessName} ({proc.Id})");
+                            proc.Kill(entireProcessTree: true);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        App.Logger.WriteLine(LOG_IDENT, $"Failed to kill {name}: {ex.Message}");
+                    }
+                    finally
+                    {
+                        proc.Dispose();
+                    }
+                }
+            }
         }
 
         public void Dispose()
