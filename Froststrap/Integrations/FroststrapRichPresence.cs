@@ -7,9 +7,9 @@ namespace Froststrap.Integrations
     {
         /// <summary>
         /// Eclipse Discord application (name shown as "Playing Eclipse").
-        /// Client IDs are public; create/rename the app at https://discord.com/developers/applications
+        /// Client IDs are public; manage the app at https://discord.com/developers/applications
         /// </summary>
-        public const string EclipseApplicationId = "1399535282713399418";
+        public const string EclipseApplicationId = "1529388012620746913";
 
         /// <summary>Hosted Eclipse mark — Discord accepts external image URLs for LargeImageKey.</summary>
         private const string EclipseLogoUrl =
