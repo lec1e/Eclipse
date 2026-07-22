@@ -101,15 +101,18 @@ namespace Froststrap.UI.ViewModels.Settings
             OnPropertyChanged(nameof(HasBreadcrumbs));
             OnPropertyChanged(nameof(ShowPageTitle));
             OnPropertyChanged(nameof(ShowPageChrome));
+            OnPropertyChanged(nameof(ShowFooter));
         }
 
         public bool HasBreadcrumbs => BreadcrumbItems.Count > 0;
         public bool ShowPageTitle => !HasBreadcrumbs && SelectedPage != "home";
         public bool ShowPageChrome => SelectedPage != "home" || HasBreadcrumbs;
+        public bool ShowFooter => SelectedPage != "home";
 
         public ICommand SetLaunchModeCommand { get; }
 
         public IRelayCommand NavigateToHomeCommand { get; }
+        public IRelayCommand NavigateToToolsHubCommand { get; }
         public IRelayCommand NavigateToIntegrationsCommand { get; }
         public IRelayCommand NavigateToBehaviourCommand { get; }
         public IRelayCommand NavigateToLinuxSettingsCommand { get; }
@@ -163,6 +166,8 @@ namespace Froststrap.UI.ViewModels.Settings
 
             NavigateToHomeCommand = new RelayCommand(() =>
                 Navigate("home", "Home", "", new HomeDashboardViewModel(this)));
+            NavigateToToolsHubCommand = new RelayCommand(() =>
+                Navigate("tools", "Settings", "All Eclipse tools in one place.", new ToolsHubViewModel(this)));
             NavigateToIntegrationsCommand = new RelayCommand(() => Navigate("integrations", Strings.Menu_Integrations_Title, Strings.Menu_Integrations_Description, new IntegrationsViewModel()));
             NavigateToBehaviourCommand = new RelayCommand(() => Navigate("behaviour", Strings.Menu_Behaviour_Title, Strings.Menu_Behaviour_Description, new BehaviourViewModel()));
             NavigateToLinuxSettingsCommand = new RelayCommand(() => Navigate("linuxsettings", Strings.Menu_LinuxSettings_Title, null!, new LinuxSettingsViewModel()));
@@ -261,6 +266,7 @@ namespace Froststrap.UI.ViewModels.Settings
                 SearchBar.Clear();
                 OnPropertyChanged(nameof(ShowPageTitle));
                 OnPropertyChanged(nameof(ShowPageChrome));
+                OnPropertyChanged(nameof(ShowFooter));
             }
             catch (Exception ex)
             {
@@ -274,6 +280,9 @@ namespace Froststrap.UI.ViewModels.Settings
             {
                 case "Froststrap.UI.ViewModels.Settings.HomeDashboardViewModel":
                     NavigateToHomeCommand.Execute(null);
+                    break;
+                case "Froststrap.UI.ViewModels.Settings.ToolsHubViewModel":
+                    NavigateToToolsHubCommand.Execute(null);
                     break;
                 case "Froststrap.UI.ViewModels.Settings.IntegrationsViewModel":
                     NavigateToIntegrationsCommand.Execute(null);

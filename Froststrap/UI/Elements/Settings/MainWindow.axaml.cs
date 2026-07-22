@@ -91,31 +91,13 @@ namespace Froststrap.UI.Elements.Settings
 
             void Sep() => _railItems.Add(new RailNavItem { IsSeparator = true, Tag = $"sep-{_railItems.Count}" });
 
-            // Mockup-style primary group
+            // Exact mockup nav — everything else lives under Settings (tools hub)
             Add("home", "Home", LucideIconNames.House);
             Add("quickplay", "Games", LucideIconNames.Gamepad2);
-            Add("mods", "Library", LucideIconNames.BookOpen);
+            Add("mods", "Library", LucideIconNames.Library);
             Add("altman", "Profiles", LucideIconNames.Users);
-            Add("appearance", "Settings", LucideIconNames.Settings);
-            Sep();
-            Add("integrations", Strings.Menu_Integrations_Title, LucideIconNames.Plus);
-            Add("behaviour", Strings.Menu_Behaviour_Title, LucideIconNames.Play);
-            Add("channels", Strings.Common_Deployment, LucideIconNames.HardDriveUpload);
-            Add("versions", "Versions", LucideIconNames.Layers);
-            Sep();
-            Add("banasync", "BanAsync", LucideIconNames.Shield, GlobalViewModel.IsWindows);
-            Add("hwidspoofer", "HWID Spoofer", LucideIconNames.FingerprintPattern, GlobalViewModel.IsWindows);
-            Add("multiinstance", "Multi Instance", LucideIconNames.Copy);
-            Add("vipserver", "VIP Server", LucideIconNames.Crown);
-            Add("serverbrowser", "Servers", LucideIconNames.Server);
-            Add("news", "News", LucideIconNames.Newspaper);
-            Sep();
-            Add("fastflags", Strings.Menu_FastFlags_Title, LucideIconNames.Flag);
-            Add("globalsettings", Strings.Menu_GlobalSettings_Title, LucideIconNames.PenLine);
-            Add("linuxsettings", Strings.Menu_LinuxSettings_Title, LucideIconNames.Cpu, GlobalViewModel.IsLinux);
-            Add("regionselector", Strings.Menu_RegionSelector_Title, LucideIconNames.Globe);
-            Add("shortcuts", Strings.Common_Shortcuts, LucideIconNames.Link2);
-            Add("about", Strings.Menu_About_Title, LucideIconNames.CircleAlert);
+            Add("custommods", "Mods", LucideIconNames.Puzzle);
+            Add("tools", "Settings", LucideIconNames.Settings);
 
             if (RailItemsControl is not null)
                 RailItemsControl.ItemsSource = _railItems;
@@ -123,22 +105,19 @@ namespace Froststrap.UI.Elements.Settings
 
         private void ApplyGbsRailState()
         {
-            if (_viewModel is null) return;
-            var gbs = _railItems.FirstOrDefault(i => i.Tag == "globalsettings");
-            if (gbs is null) return;
-            gbs.IsEnabled = _viewModel.GBSEnabled;
+            // GBS lives under Settings tools hub now — nothing to toggle on the rail.
         }
+
+        private void TopDownload_Click(object? sender, RoutedEventArgs e)
+            => _viewModel?.NavigateToChannelsCommand.Execute(null);
+
+        private void TopNews_Click(object? sender, RoutedEventArgs e)
+            => _viewModel?.NavigateToNewsCommand.Execute(null);
 
         private void RailItem_Click(object? sender, RoutedEventArgs e)
         {
             if (sender is not Button { Tag: string tag })
                 return;
-
-            if (tag == "about")
-            {
-                _viewModel?.OpenAboutCommand.Execute(null);
-                return;
-            }
 
             SaveCurrentPage();
             GetNavigationAction(tag)?.Invoke();
@@ -183,6 +162,8 @@ namespace Froststrap.UI.Elements.Settings
             return pageTag switch
             {
                 "home" => () => _viewModel?.NavigateToHomeCommand.Execute(null),
+                "tools" => () => _viewModel?.NavigateToToolsHubCommand.Execute(null),
+                "custommods" => () => _viewModel?.NavigateToMyModsCommand.Execute(null),
                 "integrations" => () => _viewModel?.NavigateToIntegrationsCommand.Execute(null),
                 "behaviour" => () => _viewModel?.NavigateToBehaviourCommand.Execute(null),
                 "linuxsettings" => () => _viewModel?.NavigateToLinuxSettingsCommand.Execute(null),

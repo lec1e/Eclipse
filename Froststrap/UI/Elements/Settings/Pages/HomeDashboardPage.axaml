@@ -5,50 +5,41 @@
              x:Class="Froststrap.UI.Elements.Settings.Pages.HomeDashboardPage"
              x:DataType="vm:HomeDashboardViewModel">
 
-  <ScrollViewer VerticalScrollBarVisibility="Auto"
-                HorizontalScrollBarVisibility="Disabled"
-                Padding="4,0,8,8">
-    <StackPanel Spacing="28">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="28,12,28,28" Spacing="26">
 
       <!-- HERO -->
-      <Grid ColumnDefinitions="*,260" ColumnSpacing="20" MinHeight="190">
+      <Grid ColumnDefinitions="*,300" ColumnSpacing="24" MinHeight="168">
         <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="6">
-          <TextBlock Text="{Binding Greeting}"
-                     FontSize="16"
-                     Opacity="0.7" />
-          <TextBlock Text="{Binding DisplayName}"
-                     FontSize="40"
-                     FontWeight="Bold"
-                     Foreground="#C084FC" />
-          <TextBlock Text="{Binding Tagline}"
-                     FontSize="14"
-                     Opacity="0.72"
-                     TextWrapping="Wrap"
-                     MaxWidth="480" />
+          <TextBlock Text="{Binding Greeting}" FontSize="15" Opacity="0.7" />
+          <TextBlock Text="{Binding DisplayName}" FontSize="42" FontWeight="Bold">
+            <TextBlock.Foreground>
+              <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                <GradientStop Color="#E9D5FF" Offset="0" />
+                <GradientStop Color="#A78BFA" Offset="0.45" />
+                <GradientStop Color="#67E8F9" Offset="1" />
+              </LinearGradientBrush>
+            </TextBlock.Foreground>
+          </TextBlock>
+          <TextBlock Text="{Binding Tagline}" FontSize="14" Opacity="0.7" TextWrapping="Wrap" MaxWidth="460" />
 
           <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,14,0,0">
-            <Button Height="44"
-                    Padding="20,0"
-                    CornerRadius="14"
-                    Background="#A855F7"
-                    Foreground="White"
+            <Button Height="44" Padding="22,0" CornerRadius="14"
                     BorderThickness="0"
                     Command="{Binding LaunchRobloxCommand}">
+              <Button.Background>
+                <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                  <GradientStop Color="#7C3AED" Offset="0" />
+                  <GradientStop Color="#4F46E5" Offset="1" />
+                </LinearGradientBrush>
+              </Button.Background>
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <ic:Lucide Icon="Play" Width="18" Height="18" StrokeBrush="White" />
-                <TextBlock Text="Launch Roblox"
-                           VerticalAlignment="Center"
-                           FontWeight="SemiBold"
-                           Foreground="White" />
+                <TextBlock Text="Launch Roblox" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" />
               </StackPanel>
             </Button>
-
-            <Button Height="44"
-                    Padding="18,0"
-                    CornerRadius="14"
-                    Background="#22FFFFFF"
-                    BorderBrush="#55FFFFFF"
-                    BorderThickness="1"
+            <Button Height="44" Padding="18,0" CornerRadius="14"
+                    Background="#14FFFFFF" BorderBrush="#55FFFFFF" BorderThickness="1"
                     Command="{Binding OpenFolderCommand}">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <ic:Lucide Icon="Folder" Width="18" Height="18" />
@@ -58,35 +49,33 @@
           </StackPanel>
         </StackPanel>
 
-        <Border Grid.Column="1"
-                Padding="18"
-                CornerRadius="18"
-                VerticalAlignment="Center"
-                Background="#990B0A14"
-                BorderBrush="#44A855F7"
-                BorderThickness="1">
+        <!-- System status -->
+        <Border Grid.Column="1" Padding="16" CornerRadius="16" VerticalAlignment="Center"
+                Background="#99100F18" BorderBrush="#33A78BFA" BorderThickness="1">
           <StackPanel Spacing="14">
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Text="System Status" FontWeight="SemiBold" FontSize="14" />
+              <TextBlock Text="System Status" FontWeight="SemiBold" />
               <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                 <Ellipse Width="8" Height="8" Fill="#34D399" />
-                <TextBlock Text="operational" FontSize="12" Opacity="0.85" />
+                <TextBlock Text="All systems operational" FontSize="11" Opacity="0.85" />
               </StackPanel>
             </Grid>
-            <Grid ColumnDefinitions="Auto,*,Auto">
-              <ic:Lucide Icon="Shield" Width="16" Height="16" Opacity="0.65" />
-              <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="Safety" Opacity="0.7" />
-              <TextBlock Grid.Column="2" Text="Ready" FontWeight="SemiBold" Foreground="#34D399" />
-            </Grid>
-            <Grid ColumnDefinitions="Auto,*,Auto">
-              <ic:Lucide Icon="Activity" Width="16" Height="16" Opacity="0.65" />
-              <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="Service" Opacity="0.7" />
-              <TextBlock Grid.Column="2" Text="{Binding StatusText}" FontWeight="SemiBold" Foreground="#34D399" />
-            </Grid>
-            <Grid ColumnDefinitions="Auto,*,Auto">
-              <ic:Lucide Icon="Package" Width="16" Height="16" Opacity="0.65" />
-              <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="Version" Opacity="0.7" />
-              <TextBlock Grid.Column="2" Text="{Binding VersionText}" FontWeight="SemiBold" />
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+              <StackPanel HorizontalAlignment="Center" Spacing="4">
+                <ic:Lucide Icon="Wifi" Width="16" Height="16" Opacity="0.7" HorizontalAlignment="Center" />
+                <TextBlock Text="128ms" FontWeight="SemiBold" FontSize="13" HorizontalAlignment="Center" />
+                <TextBlock Text="Latency" FontSize="10" Opacity="0.55" HorizontalAlignment="Center" />
+              </StackPanel>
+              <StackPanel HorizontalAlignment="Center" Spacing="4">
+                <ic:Lucide Icon="Shield" Width="16" Height="16" Opacity="0.7" HorizontalAlignment="Center" />
+                <TextBlock Text="100%" FontWeight="SemiBold" FontSize="13" HorizontalAlignment="Center" Foreground="#34D399" />
+                <TextBlock Text="Safe" FontSize="10" Opacity="0.55" HorizontalAlignment="Center" />
+              </StackPanel>
+              <StackPanel HorizontalAlignment="Center" Spacing="4">
+                <ic:Lucide Icon="Server" Width="16" Height="16" Opacity="0.7" HorizontalAlignment="Center" />
+                <TextBlock Text="Online" FontWeight="SemiBold" FontSize="13" HorizontalAlignment="Center" Foreground="#34D399" />
+                <TextBlock Text="Services" FontSize="10" Opacity="0.55" HorizontalAlignment="Center" />
+              </StackPanel>
             </Grid>
           </StackPanel>
         </Border>
@@ -95,14 +84,13 @@
       <!-- RECENTLY PLAYED -->
       <StackPanel Spacing="12">
         <Grid ColumnDefinitions="*,Auto">
-          <TextBlock Text="Recently Played" FontSize="18" FontWeight="SemiBold" />
-          <Button Grid.Column="1"
-                  Background="Transparent"
-                  BorderThickness="0"
-                  Padding="0"
-                  Cursor="Hand"
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <ic:Lucide Icon="Clock" Width="16" Height="16" Opacity="0.7" VerticalAlignment="Center" />
+            <TextBlock Text="Recently Played" FontSize="18" FontWeight="SemiBold" />
+          </StackPanel>
+          <Button Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="0"
                   Command="{Binding OpenQuickPlayCommand}">
-            <TextBlock Text="View All ›" Foreground="#C084FC" />
+            <TextBlock Text="View All ›" Foreground="#A78BFA" />
           </Button>
         </Grid>
 
@@ -113,40 +101,34 @@
             </ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
-            <DataTemplate x:DataType="vm:HomeRecentItem">
-              <Border Height="128"
-                      Margin="0,0,12,0"
-                      CornerRadius="16"
-                      Background="#880B0A14"
-                      BorderBrush="#33A855F7"
-                      BorderThickness="1"
-                      ClipToBounds="True">
+            <DataTemplate x:DataType="vm:HomeGameCard">
+              <Border Height="168" Margin="0,0,12,0" CornerRadius="16" ClipToBounds="True"
+                      BorderBrush="#33FFFFFF" BorderThickness="1"
+                      Background="#22100F18">
                 <Panel>
-                  <Border Background="#33A855F7" Opacity="0.35" />
-                  <Border Background="#2222D3EE" Opacity="0.12"
-                          HorizontalAlignment="Right" Width="80" />
-                  <Grid Margin="14" RowDefinitions="*,Auto">
-                    <StackPanel Spacing="4" VerticalAlignment="Bottom">
-                      <TextBlock Text="{Binding Name}"
-                                 FontWeight="SemiBold"
-                                 FontSize="14"
-                                 TextTrimming="CharacterEllipsis" />
-                      <TextBlock Text="{Binding Subtitle}"
-                                 FontSize="11"
-                                 Opacity="0.65" />
-                    </StackPanel>
-                    <Border Grid.Row="1"
-                            Width="30" Height="30"
-                            CornerRadius="15"
-                            HorizontalAlignment="Right"
-                            Margin="0,8,0,0"
-                            Background="#A855F7">
-                      <ic:Lucide Icon="Play" Width="13" Height="13"
-                                 StrokeBrush="White"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center" />
-                    </Border>
-                  </Grid>
+                  <Image Stretch="UniformToFill"
+                         Source="{Binding ImageUrl, Converter={StaticResource UrlToBitmapConverter}}" />
+                  <Border>
+                    <Border.Background>
+                      <LinearGradientBrush StartPoint="50%,20%" EndPoint="50%,100%">
+                        <GradientStop Color="#00000000" Offset="0" />
+                        <GradientStop Color="#CC000000" Offset="1" />
+                      </LinearGradientBrush>
+                    </Border.Background>
+                  </Border>
+                  <StackPanel Spacing="2" VerticalAlignment="Bottom" Margin="12,12,48,12">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Subtitle}" FontSize="11" Opacity="0.7" />
+                  </StackPanel>
+                  <Button Width="34" Height="34" Padding="0"
+                          HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                          Margin="0,0,12,12"
+                          CornerRadius="17" Background="#7C3AED" BorderThickness="0"
+                          Command="{Binding $parent[UserControl].((vm:HomeDashboardViewModel)DataContext).PlayPlaceCommand}"
+                          CommandParameter="{Binding PlaceId}">
+                    <ic:Lucide Icon="Play" Width="14" Height="14" StrokeBrush="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                  </Button>
                 </Panel>
               </Border>
             </DataTemplate>
@@ -154,50 +136,53 @@
         </ItemsControl>
       </StackPanel>
 
-      <!-- FEATURED + NEWS (explicit columns — fixes overlap) -->
-      <Grid ColumnDefinitions="1.4*,*" ColumnSpacing="18" MinHeight="280">
-        <!-- Featured -->
-        <Border Grid.Column="0"
-                Padding="16"
-                CornerRadius="18"
-                Background="#770B0A14"
-                BorderBrush="#33A855F7"
-                BorderThickness="1">
+      <!-- FEATURED + NEWS -->
+      <Grid ColumnDefinitions="1.35*,*" ColumnSpacing="18" MinHeight="260">
+        <Border Grid.Column="0" Padding="16" CornerRadius="18"
+                Background="#77100F18" BorderBrush="#33A78BFA" BorderThickness="1">
           <DockPanel>
-            <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,14">
-              <TextBlock Text="Featured" FontSize="18" FontWeight="SemiBold" />
-              <TextBlock Text="Hand-picked Eclipse tools" FontSize="12" Opacity="0.6" />
-            </StackPanel>
+            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+              <StackPanel Spacing="2">
+                <TextBlock Text="Featured" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock Text="Hand-picked experiences" FontSize="12" Opacity="0.55" />
+              </StackPanel>
+              <Button Grid.Column="1" Background="Transparent" BorderThickness="0" Padding="0"
+                      VerticalAlignment="Top" Command="{Binding OpenQuickPlayCommand}">
+                <TextBlock Text="Explore ›" Foreground="#A78BFA" />
+              </Button>
+            </Grid>
 
-            <ItemsControl ItemsSource="{Binding QuickLinks}">
+            <ItemsControl ItemsSource="{Binding FeaturedGames}">
               <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="vm:HomeQuickLink">
-                  <Border Margin="0,0,0,8"
-                          Padding="12"
-                          CornerRadius="14"
-                          Background="#440B0A14"
-                          BorderBrush="#22FFFFFF"
-                          BorderThickness="1">
+                <DataTemplate x:DataType="vm:HomeFeaturedItem">
+                  <Border Margin="0,0,0,10" Padding="10" CornerRadius="14"
+                          Background="#440B0A14" BorderBrush="#22FFFFFF" BorderThickness="1">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                      <Border Width="42" Height="42" CornerRadius="12" Background="#55A855F7">
-                        <ic:Lucide Icon="{Binding Icon}" Width="18" Height="18"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      <Border Width="72" Height="48" CornerRadius="10" ClipToBounds="True" Background="#33100F18">
+                        <Image Stretch="UniformToFill"
+                               Source="{Binding ImageUrl, Converter={StaticResource UrlToBitmapConverter}}" />
                       </Border>
-                      <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding Subtitle}" FontSize="12" Opacity="0.6" TextTrimming="CharacterEllipsis" />
+                      <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding Description}" FontSize="11" Opacity="0.6" TextTrimming="CharacterEllipsis" />
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                          <StackPanel Orientation="Horizontal" Spacing="4">
+                            <ic:Lucide Icon="ThumbsUp" Width="12" Height="12" Opacity="0.6" />
+                            <TextBlock Text="{Binding Rating}" FontSize="11" Opacity="0.7" />
+                          </StackPanel>
+                          <StackPanel Orientation="Horizontal" Spacing="4">
+                            <ic:Lucide Icon="Users" Width="12" Height="12" Opacity="0.6" />
+                            <TextBlock Text="{Binding Players}" FontSize="11" Opacity="0.7" />
+                          </StackPanel>
+                        </StackPanel>
                       </StackPanel>
-                      <Button Grid.Column="2"
-                              Height="32"
-                              MinWidth="72"
-                              Padding="14,0"
-                              CornerRadius="10"
-                              Background="#A855F7"
-                              Foreground="White"
-                              BorderThickness="0"
-                              Content="Open"
-                              Command="{Binding $parent[UserControl].((vm:HomeDashboardViewModel)DataContext).NavigateLinkCommand}"
-                              CommandParameter="{Binding Tag}" />
+                      <Button Grid.Column="2" Height="32" MinWidth="70" Padding="12,0"
+                              CornerRadius="10" VerticalAlignment="Center"
+                              Background="Transparent" BorderBrush="#7C3AED" BorderThickness="1"
+                              Foreground="#C4B5FD"
+                              Content="Play"
+                              Command="{Binding $parent[UserControl].((vm:HomeDashboardViewModel)DataContext).PlayPlaceCommand}"
+                              CommandParameter="{Binding PlaceId}" />
                     </Grid>
                   </Border>
                 </DataTemplate>
@@ -206,39 +191,26 @@
           </DockPanel>
         </Border>
 
-        <!-- News -->
-        <Border Grid.Column="1"
-                Padding="16"
-                CornerRadius="18"
-                Background="#770B0A14"
-                BorderBrush="#33A855F7"
-                BorderThickness="1">
+        <Border Grid.Column="1" Padding="16" CornerRadius="18"
+                Background="#77100F18" BorderBrush="#33A78BFA" BorderThickness="1">
           <DockPanel>
-            <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,14">
+            <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,12">
               <TextBlock Text="News" FontSize="18" FontWeight="SemiBold" />
-              <TextBlock Text="Stay up to date" FontSize="12" Opacity="0.6" />
+              <TextBlock Text="Stay up to date" FontSize="12" Opacity="0.55" />
             </StackPanel>
 
-            <Button DockPanel.Dock="Bottom"
-                    Margin="0,12,0,0"
-                    Height="36"
-                    HorizontalAlignment="Stretch"
-                    CornerRadius="12"
-                    Background="#22FFFFFF"
-                    BorderBrush="#44FFFFFF"
-                    BorderThickness="1"
-                    Content="View All News"
-                    Command="{Binding OpenNewsCommand}" />
+            <Button DockPanel.Dock="Bottom" Margin="0,8,0,0"
+                    Background="Transparent" BorderThickness="0" Padding="0"
+                    HorizontalAlignment="Left" Command="{Binding OpenNewsCommand}">
+              <TextBlock Text="View All News ›" Foreground="#A78BFA" />
+            </Button>
 
             <ItemsControl ItemsSource="{Binding NewsItems}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:HomeNewsItem">
-                  <Border Margin="0,0,0,10"
-                          Padding="10"
-                          CornerRadius="12"
-                          Background="#330B0A14">
+                  <Border Margin="0,0,0,10" Padding="10" CornerRadius="12" Background="#330B0A14">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                      <Border Width="36" Height="36" CornerRadius="10" Background="#44A855F7">
+                      <Border Width="36" Height="36" CornerRadius="10" Background="#447C3AED">
                         <ic:Lucide Icon="{Binding Icon}" Width="16" Height="16"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>
