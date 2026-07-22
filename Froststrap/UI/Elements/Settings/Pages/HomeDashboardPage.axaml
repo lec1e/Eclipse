@@ -7,54 +7,94 @@
              Background="Transparent">
 
   <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-    <StackPanel Margin="26,18,22,24" Spacing="22">
+    <StackPanel Margin="28,20,24,28" Spacing="24">
 
-      <!-- HERO -->
-      <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Spacing="6" Margin="0,4,0,0"
-                  MaxWidth="560">
-        <TextBlock Text="{Binding Greeting}" FontSize="14" FontWeight="Medium"
-                   Foreground="#E2E8F0" HorizontalAlignment="Left" TextAlignment="Left" />
-        <TextBlock Text="{Binding DisplayName}" FontSize="44" FontWeight="Bold"
-                   Margin="0,-2,0,0" HorizontalAlignment="Left" TextAlignment="Left">
-          <TextBlock.Foreground>
-            <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
-              <GradientStop Color="#F8FAFC" Offset="0" />
-              <GradientStop Color="#E9D5FF" Offset="0.55" />
-              <GradientStop Color="#C4B5FD" Offset="1" />
-            </LinearGradientBrush>
-          </TextBlock.Foreground>
-        </TextBlock>
-        <TextBlock Text="{Binding Tagline}" FontSize="14" FontWeight="Medium"
-                   Foreground="#CBD5E1" HorizontalAlignment="Left" TextAlignment="Left"
-                   TextWrapping="Wrap" />
+      <!-- HERO + SYSTEM STATUS -->
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Spacing="6"
+                    MaxWidth="560">
+          <TextBlock Text="{Binding Greeting}" FontSize="14" FontWeight="Medium"
+                     Foreground="#CBD5E1" HorizontalAlignment="Left" TextAlignment="Left" />
+          <TextBlock Text="{Binding DisplayName}" FontSize="42" FontWeight="Bold"
+                     Margin="0,-2,0,0" HorizontalAlignment="Left" TextAlignment="Left">
+            <TextBlock.Foreground>
+              <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                <GradientStop Color="#C4B5FD" Offset="0" />
+                <GradientStop Color="#A78BFA" Offset="0.35" />
+                <GradientStop Color="#67E8F9" Offset="1" />
+              </LinearGradientBrush>
+            </TextBlock.Foreground>
+          </TextBlock>
+          <TextBlock Text="{Binding Tagline}" FontSize="14" FontWeight="Medium"
+                     Foreground="#94A3B8" HorizontalAlignment="Left" TextAlignment="Left"
+                     TextWrapping="Wrap" />
 
-        <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,12,0,0"
-                    HorizontalAlignment="Left" VerticalAlignment="Center">
-          <Button Classes="eclipse-primary" Width="168" Height="44" Padding="0" CornerRadius="12"
-                  BorderThickness="0" VerticalAlignment="Center"
-                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                  Command="{Binding LaunchRobloxCommand}">
-            <StackPanel Orientation="Horizontal" Spacing="8"
-                        HorizontalAlignment="Center" VerticalAlignment="Center">
-              <ic:Lucide Icon="Play" Width="16" Height="16" StrokeBrush="White"
-                         VerticalAlignment="Center" />
-              <TextBlock Text="Launch Roblox" FontWeight="SemiBold" Foreground="White"
-                         VerticalAlignment="Center" />
-            </StackPanel>
-          </Button>
-          <Button Classes="eclipse-ghost" Width="148" Height="44" Padding="0" CornerRadius="12"
-                  VerticalAlignment="Center"
-                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                  Command="{Binding OpenFolderCommand}">
-            <StackPanel Orientation="Horizontal" Spacing="8"
-                        HorizontalAlignment="Center" VerticalAlignment="Center">
-              <ic:Lucide Icon="Folder" Width="16" Height="16" StrokeBrush="#F1F5F9"
-                         VerticalAlignment="Center" />
-              <TextBlock Text="Open Folder" Foreground="#F1F5F9" VerticalAlignment="Center" />
-            </StackPanel>
-          </Button>
+          <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,14,0,0"
+                      HorizontalAlignment="Left" VerticalAlignment="Center">
+            <Button Classes="eclipse-primary" Width="168" Height="44" Padding="0" CornerRadius="12"
+                    BorderThickness="0" VerticalAlignment="Center"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                    Command="{Binding LaunchRobloxCommand}">
+              <StackPanel Orientation="Horizontal" Spacing="8"
+                          HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ic:Lucide Icon="Play" Width="16" Height="16" StrokeBrush="White"
+                           VerticalAlignment="Center" />
+                <TextBlock Text="Launch Roblox" FontWeight="SemiBold" Foreground="White"
+                           VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Button Classes="eclipse-ghost" Width="148" Height="44" Padding="0" CornerRadius="12"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                    Command="{Binding OpenFolderCommand}">
+              <StackPanel Orientation="Horizontal" Spacing="8"
+                          HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ic:Lucide Icon="Folder" Width="16" Height="16" StrokeBrush="#F1F5F9"
+                           VerticalAlignment="Center" />
+                <TextBlock Text="Open Folder" Foreground="#F1F5F9" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+          </StackPanel>
         </StackPanel>
-      </StackPanel>
+
+        <!-- System Status (mockup card) -->
+        <Border Grid.Column="1" Width="280" VerticalAlignment="Top"
+                Padding="16" CornerRadius="16"
+                Background="#99101018" BorderBrush="#33FFFFFF" BorderThickness="1">
+          <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="System Status" FontSize="13" FontWeight="SemiBold" Foreground="#F1F5F9" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                <Ellipse Width="7" Height="7" Fill="#34D399" VerticalAlignment="Center" />
+                <TextBlock Text="operational" FontSize="11" Foreground="#6EE7B7" VerticalAlignment="Center" />
+              </StackPanel>
+            </Grid>
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+              <StackPanel Spacing="4" HorizontalAlignment="Center">
+                <ic:Lucide Icon="Zap" Width="16" Height="16" StrokeBrush="#67E8F9"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="128ms" FontSize="13" FontWeight="SemiBold" Foreground="#F8FAFC"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Latency" FontSize="10" Foreground="#7C8499" HorizontalAlignment="Center" />
+              </StackPanel>
+              <StackPanel Spacing="4" HorizontalAlignment="Center">
+                <ic:Lucide Icon="ShieldCheck" Width="16" Height="16" StrokeBrush="#67E8F9"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="100%" FontSize="13" FontWeight="SemiBold" Foreground="#F8FAFC"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Safe" FontSize="10" Foreground="#7C8499" HorizontalAlignment="Center" />
+              </StackPanel>
+              <StackPanel Spacing="4" HorizontalAlignment="Center">
+                <ic:Lucide Icon="Activity" Width="16" Height="16" StrokeBrush="#67E8F9"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Online" FontSize="13" FontWeight="SemiBold" Foreground="#F8FAFC"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Services" FontSize="10" Foreground="#7C8499" HorizontalAlignment="Center" />
+              </StackPanel>
+            </Grid>
+          </StackPanel>
+        </Border>
+      </Grid>
 
       <!-- RECENTLY PLAYED -->
       <StackPanel Spacing="12">
@@ -71,7 +111,7 @@
         </Grid>
 
         <Border IsVisible="{Binding HasNoRecentGames}" Height="100" CornerRadius="14"
-                BorderBrush="#28FFFFFF" BorderThickness="1" Background="#140B0B12"
+                BorderBrush="#22FFFFFF" BorderThickness="1" Background="#140B0B12"
                 Padding="18">
           <StackPanel VerticalAlignment="Center" Spacing="4">
             <TextBlock Text="No recent games yet" FontSize="14" FontWeight="SemiBold" Foreground="#E2E8F0" />
@@ -89,7 +129,7 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:HomeGameCard">
               <Border Height="148" Margin="0,0,12,0" CornerRadius="14" ClipToBounds="True"
-                      BorderBrush="#28FFFFFF" BorderThickness="1" Background="#1A0B0B12">
+                      BorderBrush="#22FFFFFF" BorderThickness="1" Background="#1A0B0B12">
                 <Panel>
                   <Border Background="{Binding TintBrush}" />
                   <Image Stretch="UniformToFill" IsVisible="{Binding HasImage}"
@@ -127,7 +167,7 @@
       <!-- FEATURED | NEWS -->
       <Grid ColumnDefinitions="1.4*,*" ColumnSpacing="14" MinHeight="250">
         <Border Grid.Column="0" Padding="16" CornerRadius="16"
-                Background="#AA101018" BorderBrush="#337C3AED" BorderThickness="1">
+                Background="#99101018" BorderBrush="#28FFFFFF" BorderThickness="1">
           <DockPanel>
             <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
               <StackPanel Spacing="2">
@@ -147,7 +187,7 @@
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:HomeFeaturedItem">
                   <Border Margin="0,0,0,10" Padding="11" CornerRadius="12"
-                          Background="#330B0B12" BorderBrush="#1AFFFFFF" BorderThickness="1">
+                          Background="#330B0B12" BorderBrush="#18FFFFFF" BorderThickness="1">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                       <Border Width="78" Height="52" CornerRadius="10" ClipToBounds="True" Background="#220B0B12">
                         <Panel>
@@ -174,7 +214,7 @@
                       </StackPanel>
                       <Button Grid.Column="2" Classes="eclipse-ghost" Height="32" MinWidth="70" Padding="12,0"
                               CornerRadius="9" VerticalAlignment="Center"
-                              BorderBrush="#7C3AED" BorderThickness="1.5"
+                              BorderBrush="#8B5CF6" BorderThickness="1.5"
                               Foreground="#C4B5FD" Content="Play" FontWeight="SemiBold"
                               Command="{Binding $parent[UserControl].((vm:HomeDashboardViewModel)DataContext).PlayPlaceCommand}"
                               CommandParameter="{Binding PlaceId}" />
@@ -187,7 +227,7 @@
         </Border>
 
         <Border Grid.Column="1" Padding="16" CornerRadius="16"
-                Background="#AA101018" BorderBrush="#337C3AED" BorderThickness="1">
+                Background="#99101018" BorderBrush="#28FFFFFF" BorderThickness="1">
           <DockPanel>
             <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,12">
               <StackPanel Orientation="Horizontal" Spacing="8">
@@ -208,7 +248,13 @@
                 <DataTemplate x:DataType="vm:HomeNewsItem">
                   <Border Margin="0,0,0,8" Padding="10" CornerRadius="11" Background="#280B0B12">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                      <Border Width="34" Height="34" CornerRadius="9" Background="#667C3AED">
+                      <Border Width="34" Height="34" CornerRadius="9">
+                        <Border.Background>
+                          <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                            <GradientStop Color="#8B5CF6" Offset="0" />
+                            <GradientStop Color="#4F46E5" Offset="1" />
+                          </LinearGradientBrush>
+                        </Border.Background>
                         <ic:Lucide Icon="{Binding Icon}" Width="15" Height="15" StrokeBrush="White"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                       </Border>

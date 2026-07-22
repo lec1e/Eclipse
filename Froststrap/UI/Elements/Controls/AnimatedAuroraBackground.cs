@@ -1,37 +1,30 @@
-using AnimatedImage.Avalonia;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Layout;
+using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 
 namespace Froststrap.UI.Elements.Controls
 {
     /// <summary>
-    /// Dark aurora GIF background. Does not participate in layout sizing (so
-    /// SizeToContent windows are not inflated by the GIF). Playback pauses when
-    /// the host window is inactive or aurora is disabled in settings.
+    /// Soft Midnight Rail aurora — large blurred purple/cyan haze that drifts slowly.
+    /// Does not contribute to layout size (safe for SizeToContent windows).
+    /// Pauses when the host window is inactive.
     /// </summary>
-    public class AnimatedAuroraBackground : Panel
+    public class AnimatedAuroraBackground : Canvas
     {
-        private const double PlaybackSpeed = 0.28;
-
-        private static readonly Uri GifUri = new("avares://Eclipse/Assets/aurora-dark.gif");
-        private static readonly Uri StillUri = new("avares://Eclipse/Assets/aurora-dark-still.png");
-
-        private readonly Image _image = new()
-        {
-            Stretch = Stretch.UniformToFill,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            VerticalAlignment = VerticalAlignment.Stretch,
-            IsHitTestVisible = false
-        };
-
-        private readonly AnimatedImageSourceUri _animatedSource = new(GifUri);
-        private Bitmap? _stillBitmap;
-        private Window? _hostWindow;
+        private readonly Ellipse _wash = CreateOrb(1800, 0.55);
+        private readonly Ellipse _core = CreateOrb(1200, 0.85);
+        private readonly Ellipse _bloomPurple = CreateOrb(1400, 0.78);
+        private readonly Ellipse _bloomCyan = CreateOrb(1100, 0.62);
+        private readonly Ellipse _bloomMagenta = CreateOrb(1000, 0.55);
+        private readonly Ellipse _streakA = CreateStreak(2000, 420, 0.55);
+        private readonly Ellipse _streakB = CreateStreak(1700, 340, 0.42);
+        private readonly Ellipse _streakC = CreateStreak(1500, 280, 0.32);
+        private readonly DispatcherTimer _timer;
+        private double _t;
         private bool _paused;
-        private bool _animating;
+        private Window? _hostWindow;
 
         public static readonly StyledProperty<bool> IsActiveProperty =
             AvaloniaProperty.Register<AnimatedAuroraBackground, bool>(nameof(IsActive), true);
@@ -46,46 +39,45 @@ namespace Froststrap.UI.Elements.Controls
         {
             IsHitTestVisible = false;
             ClipToBounds = true;
-            Background = new SolidColorBrush(Color.FromRgb(0x05, 0x04, 0x0A));
-            Children.Add(_image);
+            Background = new SolidColorBrush(Color.FromRgb(0x06, 0x06, 0x0C));
+            Effect = new BlurEffect { Radius = 48 };
+
+            Children.Add(_wash);
+            Children.Add(_streakA);
+            Children.Add(_streakB);
+            Children.Add(_streakC);
+            Children.Add(_bloomMagenta);
+            Children.Add(_bloomCyan);
+            Children.Add(_bloomPurple);
+            Children.Add(_core);
+
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
+            _timer.Tick += (_, _) => Tick();
 
             AttachedToVisualTree += OnAttached;
             DetachedFromVisualTree += OnDetached;
+            SizeChanged += (_, e) => LayoutOrbs(e.NewSize);
         }
 
-        /// <summary>
-        /// Report zero desired size so parents using SizeToContent are not stretched
-        /// by the GIF's intrinsic pixel dimensions.
-        /// </summary>
+        /// <summary>Ignore intrinsic child sizes so SizeToContent parents stay compact.</summary>
         protected override Size MeasureOverride(Size availableSize)
         {
-            if (!double.IsInfinity(availableSize.Width) && !double.IsInfinity(availableSize.Height)
-                && availableSize.Width > 0 && availableSize.Height > 0)
-            {
-                _image.Measure(availableSize);
-            }
-
             return new Size(0, 0);
-        }
-
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            _image.Arrange(new Rect(finalSize));
-            return finalSize;
         }
 
         private void OnAttached(object? sender, VisualTreeAttachmentEventArgs e)
         {
-            EnsureStill();
             SyncFromSettings();
+            RefreshBrushes();
+            LayoutOrbs(Bounds.Size);
             HookWindow(TopLevel.GetTopLevel(this) as Window);
-            UpdatePlayback();
+            UpdateTimer();
         }
 
         private void OnDetached(object? sender, VisualTreeAttachmentEventArgs e)
         {
             UnhookWindow();
-            StopAnimation(showStill: false);
+            _timer.Stop();
         }
 
         private void HookWindow(Window? window)
@@ -115,19 +107,43 @@ namespace Froststrap.UI.Elements.Controls
         private void OnHostActivated(object? sender, EventArgs e)
         {
             _paused = false;
-            UpdatePlayback();
+            UpdateTimer();
         }
 
         private void OnHostDeactivated(object? sender, EventArgs e)
         {
             _paused = true;
-            UpdatePlayback();
+            _timer.Stop();
         }
 
         public void SetPaused(bool paused)
         {
             _paused = paused;
-            UpdatePlayback();
+            UpdateTimer();
+        }
+
+        private void UpdateTimer()
+        {
+            bool enabled = App.Settings?.Prop?.EnableAurora ?? true;
+            if (enabled && IsActive && !_paused && VisualRoot is not null)
+            {
+                if (!_timer.IsEnabled)
+                    _timer.Start();
+            }
+            else
+            {
+                _timer.Stop();
+            }
+        }
+
+        private void Tick()
+        {
+            if (_paused || !IsActive || !IsEffectivelyVisible || Opacity <= 0.01)
+                return;
+
+            // Slow drift — mockup-style, not frantic
+            _t += 0.006;
+            LayoutOrbs(Bounds.Size);
         }
 
         public void SyncFromSettings()
@@ -135,81 +151,105 @@ namespace Froststrap.UI.Elements.Controls
             bool enabled = App.Settings?.Prop?.EnableAurora ?? true;
             Opacity = enabled ? 1 : 0;
             IsVisible = enabled;
-            UpdatePlayback();
+            UpdateTimer();
         }
 
-        /// <summary>No-op kept for callers that refreshed the old procedural brushes.</summary>
+        private void LayoutOrbs(Size size)
+        {
+            if (size.Width <= 0 || size.Height <= 0)
+                return;
+
+            // Soft haze across the upper-middle stage (matches mockup concentration)
+            Place(_wash, size, 0.58 + Math.Sin(_t * 0.04) * 0.015, 0.18);
+            Place(_core, size, 0.60 + Math.Sin(_t * 0.07) * 0.02, 0.14 + Math.Cos(_t * 0.05) * 0.015);
+            Place(_bloomPurple, size, 0.46 + Math.Cos(_t * 0.06) * 0.02, 0.20 + Math.Sin(_t * 0.08) * 0.015);
+            Place(_bloomCyan, size, 0.78 + Math.Sin(_t * 0.08) * 0.02, 0.16 + Math.Cos(_t * 0.07) * 0.02);
+            Place(_bloomMagenta, size, 0.34 + Math.Cos(_t * 0.05) * 0.018, 0.26 + Math.Sin(_t * 0.06) * 0.015);
+
+            Place(_streakA, size, 0.58, 0.12 + Math.Sin(_t * 0.05) * 0.012);
+            Place(_streakB, size, 0.72, 0.22 + Math.Cos(_t * 0.055) * 0.012);
+            Place(_streakC, size, 0.44, 0.08 + Math.Sin(_t * 0.045) * 0.01);
+
+            _streakA.RenderTransform = new RotateTransform(-22 + Math.Sin(_t * 0.035) * 1.8);
+            _streakB.RenderTransform = new RotateTransform(-30 + Math.Cos(_t * 0.04) * 1.8);
+            _streakC.RenderTransform = new RotateTransform(-16 + Math.Sin(_t * 0.03) * 1.5);
+        }
+
+        private static void Place(Ellipse orb, Size size, double nx, double ny)
+        {
+            SetLeft(orb, nx * size.Width - orb.Width / 2);
+            SetTop(orb, ny * size.Height - orb.Height / 2);
+        }
+
         public void RefreshBrushes()
         {
+            Color purple = Color.FromRgb(0xA7, 0x8B, 0xFA);
+            Color violet = Color.FromRgb(0xDD, 0xD6, 0xFE);
+            Color deep = Color.FromRgb(0x7C, 0x3A, 0xED);
+            Color magenta = Color.FromRgb(0xE8, 0x79, 0xF9);
+            Color cyan = Color.FromRgb(0x67, 0xE8, 0xF9);
+            Color teal = Color.FromRgb(0x5E, 0xEA, 0xD4);
+
+            _wash.Fill = Radial(deep, 0x70);
+            _core.Fill = Radial(violet, 0xC8);
+            _bloomPurple.Fill = Radial(purple, 0xB8);
+            _bloomCyan.Fill = Radial(cyan, 0x90);
+            _bloomMagenta.Fill = Radial(magenta, 0x80);
+            _streakA.Fill = Streak(purple, cyan, 0xA8);
+            _streakB.Fill = Streak(cyan, teal, 0x78);
+            _streakC.Fill = Streak(magenta, purple, 0x68);
         }
 
-        private void UpdatePlayback()
+        private static Ellipse CreateOrb(double size, double opacity) => new()
         {
-            bool enabled = App.Settings?.Prop?.EnableAurora ?? true;
-            bool shouldPlay = enabled && IsActive && !_paused && VisualRoot is not null;
+            Width = size,
+            Height = size,
+            Opacity = opacity,
+            IsHitTestVisible = false
+        };
 
-            if (shouldPlay)
-                StartAnimation();
-            else
-                StopAnimation(showStill: enabled);
-        }
-
-        private void StartAnimation()
+        private static Ellipse CreateStreak(double width, double height, double opacity) => new()
         {
-            if (_animating)
-            {
-                ImageBehavior.SetSpeedRatio(_image, PlaybackSpeed);
-                return;
-            }
+            Width = width,
+            Height = height,
+            Opacity = opacity,
+            IsHitTestVisible = false,
+            RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative)
+        };
 
-            _image.Source = null;
-            ImageBehavior.SetAnimatedSource(_image, _animatedSource);
-            ImageBehavior.SetSpeedRatio(_image, PlaybackSpeed);
-            _animating = true;
-        }
-
-        private void StopAnimation(bool showStill)
+        private static IBrush Radial(Color color, byte alpha) => new RadialGradientBrush
         {
-            if (_animating)
-            {
-                ImageBehavior.SetSpeedRatio(_image, 0d);
-                _image.ClearValue(ImageBehavior.AnimatedSourceProperty);
-                _animating = false;
-            }
+            GradientOrigin = new RelativePoint(0.5, 0.42, RelativeUnit.Relative),
+            Center = new RelativePoint(0.5, 0.5, RelativeUnit.Relative),
+            RadiusX = new RelativeScalar(0.68, RelativeUnit.Relative),
+            RadiusY = new RelativeScalar(0.52, RelativeUnit.Relative),
+            GradientStops =
+            [
+                new Avalonia.Media.GradientStop(Color.FromArgb(alpha, color.R, color.G, color.B), 0),
+                new Avalonia.Media.GradientStop(Color.FromArgb((byte)(alpha * 0.55), color.R, color.G, color.B), 0.42),
+                new Avalonia.Media.GradientStop(Color.FromArgb((byte)(alpha * 0.14), color.R, color.G, color.B), 0.74),
+                new Avalonia.Media.GradientStop(Color.FromArgb(0, color.R, color.G, color.B), 1)
+            ]
+        };
 
-            if (showStill)
-            {
-                EnsureStill();
-                if (_stillBitmap is not null)
-                    _image.Source = _stillBitmap;
-            }
-            else
-            {
-                _image.Source = null;
-            }
-        }
-
-        private void EnsureStill()
+        private static IBrush Streak(Color a, Color b, byte alpha) => new LinearGradientBrush
         {
-            if (_stillBitmap is not null)
-                return;
-
-            try
-            {
-                using var stream = Avalonia.Platform.AssetLoader.Open(StillUri);
-                _stillBitmap = new Bitmap(stream);
-            }
-            catch
-            {
-                // Still frame is optional; GIF cover frame is used when available.
-            }
-        }
+            StartPoint = new RelativePoint(0, 0.5, RelativeUnit.Relative),
+            EndPoint = new RelativePoint(1, 0.5, RelativeUnit.Relative),
+            GradientStops =
+            [
+                new Avalonia.Media.GradientStop(Color.FromArgb(0, a.R, a.G, a.B), 0),
+                new Avalonia.Media.GradientStop(Color.FromArgb(alpha, a.R, a.G, a.B), 0.34),
+                new Avalonia.Media.GradientStop(Color.FromArgb(alpha, b.R, b.G, b.B), 0.66),
+                new Avalonia.Media.GradientStop(Color.FromArgb(0, b.R, b.G, b.B), 1)
+            ]
+        };
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
             if (change.Property == IsActiveProperty)
-                UpdatePlayback();
+                UpdateTimer();
         }
     }
 }
