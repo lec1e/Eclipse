@@ -2,8 +2,34 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Froststrap.UI.Elements.Controls.EclipseLogoMark"
              Width="28" Height="28">
-  <!-- Prefer painted solar-eclipse mark asset (matches mockup) -->
-  <Image Width="28" Height="28"
-         Source="avares://Eclipse/EclipseMark.png"
-         RenderOptions.BitmapInterpolationMode="HighQuality" />
+  <!-- Mockup logo: thin glowing purple crescent (open to the right) -->
+  <Viewbox Width="28" Height="28" Stretch="Uniform">
+    <Canvas Width="32" Height="32">
+      <!-- Soft glow -->
+      <Ellipse Canvas.Left="2" Canvas.Top="2" Width="28" Height="28" Opacity="0.55">
+        <Ellipse.Fill>
+          <RadialGradientBrush>
+            <GradientStop Color="#AAA855F7" Offset="0.2" />
+            <GradientStop Color="#448B5CF6" Offset="0.55" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </RadialGradientBrush>
+        </Ellipse.Fill>
+      </Ellipse>
+
+      <!-- Crescent path: outer circle minus inner circle -->
+      <Path Canvas.Left="4" Canvas.Top="4">
+        <Path.Fill>
+          <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+            <GradientStop Color="#E9D5FF" Offset="0" />
+            <GradientStop Color="#C084FC" Offset="0.45" />
+            <GradientStop Color="#7C3AED" Offset="1" />
+          </LinearGradientBrush>
+        </Path.Fill>
+        <!-- Classic crescent: large arc then smaller reverse arc -->
+        <Path.Data>
+          <StreamGeometry>M18,2.5 A11.5,11.5 0 1 0 18,29.5 A8.2,8.2 0 1 1 18,2.5 Z</StreamGeometry>
+        </Path.Data>
+      </Path>
+    </Canvas>
+  </Viewbox>
 </UserControl>

@@ -7,16 +7,16 @@ using Avalonia.Threading;
 namespace Froststrap.UI.Elements.Controls
 {
     /// <summary>
-    /// Near-black stage with diagonal purple/cyan streaks in the upper content area (mockup).
+    /// Mockup aurora: vivid diagonal purple/cyan streaks across upper content on near-black.
     /// </summary>
     public class AnimatedAuroraBackground : Canvas
     {
-        private readonly Ellipse _core = CreateOrb(900, 0.55);
-        private readonly Ellipse _right = CreateOrb(780, 0.45);
-        private readonly Ellipse _soft = CreateOrb(620, 0.32);
-        private readonly Ellipse _streakA = CreateStreak(1400, 220, 0.50);
-        private readonly Ellipse _streakB = CreateStreak(1200, 180, 0.38);
-        private readonly Ellipse _streakC = CreateStreak(1000, 140, 0.28);
+        private readonly Ellipse _bloomA = CreateOrb(1100, 0.72);
+        private readonly Ellipse _bloomB = CreateOrb(920, 0.60);
+        private readonly Ellipse _bloomC = CreateOrb(700, 0.42);
+        private readonly Ellipse _streak1 = CreateStreak(1600, 260, 0.62);
+        private readonly Ellipse _streak2 = CreateStreak(1400, 200, 0.50);
+        private readonly Ellipse _streak3 = CreateStreak(1200, 160, 0.38);
         private readonly DispatcherTimer _timer;
         private double _t;
 
@@ -33,13 +33,13 @@ namespace Froststrap.UI.Elements.Controls
         {
             IsHitTestVisible = false;
             ClipToBounds = true;
-            Background = new SolidColorBrush(Color.FromRgb(0x06, 0x06, 0x0A));
-            Children.Add(_streakA);
-            Children.Add(_streakB);
-            Children.Add(_streakC);
-            Children.Add(_core);
-            Children.Add(_right);
-            Children.Add(_soft);
+            Background = new SolidColorBrush(Color.FromRgb(0x07, 0x07, 0x0C));
+            Children.Add(_streak1);
+            Children.Add(_streak2);
+            Children.Add(_streak3);
+            Children.Add(_bloomA);
+            Children.Add(_bloomB);
+            Children.Add(_bloomC);
 
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
             _timer.Tick += (_, _) => Tick();
@@ -64,7 +64,7 @@ namespace Froststrap.UI.Elements.Controls
             if (Opacity <= 0.01)
                 return;
 
-            _t += 0.011;
+            _t += 0.012;
             LayoutOrbs(Bounds.Size);
         }
 
@@ -84,18 +84,17 @@ namespace Froststrap.UI.Elements.Controls
             if (size.Width <= 0 || size.Height <= 0)
                 return;
 
-            // Mockup: glow concentrated upper-middle / upper-right of content
-            Place(_core, size, 0.48 + Math.Sin(_t * 0.14) * 0.03, 0.28 + Math.Cos(_t * 0.11) * 0.03);
-            Place(_right, size, 0.78 + Math.Cos(_t * 0.12) * 0.03, 0.22 + Math.Sin(_t * 0.15) * 0.04);
-            Place(_soft, size, 0.32 + Math.Sin(_t * 0.10) * 0.02, 0.40 + Math.Cos(_t * 0.09) * 0.02);
+            // Concentrated in content upper half (right of rail)
+            Place(_bloomA, size, 0.55 + Math.Sin(_t * 0.14) * 0.03, 0.28 + Math.Cos(_t * 0.11) * 0.03);
+            Place(_bloomB, size, 0.78 + Math.Cos(_t * 0.12) * 0.03, 0.24 + Math.Sin(_t * 0.15) * 0.04);
+            Place(_bloomC, size, 0.38 + Math.Sin(_t * 0.10) * 0.02, 0.36 + Math.Cos(_t * 0.09) * 0.02);
 
-            // Diagonal streaks across upper half
-            Place(_streakA, size, 0.55, 0.26 + Math.Sin(_t * 0.07) * 0.02);
-            Place(_streakB, size, 0.68, 0.34 + Math.Cos(_t * 0.08) * 0.02);
-            Place(_streakC, size, 0.42, 0.20 + Math.Sin(_t * 0.06) * 0.015);
-            _streakA.RenderTransform = new RotateTransform(-18 + Math.Sin(_t * 0.05) * 2);
-            _streakB.RenderTransform = new RotateTransform(-22 + Math.Cos(_t * 0.06) * 2);
-            _streakC.RenderTransform = new RotateTransform(-14 + Math.Sin(_t * 0.04) * 2);
+            Place(_streak1, size, 0.58, 0.26 + Math.Sin(_t * 0.07) * 0.015);
+            Place(_streak2, size, 0.70, 0.34 + Math.Cos(_t * 0.08) * 0.015);
+            Place(_streak3, size, 0.48, 0.20 + Math.Sin(_t * 0.06) * 0.012);
+            _streak1.RenderTransform = new RotateTransform(-20 + Math.Sin(_t * 0.05) * 2);
+            _streak2.RenderTransform = new RotateTransform(-24 + Math.Cos(_t * 0.06) * 2);
+            _streak3.RenderTransform = new RotateTransform(-16 + Math.Sin(_t * 0.04) * 2);
         }
 
         private static void Place(Ellipse orb, Size size, double nx, double ny)
@@ -107,16 +106,17 @@ namespace Froststrap.UI.Elements.Controls
         public void RefreshBrushes()
         {
             Color purple = Color.FromRgb(0x8B, 0x5C, 0xF6);
-            Color violet = Color.FromRgb(0xA8, 0x55, 0xF7);
-            Color magenta = Color.FromRgb(0xC0, 0x26, 0xD3);
+            Color violet = Color.FromRgb(0xC0, 0x84, 0xFC);
+            Color magenta = Color.FromRgb(0xD9, 0x46, 0xEF);
             Color cyan = Color.FromRgb(0x22, 0xD3, 0xEE);
+            Color blue = Color.FromRgb(0x38, 0xBD, 0xF8);
 
-            _core.Fill = Radial(violet, 0x90);
-            _right.Fill = Radial(cyan, 0x70);
-            _soft.Fill = Radial(magenta, 0x50);
-            _streakA.Fill = Radial(purple, 0x78);
-            _streakB.Fill = Radial(cyan, 0x55);
-            _streakC.Fill = Radial(magenta, 0x48);
+            _bloomA.Fill = Radial(violet, 0xB8);
+            _bloomB.Fill = Radial(cyan, 0x98);
+            _bloomC.Fill = Radial(magenta, 0x70);
+            _streak1.Fill = Radial(purple, 0xA0);
+            _streak2.Fill = Radial(blue, 0x80);
+            _streak3.Fill = Radial(magenta, 0x68);
         }
 
         private static Ellipse CreateOrb(double size, double opacity) => new()
@@ -141,11 +141,11 @@ namespace Froststrap.UI.Elements.Controls
             GradientOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative),
             Center = new RelativePoint(0.5, 0.5, RelativeUnit.Relative),
             RadiusX = new RelativeScalar(0.55, RelativeUnit.Relative),
-            RadiusY = new RelativeScalar(0.45, RelativeUnit.Relative),
+            RadiusY = new RelativeScalar(0.40, RelativeUnit.Relative),
             GradientStops =
             [
                 new Avalonia.Media.GradientStop(Color.FromArgb(alpha, color.R, color.G, color.B), 0),
-                new Avalonia.Media.GradientStop(Color.FromArgb((byte)(alpha * 0.35), color.R, color.G, color.B), 0.5),
+                new Avalonia.Media.GradientStop(Color.FromArgb((byte)(alpha * 0.4), color.R, color.G, color.B), 0.5),
                 new Avalonia.Media.GradientStop(Color.FromArgb(0, color.R, color.G, color.B), 1)
             ]
         };
