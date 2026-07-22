@@ -12,7 +12,12 @@
                      x:DataType="vm:LaunchMenuViewModel"
                      Title="Eclipse"
                      Width="440"
-                     SizeToContent="Height"
+                     Height="360"
+                     MinWidth="440"
+                     MaxWidth="440"
+                     MinHeight="360"
+                     MaxHeight="360"
+                     SizeToContent="Manual"
                      CanResize="False"
                      WindowStartupLocation="CenterScreen"
                      mc:Ignorable="d">
@@ -31,6 +36,7 @@
                 Margin="20,16,20,20"
                 Padding="28,28,28,24"
                 CornerRadius="18"
+                VerticalAlignment="Top"
                 Background="{DynamicResource GlassStageBrush}"
                 BorderBrush="{DynamicResource BrandHairlineBrush}"
                 BorderThickness="1">

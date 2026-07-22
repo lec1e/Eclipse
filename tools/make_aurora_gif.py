@@ -44,7 +44,7 @@ def main() -> None:
         gif_path,
         save_all=True,
         append_images=quantized[1:],
-        duration=80,
+        duration=160,
         loop=0,
         optimize=True,
         disposal=2,

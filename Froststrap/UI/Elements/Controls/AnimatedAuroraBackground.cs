@@ -8,11 +8,14 @@ using Avalonia.Media.Imaging;
 namespace Froststrap.UI.Elements.Controls
 {
     /// <summary>
-    /// Dark aurora GIF background (Midnight Rail style). Playback pauses when the
-    /// host window is inactive or aurora is disabled in settings.
+    /// Dark aurora GIF background. Does not participate in layout sizing (so
+    /// SizeToContent windows are not inflated by the GIF). Playback pauses when
+    /// the host window is inactive or aurora is disabled in settings.
     /// </summary>
     public class AnimatedAuroraBackground : Panel
     {
+        private const double PlaybackSpeed = 0.28;
+
         private static readonly Uri GifUri = new("avares://Eclipse/Assets/aurora-dark.gif");
         private static readonly Uri StillUri = new("avares://Eclipse/Assets/aurora-dark-still.png");
 
@@ -48,6 +51,27 @@ namespace Froststrap.UI.Elements.Controls
 
             AttachedToVisualTree += OnAttached;
             DetachedFromVisualTree += OnDetached;
+        }
+
+        /// <summary>
+        /// Report zero desired size so parents using SizeToContent are not stretched
+        /// by the GIF's intrinsic pixel dimensions.
+        /// </summary>
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            if (!double.IsInfinity(availableSize.Width) && !double.IsInfinity(availableSize.Height)
+                && availableSize.Width > 0 && availableSize.Height > 0)
+            {
+                _image.Measure(availableSize);
+            }
+
+            return new Size(0, 0);
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            _image.Arrange(new Rect(finalSize));
+            return finalSize;
         }
 
         private void OnAttached(object? sender, VisualTreeAttachmentEventArgs e)
@@ -134,13 +158,13 @@ namespace Froststrap.UI.Elements.Controls
         {
             if (_animating)
             {
-                ImageBehavior.SetSpeedRatio(_image, 1d);
+                ImageBehavior.SetSpeedRatio(_image, PlaybackSpeed);
                 return;
             }
 
             _image.Source = null;
             ImageBehavior.SetAnimatedSource(_image, _animatedSource);
-            ImageBehavior.SetSpeedRatio(_image, 1d);
+            ImageBehavior.SetSpeedRatio(_image, PlaybackSpeed);
             _animating = true;
         }
 
@@ -148,7 +172,6 @@ namespace Froststrap.UI.Elements.Controls
         {
             if (_animating)
             {
-                // Freeze first so decoding work stops, then tear down the animator.
                 ImageBehavior.SetSpeedRatio(_image, 0d);
                 _image.ClearValue(ImageBehavior.AnimatedSourceProperty);
                 _animating = false;
