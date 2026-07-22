@@ -12,6 +12,7 @@
     xmlns:ui="using:FluentAvalonia.UI.Controls"
     xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
     Title="{x:Static resources:Strings.Menu_Title}"
+    Icon="avares://Eclipse/Eclipse.ico"
     Width="1280"
     Height="800"
     MinWidth="1080"
@@ -38,7 +39,6 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10"
                             VerticalAlignment="Center" Margin="16,0,12,0" IsHitTestVisible="False">
-                    <!-- Solar eclipse mark (dark disc + purple crescent) -->
                     <controls:EclipseLogoMark Width="28" Height="28" />
                     <TextBlock Text="Eclipse" FontSize="16" FontWeight="SemiBold"
                                VerticalAlignment="Center" Foreground="#F8FAFC" />

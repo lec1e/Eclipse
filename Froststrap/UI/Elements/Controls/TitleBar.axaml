@@ -73,7 +73,22 @@
     </Style>
 
     <Style Selector="controls|IconButton.TitleBarButton:pointerover /template/ Border#PART_LayoutRoot">
-        <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#668B5CF6" Offset="0" />
+                <GradientStop Color="#447C3AED" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|IconButton.TitleBarButton:pressed /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#C4B5FD" Offset="0" />
+                <GradientStop Color="#8B5CF6" Offset="0.45" />
+                <GradientStop Color="#5B21B6" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
     </Style>
 
     <Style Selector="controls|IconButton.TitleBarButton:disabled">

@@ -36,8 +36,8 @@
                 BorderThickness="1">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16" Margin="0,0,0,28">
-                    <Image Width="64" Height="64" Source="avares://Eclipse/Eclipse.ico"
-                           RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                    <Image Width="64" Height="64" Source="avares://Eclipse/EclipseMark.png"
+                           RenderOptions.BitmapInterpolationMode="HighQuality" />
                     <StackPanel VerticalAlignment="Center" Spacing="4">
                         <TextBlock Name="LaunchTitle" Text="Eclipse" FontSize="30" FontWeight="Bold"
                                    Foreground="{DynamicResource BrandAccentBrush}" />
