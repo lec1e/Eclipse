@@ -41,11 +41,22 @@
     </Style>
 
     <Style Selector="Button.rail-icon:pointerover">
-        <Setter Property="Background" Value="#228B5CF6" />
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#558B5CF6" Offset="0" />
+                <GradientStop Color="#4422D3EE" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
     </Style>
 
     <Style Selector="Button.rail-icon:pressed">
-        <Setter Property="Background" Value="#448B5CF6" />
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#AA8B5CF6" Offset="0" />
+                <GradientStop Color="#886D28D9" Offset="0.5" />
+                <GradientStop Color="#6622D3EE" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
     </Style>
 
     <Style Selector="Button.rail-labeled:disabled">

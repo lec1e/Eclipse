@@ -17,7 +17,8 @@
             <TextBlock.Foreground>
               <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
                 <GradientStop Color="#E9D5FF" Offset="0" />
-                <GradientStop Color="#A78BFA" Offset="0.4" />
+                <GradientStop Color="#C084FC" Offset="0.35" />
+                <GradientStop Color="#F0ABFC" Offset="0.7" />
                 <GradientStop Color="#67E8F9" Offset="1" />
               </LinearGradientBrush>
             </TextBlock.Foreground>
@@ -27,7 +28,14 @@
 
           <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,14,0,0">
             <Button Height="42" Padding="20,0" CornerRadius="12" BorderThickness="0"
-                    Background="#7C3AED" Command="{Binding LaunchRobloxCommand}">
+                    Command="{Binding LaunchRobloxCommand}">
+              <Button.Background>
+                <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                  <GradientStop Color="#A78BFA" Offset="0" />
+                  <GradientStop Color="#7C3AED" Offset="0.55" />
+                  <GradientStop Color="#4F46E5" Offset="1" />
+                </LinearGradientBrush>
+              </Button.Background>
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <ic:Lucide Icon="Play" Width="16" Height="16" StrokeBrush="White" />
                 <TextBlock Text="Launch Roblox" FontWeight="SemiBold" Foreground="White"
@@ -59,8 +67,8 @@
 
             <Grid ColumnDefinitions="*,Auto,*,Auto,*" ColumnSpacing="0">
               <StackPanel HorizontalAlignment="Center" Spacing="5">
-                <ic:Lucide Icon="Wifi" Width="16" Height="16" Opacity="0.75"
-                           HorizontalAlignment="Center" StrokeBrush="#E2E8F0" />
+                <ic:Lucide Icon="Wifi" Width="16" Height="16"
+                           HorizontalAlignment="Center" StrokeBrush="#22D3EE" />
                 <TextBlock Text="128ms" FontWeight="SemiBold" FontSize="14"
                            HorizontalAlignment="Center" Foreground="White" />
                 <TextBlock Text="Latency" FontSize="10.5" Opacity="0.55"
@@ -69,8 +77,8 @@
               <Border Grid.Column="1" Width="1" Height="44" Background="#28FFFFFF"
                       VerticalAlignment="Center" Margin="8,0" />
               <StackPanel Grid.Column="2" HorizontalAlignment="Center" Spacing="5">
-                <ic:Lucide Icon="Shield" Width="16" Height="16" Opacity="0.75"
-                           HorizontalAlignment="Center" StrokeBrush="#E2E8F0" />
+                <ic:Lucide Icon="Shield" Width="16" Height="16"
+                           HorizontalAlignment="Center" StrokeBrush="#A78BFA" />
                 <TextBlock Text="100%" FontWeight="SemiBold" FontSize="14"
                            HorizontalAlignment="Center" Foreground="#34D399" />
                 <TextBlock Text="Safe" FontSize="10.5" Opacity="0.55"
@@ -79,8 +87,8 @@
               <Border Grid.Column="3" Width="1" Height="44" Background="#28FFFFFF"
                       VerticalAlignment="Center" Margin="8,0" />
               <StackPanel Grid.Column="4" HorizontalAlignment="Center" Spacing="5">
-                <ic:Lucide Icon="Server" Width="16" Height="16" Opacity="0.75"
-                           HorizontalAlignment="Center" StrokeBrush="#E2E8F0" />
+                <ic:Lucide Icon="Server" Width="16" Height="16"
+                           HorizontalAlignment="Center" StrokeBrush="#34D399" />
                 <TextBlock Text="Online" FontWeight="SemiBold" FontSize="14"
                            HorizontalAlignment="Center" Foreground="#34D399" />
                 <TextBlock Text="Services" FontSize="10.5" Opacity="0.55"

@@ -2,22 +2,21 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using Avalonia.Styling;
 using Avalonia.Threading;
 
 namespace Froststrap.UI.Elements.Controls
 {
     /// <summary>
-    /// Soft nebula wash — large purple/cyan blooms matching the Midnight Rail mockup.
+    /// Dark-first nebula — soft purple/cyan blooms on near-black, matching mockup depth.
     /// </summary>
     public class AnimatedAuroraBackground : Canvas
     {
-        private readonly Ellipse _bloomL = CreateOrb(1100, 0.85);
-        private readonly Ellipse _bloomR = CreateOrb(980, 0.75);
-        private readonly Ellipse _bloomC = CreateOrb(720, 0.55);
-        private readonly Ellipse _bloomB = CreateOrb(640, 0.45);
-        private readonly Ellipse _hazeA = CreateStreak(1200, 360, 0.42);
-        private readonly Ellipse _hazeB = CreateStreak(1000, 280, 0.35);
+        private readonly Ellipse _bloomL = CreateOrb(980, 0.42);
+        private readonly Ellipse _bloomR = CreateOrb(860, 0.36);
+        private readonly Ellipse _bloomC = CreateOrb(640, 0.28);
+        private readonly Ellipse _bloomB = CreateOrb(520, 0.22);
+        private readonly Ellipse _hazeA = CreateStreak(1100, 300, 0.22);
+        private readonly Ellipse _hazeB = CreateStreak(900, 240, 0.18);
         private readonly DispatcherTimer _timer;
         private double _t;
 
@@ -34,7 +33,8 @@ namespace Froststrap.UI.Elements.Controls
         {
             IsHitTestVisible = false;
             ClipToBounds = true;
-            Background = new SolidColorBrush(Color.FromRgb(0x0B, 0x0B, 0x10));
+            // Near-black base so the UI stays dark like the mockup
+            Background = new SolidColorBrush(Color.FromRgb(0x05, 0x05, 0x08));
             Children.Add(_hazeA);
             Children.Add(_hazeB);
             Children.Add(_bloomL);
@@ -65,7 +65,7 @@ namespace Froststrap.UI.Elements.Controls
             if (Opacity <= 0.01)
                 return;
 
-            _t += 0.012;
+            _t += 0.010;
             LayoutOrbs(Bounds.Size);
         }
 
@@ -85,16 +85,15 @@ namespace Froststrap.UI.Elements.Controls
             if (size.Width <= 0 || size.Height <= 0)
                 return;
 
-            // Mockup: purple wash left/center, cyan on the right edge
-            Place(_bloomL, size, 0.22 + Math.Sin(_t * 0.18) * 0.04, 0.35 + Math.Cos(_t * 0.14) * 0.05);
-            Place(_bloomR, size, 0.88 + Math.Cos(_t * 0.16) * 0.03, 0.28 + Math.Sin(_t * 0.20) * 0.06);
-            Place(_bloomC, size, 0.55 + Math.Sin(_t * 0.12) * 0.05, 0.72 + Math.Cos(_t * 0.15) * 0.04);
-            Place(_bloomB, size, 0.40 + Math.Cos(_t * 0.11) * 0.04, 0.18 + Math.Sin(_t * 0.13) * 0.03);
+            Place(_bloomL, size, 0.28 + Math.Sin(_t * 0.16) * 0.03, 0.22 + Math.Cos(_t * 0.12) * 0.04);
+            Place(_bloomR, size, 0.82 + Math.Cos(_t * 0.14) * 0.03, 0.30 + Math.Sin(_t * 0.18) * 0.05);
+            Place(_bloomC, size, 0.58 + Math.Sin(_t * 0.10) * 0.04, 0.68 + Math.Cos(_t * 0.13) * 0.03);
+            Place(_bloomB, size, 0.38 + Math.Cos(_t * 0.09) * 0.03, 0.14 + Math.Sin(_t * 0.11) * 0.02);
 
-            Place(_hazeA, size, 0.48, 0.42 + Math.Sin(_t * 0.08) * 0.03);
-            Place(_hazeB, size, 0.72, 0.58 + Math.Cos(_t * 0.09) * 0.03);
-            _hazeA.RenderTransform = new RotateTransform(12 + Math.Sin(_t * 0.06) * 4);
-            _hazeB.RenderTransform = new RotateTransform(-16 + Math.Cos(_t * 0.07) * 4);
+            Place(_hazeA, size, 0.50, 0.32 + Math.Sin(_t * 0.07) * 0.02);
+            Place(_hazeB, size, 0.70, 0.55 + Math.Cos(_t * 0.08) * 0.02);
+            _hazeA.RenderTransform = new RotateTransform(14 + Math.Sin(_t * 0.05) * 3);
+            _hazeB.RenderTransform = new RotateTransform(-18 + Math.Cos(_t * 0.06) * 3);
         }
 
         private static void Place(Ellipse orb, Size size, double nx, double ny)
@@ -110,12 +109,13 @@ namespace Froststrap.UI.Elements.Controls
             Color cyan = Color.FromRgb(0x22, 0xD3, 0xEE);
             Color indigo = Color.FromRgb(0x4F, 0x46, 0xE5);
 
-            _bloomL.Fill = Radial(violet, 0xE0);
-            _bloomR.Fill = Radial(cyan, 0xC0);
-            _bloomC.Fill = Radial(purple, 0xA8);
-            _bloomB.Fill = Radial(indigo, 0x90);
-            _hazeA.Fill = Radial(violet, 0x88);
-            _hazeB.Fill = Radial(cyan, 0x70);
+            // Lower alpha = darker overall stage
+            _bloomL.Fill = Radial(violet, 0x78);
+            _bloomR.Fill = Radial(cyan, 0x60);
+            _bloomC.Fill = Radial(purple, 0x55);
+            _bloomB.Fill = Radial(indigo, 0x48);
+            _hazeA.Fill = Radial(violet, 0x40);
+            _hazeB.Fill = Radial(cyan, 0x35);
         }
 
         private static Ellipse CreateOrb(double size, double opacity) => new()
@@ -144,7 +144,7 @@ namespace Froststrap.UI.Elements.Controls
             GradientStops =
             [
                 new Avalonia.Media.GradientStop(Color.FromArgb(alpha, color.R, color.G, color.B), 0),
-                new Avalonia.Media.GradientStop(Color.FromArgb((byte)(alpha * 0.45), color.R, color.G, color.B), 0.45),
+                new Avalonia.Media.GradientStop(Color.FromArgb((byte)(alpha * 0.4), color.R, color.G, color.B), 0.5),
                 new Avalonia.Media.GradientStop(Color.FromArgb(0, color.R, color.G, color.B), 1)
             ]
         };
