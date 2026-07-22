@@ -59,14 +59,9 @@ namespace Froststrap.UI.Elements.Settings
 
             App.RemoteData.Subscribe((_, _) => Dispatcher.UIThread.Post(() =>
             {
-                var data = App.RemoteData.Prop;
-
+                // Remote alert banners from third-party config hosts are disabled.
                 if (AlertBar is not null)
-                {
-                    AlertBar.IsVisible = data.AlertEnabled;
-                    AlertBar.Message = data.AlertContent;
-                    AlertBar.Severity = data.AlertSeverity;
-                }
+                    AlertBar.IsVisible = false;
             }));
 
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;

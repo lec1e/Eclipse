@@ -8,10 +8,10 @@
     <StackPanel Margin="14" Spacing="12">
       <TextBlock Text="VIP Server" FontSize="18" FontWeight="SemiBold" />
       <TextBlock TextWrapping="Wrap" Opacity="0.7" FontSize="13"
-                 Text="Before you join a Roblox game, Eclipse can show a list of free shared VIP servers from rbxservers.xyz. Pick one to land in that server, or skip to launch normally." />
+                 Text="Before you join a Roblox game (from Chrome, Edge, Firefox, Brave, Opera, or the Roblox site), Eclipse can show a list of free shared VIP servers from rbxservers.xyz. Pick one to land in that server, or skip to launch normally." />
 
       <controls:OptionControl Header="Show VIP server picker before launching games"
-                              Description="Opens a small dialog just before Roblox starts. Only appears for game launches that include a place ID.">
+                              Description="Opens a picker just before Roblox starts. Works for launches from any browser that opens the roblox-player protocol. Only appears for game launches that include a place ID.">
         <ToggleSwitch IsChecked="{Binding VipServerPromptEnabled}" />
       </controls:OptionControl>
 

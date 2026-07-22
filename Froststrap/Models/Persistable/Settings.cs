@@ -14,6 +14,8 @@ namespace Froststrap.Models.Persistable
         public bool PlaytimeCounter { get; set; } = true;
         public TrayDoubleClickAction DoubleClickAction { get; set; } = TrayDoubleClickAction.ServerInfo;
         public bool UseDisableAppPatch { get; set; } = false;
+        // Kept for settings migration — Close To Desktop now always force-kills Roblox.
+        public bool FullyCloseRobloxOnExit { get; set; } = false;
         public bool AutoChangeTitle { get; set; } = true;
         public bool AutoChangeIcon { get; set; } = false;
         public bool ShowUsingFroststrapRPC { get; set; } = true;

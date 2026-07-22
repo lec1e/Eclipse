@@ -6,6 +6,23 @@
         xmlns:cc="using:AvaloniaEdit.CodeCompletion"
         xmlns:controls="clr-namespace:Froststrap.UI.Elements.Controls">
 
+    <Style Selector="Button">
+        <Setter Property="CornerRadius" Value="8" />
+    </Style>
+
+    <Style Selector="Button.accent">
+        <Setter Property="Background" Value="{DynamicResource BrandAccentBrush}" />
+        <Setter Property="CornerRadius" Value="8" />
+    </Style>
+
+    <Style Selector="TextBox">
+        <Setter Property="CornerRadius" Value="8" />
+    </Style>
+
+    <Style Selector="TabControl">
+        <Setter Property="Padding" Value="0,8,0,0" />
+    </Style>
+
     <Style Selector="controls|Hyperlink">
         <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" />
         <Setter Property="Cursor" Value="Hand" />

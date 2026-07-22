@@ -232,6 +232,8 @@ namespace Froststrap
                     App.Logger.WriteException(LOG_IDENT + "::ExecutorRefresh", ex);
                 }
 
+                await MaybeShowVipServerPickerAsync(launchMode);
+
                 if (!await TryPickVersionProfileAsync())
                 {
                     App.Terminate();
@@ -377,6 +379,63 @@ namespace Froststrap
             });
 
             App.Logger.WriteLine(LOG_IDENT, "Exiting");
+        }
+
+        private static async Task MaybeShowVipServerPickerAsync(LaunchMode launchMode)
+        {
+            const string LOG_IDENT = "LaunchHandler::MaybeShowVipServerPickerAsync";
+
+            if (!App.Settings.Prop.EnableVipServerPrompt)
+            {
+                App.Logger.WriteLine(LOG_IDENT, "Skipping VIP picker: disabled in settings.");
+                return;
+            }
+
+            if (launchMode != LaunchMode.Player)
+                return;
+
+            if (App.LaunchSettings.QuietFlag.Active)
+            {
+                App.Logger.WriteLine(LOG_IDENT, "Skipping VIP picker: quiet launch.");
+                return;
+            }
+
+            if (!OperatingSystem.IsWindows())
+                return;
+
+            string args = App.LaunchSettings.RobloxLaunchArgs;
+            long? placeId = Utility.LaunchArgsUtility.TryExtractPlaceId(args);
+            if (!placeId.HasValue)
+            {
+                App.Logger.WriteLine(LOG_IDENT, "Skipping VIP picker: no placeId in launch args.");
+                return;
+            }
+
+            if (Utility.LaunchArgsUtility.TryExtractAccessCode(args) is not null)
+            {
+                App.Logger.WriteLine(LOG_IDENT, "Skipping VIP picker: accessCode already present.");
+                return;
+            }
+
+            App.Logger.WriteLine(LOG_IDENT, $"Showing VIP server picker for place {placeId.Value}");
+
+            try
+            {
+                string? code = await Utility.VipServerPicker.PickAsync(placeId.Value);
+                if (!string.IsNullOrEmpty(code))
+                {
+                    App.LaunchSettings.RobloxLaunchArgs = Utility.LaunchArgsUtility.AppendAccessCode(args, code);
+                    App.Logger.WriteLine(LOG_IDENT, "VIP server picked; accessCode appended.");
+                }
+                else
+                {
+                    App.Logger.WriteLine(LOG_IDENT, "VIP picker closed without a selection.");
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Logger.WriteException(LOG_IDENT, ex);
+            }
         }
 
         private static async Task<bool> TryPickVersionProfileAsync()

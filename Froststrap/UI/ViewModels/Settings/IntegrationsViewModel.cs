@@ -248,8 +248,13 @@ namespace Froststrap.UI.ViewModels.Settings
 
         public static bool DisableAppPatchEnabled
         {
-            get => App.Settings.Prop.UseDisableAppPatch;
-            set => App.Settings.Prop.UseDisableAppPatch = value;
+            get => App.Settings.Prop.UseDisableAppPatch || App.Settings.Prop.FullyCloseRobloxOnExit;
+            set
+            {
+                App.Settings.Prop.UseDisableAppPatch = value;
+                // Close To Desktop always force-kills so Roblox does not linger in the tray.
+                App.Settings.Prop.FullyCloseRobloxOnExit = value;
+            }
         }
 
         public bool StudioRPCEnabled

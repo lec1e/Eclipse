@@ -114,14 +114,13 @@ namespace Froststrap.Integrations
                 Assets = new Assets
                 {
                     LargeImageKey = "froststrap",
-                    LargeImageText = "Froststrap",
+                    LargeImageText = "Eclipse",
                     SmallImageKey = "checkmark",
                     SmallImageText = $"v{App.Version}"
                 },
                 Buttons =
                 [
-                    new Button { Label = "GitHub", Url = "https://github.com/Froststrap/Froststrap" },
-                    new Button { Label = "Discord", Url = "https://discord.gg/KdR9vpRcUN" }
+                    new Button { Label = "GitHub", Url = $"https://github.com/{App.ProjectRepository}" }
                 ]
             };
 

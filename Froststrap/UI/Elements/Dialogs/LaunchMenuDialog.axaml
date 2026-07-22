@@ -18,15 +18,17 @@
                      WindowStartupLocation="CenterScreen"
                      mc:Ignorable="d">
 
-    <Grid Background="{DynamicResource ApplicationBackgroundColor}" RowDefinitions="Auto,*">
-        <controls:TitleBar Grid.Row="0" Title="" ShowMaximize="False" ShowMinimize="False" />
+    <Grid Background="{DynamicResource BrandInkBrush}" RowDefinitions="Auto,*">
+        <controls:AnimatedAuroraBackground Grid.Row="0" Grid.RowSpan="2" ZIndex="0" />
+        <controls:TitleBar Grid.Row="0" ZIndex="1" Title="" ShowMaximize="False" ShowMinimize="False" />
 
-        <StackPanel Grid.Row="1" Margin="32,0,32,32">
+        <StackPanel Grid.Row="1" ZIndex="1" Margin="32,0,32,32">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="16" Margin="0,0,0,24">
                 <Image Width="64" Height="64" Source="avares://Eclipse/Eclipse.ico"
                        RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 <StackPanel VerticalAlignment="Center" Spacing="4">
-                    <TextBlock Name="LaunchTitle" Text="Eclipse" FontSize="28" FontWeight="Bold" />
+                    <TextBlock Name="LaunchTitle" Text="Eclipse" FontSize="28" FontWeight="Bold"
+                               Foreground="{DynamicResource BrandAccentBrush}" />
                     <TextBlock Text="{Binding Version}"
                                FontSize="13"
                                Foreground="{DynamicResource TextFillColorTertiaryBrush}" />

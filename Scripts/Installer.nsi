@@ -12,7 +12,7 @@ Var KeepUserData
 Var LanguageComboBox
 Var LanguageValue
 
-Name "Froststrap"
+Name "Eclipse"
 
 !ifndef PUBLISH_DIR
   !define PUBLISH_DIR "..\build"
@@ -23,25 +23,28 @@ Name "Froststrap"
 !endif
 
 !ifdef SELFCONTAINED
-  OutFile "..\build\Froststrap-SelfContained-Setup.exe"
+  OutFile "..\build\Eclipse-SelfContained-Setup.exe"
 !else
-  OutFile "${PUBLISH_DIR}\Froststrap-Setup.exe"
+  OutFile "${PUBLISH_DIR}\Eclipse-Setup.exe"
 !endif
 
-Icon "..\Froststrap\Froststrap.ico"
-UninstallIcon "..\Froststrap\Froststrap.ico"
-InstallDir "$LOCALAPPDATA\Froststrap"
-InstallDirRegKey HKCU "Software\Froststrap" "InstallLocation"
+Icon "..\Froststrap\Eclipse.ico"
+UninstallIcon "..\Froststrap\Eclipse.ico"
+InstallDir "$LOCALAPPDATA\Eclipse"
+InstallDirRegKey HKCU "Software\Eclipse" "InstallLocation"
 RequestExecutionLevel user
 
-!define APP_NAME "Froststrap"
-!define APP_EXE "Froststrap.exe"
-!define APP_UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\Froststrap"
+!define APP_NAME "Eclipse"
+!define APP_EXE "Eclipse.exe"
+!define APP_UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\Eclipse"
 !define MUI_FINISHPAGE_RUN "$INSTDIR\${APP_EXE}"
-!define MUI_FINISHPAGE_RUN_TEXT "Launch Froststrap"
+!define MUI_FINISHPAGE_RUN_TEXT "Launch Eclipse"
+!define MUI_ICON "..\Froststrap\Eclipse.ico"
+!define MUI_UNICON "..\Froststrap\Eclipse.ico"
 
 !insertmacro MUI_PAGE_DIRECTORY
 Page Custom LanguagePageCreate LanguagePageLeave
+Page Custom OptionsPageCreate OptionsPageLeave
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 
@@ -203,35 +206,40 @@ FunctionEnd
 ; Install section
 ; ---------------------------------------------------------------------------
 
-Section "Froststrap"
+Section "Eclipse"
     SetOutPath "$INSTDIR"
     File /r "${PUBLISH_DIR}\*"
 
-    ; Froststrap app registry keys (used by the app to locate itself)
-    WriteRegStr HKCU "Software\Froststrap" "InstallLocation" "$INSTDIR"
-    WriteRegStr HKCU "Software\Froststrap" "AppPath" "$INSTDIR\${APP_EXE}"
-    WriteRegStr HKCU "Software\Froststrap" "Language" "$LanguageValue"
+    ; Eclipse app registry keys (used by the app to locate itself)
+    WriteRegStr HKCU "Software\Eclipse" "InstallLocation" "$INSTDIR"
+    WriteRegStr HKCU "Software\Eclipse" "AppPath" "$INSTDIR\${APP_EXE}"
+    WriteRegStr HKCU "Software\Eclipse" "Language" "$LanguageValue"
 
-    ; Programs & Features / winget uninstall entry
+    ; Programs & Features / Settings → Apps uninstall entry
     WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "DisplayName"      "${APP_NAME}"
     WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "DisplayVersion"   "${APP_VERSION}"
     WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "InstallLocation"  "$INSTDIR"
     WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "DisplayIcon"      "$INSTDIR\${APP_EXE},0"
-    WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "Publisher"        "Froststrap"
+    WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "Publisher"        "lec1e"
     WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "UninstallString"  '"$INSTDIR\Uninstall.exe"'
     WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "QuietUninstallString" '"$INSTDIR\Uninstall.exe" /S'
     WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "ModifyPath"       '"$INSTDIR\${APP_EXE}" -settings'
-    WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "HelpLink"         "https://github.com/Froststrap/Froststrap/wiki"
-    WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "URLInfoAbout"     "https://github.com/Froststrap/Froststrap/issues/new"
-    WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "URLUpdateInfo"    "https://github.com/Froststrap/Froststrap/releases"
+    WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "HelpLink"         "https://github.com/lec1e/Eclipse"
+    WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "URLInfoAbout"     "https://github.com/lec1e/Eclipse/issues/new"
+    WriteRegStr HKCU "${APP_UNINSTALL_KEY}" "URLUpdateInfo"    "https://github.com/lec1e/Eclipse/releases"
+    WriteRegDWORD HKCU "${APP_UNINSTALL_KEY}" "NoModify"       1
     WriteRegDWORD HKCU "${APP_UNINSTALL_KEY}" "NoRepair"       1
 
+    ; Remove leftover Froststrap entries from older installs
+    DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\Froststrap"
+
     ${If} $CreateStartMenuShortcut == ${BST_CHECKED}
-        CreateDirectory "$SMPROGRAMS\Froststrap"
-        CreateShortCut "$SMPROGRAMS\Froststrap\Froststrap.lnk" "$INSTDIR\${APP_EXE}"
+        CreateDirectory "$SMPROGRAMS\Eclipse"
+        CreateShortCut "$SMPROGRAMS\Eclipse\Eclipse.lnk" "$INSTDIR\${APP_EXE}"
+        CreateShortCut "$SMPROGRAMS\Eclipse\Uninstall Eclipse.lnk" "$INSTDIR\Uninstall.exe"
     ${EndIf}
     ${If} $CreateDesktopShortcut == ${BST_CHECKED}
-        CreateShortCut "$DESKTOP\Froststrap.lnk" "$INSTDIR\${APP_EXE}"
+        CreateShortCut "$DESKTOP\Eclipse.lnk" "$INSTDIR\${APP_EXE}"
     ${EndIf}
 
     WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -255,16 +263,20 @@ Section "Uninstall"
     ; Step 2: NSIS cleans up what it owns
 
     ; Shortcuts
+    Delete "$DESKTOP\Eclipse.lnk"
     Delete "$DESKTOP\Froststrap.lnk"
+    Delete "$SMPROGRAMS\Eclipse\Eclipse.lnk"
+    Delete "$SMPROGRAMS\Eclipse\Uninstall Eclipse.lnk"
+    RMDir  "$SMPROGRAMS\Eclipse"
     Delete "$SMPROGRAMS\Froststrap\Froststrap.lnk"
     RMDir  "$SMPROGRAMS\Froststrap"
 
     ; Registry keys written by NSIS
     DeleteRegKey   HKCU "${APP_UNINSTALL_KEY}"
-    DeleteRegValue HKCU "Software\Froststrap" "InstallLocation"
-    DeleteRegValue HKCU "Software\Froststrap" "AppPath"
-    DeleteRegValue HKCU "Software\Froststrap" "Language"
-    DeleteRegKey /IfEmpty HKCU "Software\Froststrap"
+    DeleteRegValue HKCU "Software\Eclipse" "InstallLocation"
+    DeleteRegValue HKCU "Software\Eclipse" "AppPath"
+    DeleteRegValue HKCU "Software\Eclipse" "Language"
+    DeleteRegKey /IfEmpty HKCU "Software\Eclipse"
 
     ; Step 3: remove the install directory.
     ${If} $KeepUserData == ${BST_CHECKED}

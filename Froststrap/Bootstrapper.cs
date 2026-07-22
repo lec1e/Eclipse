@@ -1874,12 +1874,19 @@ namespace Froststrap
             if (assets is null || assets.Count == 0)
                 return null;
 
+            // Prefer exact Eclipse.exe from lec1e/Eclipse releases
+            var exact = assets.FirstOrDefault(a =>
+                a.Name?.Equals("Eclipse.exe", StringComparison.OrdinalIgnoreCase) == true);
+            if (exact is not null)
+                return exact;
+
             var patterns = GetPlatformAssetPatterns();
 
             foreach (var pattern in patterns)
             {
                 var asset = assets.FirstOrDefault(a =>
-                    a.Name?.EndsWith(pattern, StringComparison.OrdinalIgnoreCase) == true);
+                    a.Name?.EndsWith(pattern, StringComparison.OrdinalIgnoreCase) == true
+                    || a.Name?.Equals(pattern, StringComparison.OrdinalIgnoreCase) == true);
                 if (asset is not null)
                     return asset;
             }
@@ -1891,24 +1898,18 @@ namespace Froststrap
         {
             if (OperatingSystem.IsWindows())
             {
-                try
-                {
-                    var fileInfo = new FileInfo(Paths.Process);
-                    bool isSelfContained = fileInfo.Length > 80 * 1024 * 1024;
-
-                    if (isSelfContained)
-                        return ["Froststrap-SelfContained-Setup.exe", "-SelfContained-Setup.exe"];
-                    else
-                        return ["Froststrap-Setup.exe", "-Setup.exe"];
-                }
-                catch
-                {
-                    return ["Froststrap-Setup.exe", "-Setup.exe"];
-                }
+                return
+                [
+                    "Eclipse.exe",
+                    "Eclipse-Setup.exe",
+                    "-Setup.exe",
+                    "Froststrap-SelfContained-Setup.exe",
+                    "Froststrap-Setup.exe"
+                ];
             }
             else if (OperatingSystem.IsMacOS())
             {
-                return ["Froststrap-macOS.dmg", ".dmg"];
+                return ["Eclipse-macOS.dmg", "Froststrap-macOS.dmg", ".dmg"];
             }
 
             return [];
@@ -1963,26 +1964,50 @@ namespace Froststrap
             try
             {
                 string scriptPath = Path.Combine(Paths.TempUpdates, "update_runner.bat");
-                string processPath = Paths.Process;
+                string processPath = Paths.Application;
+                string fileName = Path.GetFileName(updatePath);
 
-                string scriptContent = $@"@echo off
+                // Single-file Eclipse.exe updates: replace the installed EXE, then relaunch.
+                bool isPortableExe = fileName.Equals("Eclipse.exe", StringComparison.OrdinalIgnoreCase)
+                    || (!fileName.Contains("Setup", StringComparison.OrdinalIgnoreCase)
+                        && fileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+                        && new FileInfo(updatePath).Length > 20 * 1024 * 1024);
+
+                string scriptContent;
+                if (isPortableExe)
+                {
+                    scriptContent = $@"@echo off
 echo Waiting for {App.ProjectName} to exit...
 timeout /t 2 /nobreak >nul
-
 echo Installing update...
-""{updatePath}"" /S
-
+copy /Y ""{updatePath}"" ""{processPath}""
 if errorlevel 1 (
     echo Update failed with error code %errorlevel%
     pause
     exit /b %errorlevel%
 )
-
 echo Update installed successfully!
 echo Restarting {App.ProjectName}...
-
-start "" "" ""{processPath}""
+start """" ""{processPath}""
 exit";
+                }
+                else
+                {
+                    scriptContent = $@"@echo off
+echo Waiting for {App.ProjectName} to exit...
+timeout /t 2 /nobreak >nul
+echo Installing update...
+""{updatePath}"" /S
+if errorlevel 1 (
+    echo Update failed with error code %errorlevel%
+    pause
+    exit /b %errorlevel%
+)
+echo Update installed successfully!
+echo Restarting {App.ProjectName}...
+start """" ""{processPath}""
+exit";
+                }
 
                 await File.WriteAllTextAsync(scriptPath, scriptContent);
 

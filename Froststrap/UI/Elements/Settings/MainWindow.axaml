@@ -23,22 +23,30 @@
     CanResize="True"
     WindowStartupLocation="CenterScreen">
 
-    <Grid Background="{DynamicResource ApplicationBackgroundColor}" RowDefinitions="48,*,56">
-        <Grid Grid.Row="0" Background="{DynamicResource ControlFillColorDefaultBrush}">
+    <Grid Background="{DynamicResource BrandInkBrush}" RowDefinitions="48,*,56">
+        <controls:AnimatedAuroraBackground
+            Grid.Row="0" Grid.RowSpan="3"
+            ZIndex="0" />
+
+        <Border Grid.Row="0" ZIndex="1"
+                Background="#9912101A"
+                BorderBrush="{DynamicResource BrandHairlineBrush}"
+                BorderThickness="0,0,0,1">
             <controls:TitleBar
-                Title="Eclipse Settings"
+                Title="Eclipse"
                 Grid.Row="0"
                 Icon="avares://Eclipse/Eclipse.png">
 
                 <elements:SearchBar Width="400" DataContext="{Binding SearchBar}" />
 
             </controls:TitleBar>
-        </Grid>
+        </Border>
 
         <ui:FANavigationView
             Name="NavView"
             Grid.Row="1"
-            Background="{DynamicResource ControlFillColorDefaultBrush}"
+            ZIndex="1"
+            Background="#6612101A"
             IsBackButtonVisible="False"
             IsSettingsVisible="False"
             ItemInvoked="NavView_ItemInvoked"
@@ -267,10 +275,11 @@
 
         <Border
             Grid.Row="2"
+            ZIndex="1"
             Height="56"
             Padding="0,0,16,0"
-            Background="{DynamicResource ControlFillColorDefaultBrush}"
-            BorderBrush="{DynamicResource ControlStrokeColorDefault}"
+            Background="#9912101A"
+            BorderBrush="{DynamicResource BrandHairlineBrush}"
             BorderThickness="0,1,0,0">
             <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto" ColumnSpacing="8">
                 <local:AccountSelectorView

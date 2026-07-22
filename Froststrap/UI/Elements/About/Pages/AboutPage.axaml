@@ -39,7 +39,10 @@
                 </Panel>
 
                 <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Text="Eclipse" FontSize="24" FontWeight="Bold" />
+                    <TextBlock Text="Eclipse" FontSize="24" FontWeight="Bold"
+                               Foreground="{DynamicResource BrandAccentBrush}" />
+                    <TextBlock Text="Created by lecie"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
                     <TextBlock Text="{x:Static resources:Strings.Menu_About_Description}"
                                Foreground="{DynamicResource TextFillColorTertiaryBrush}"  />
                 </StackPanel>
@@ -49,17 +52,17 @@
                 <Button Margin="0,0,8,8"
                         Content="{x:Static resources:Strings.Menu_About_GithubRepository}"
                         Command="{x:Static models:GlobalViewModel.OpenWebpageCommand}"
-                        CommandParameter="https://github.com/Froststrap/Froststrap" />
+                        CommandParameter="https://github.com/lec1e/Eclipse" />
 
                 <Button Margin="0,0,8,8"
                         Content="{x:Static resources:Strings.Menu_About_HelpInformation}"
                         Command="{x:Static models:GlobalViewModel.OpenWebpageCommand}"
-                        CommandParameter="https://github.com/bloxstraplabs/bloxstrap/wiki" />
+                        CommandParameter="https://github.com/lec1e/Eclipse" />
 
                 <Button Margin="0,0,0,8"
                         Content="{x:Static resources:Strings.Menu_About_ReportIssue}"
                         Command="{x:Static models:GlobalViewModel.OpenWebpageCommand}"
-                        CommandParameter="https://github.com/Froststrap/Froststrap/issues" />
+                        CommandParameter="https://github.com/lec1e/Eclipse/issues" />
             </WrapPanel>
 
             <StackPanel IsVisible="{Binding BuildInformationVisibility}">
@@ -105,6 +108,7 @@
             <Grid Margin="0,8,0,0" ColumnDefinitions="*,*,*">
                 <Expander Grid.Column="0" Margin="0,0,4,0" Header="{x:Static resources:Strings.Menu_About_Contributors_Code}" IsExpanded="True">
                     <StackPanel>
+                        <controls:MarkdownTextBlock MarkdownText="[lecie](https://github.com/lec1e)" />
                         <controls:MarkdownTextBlock MarkdownText="[meddsam](https://discord.com/users/1051148571371647017)" />
                         <controls:MarkdownTextBlock MarkdownText="[SquireDot](https://github.com/UltimatePlayer97)" />
                         <controls:MarkdownTextBlock MarkdownText="[Invra](https://invra.net) ([GitLab](https://gitlab.com/invra), [GitHub](https://github.com/invra))" />
