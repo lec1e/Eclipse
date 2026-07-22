@@ -16,7 +16,7 @@
 
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center" MinWidth="280">
         <TextBox x:Name="SearchTextBox"
-                 PlaceholderText="{x:Static resources:Strings.Menu_SearchBar_SearchSomething}"
+                 PlaceholderText="Search games, experiences, and more..."
                  Text="{Binding SearchQuery}"
                  VerticalAlignment="Center"
                  VerticalContentAlignment="Center"
