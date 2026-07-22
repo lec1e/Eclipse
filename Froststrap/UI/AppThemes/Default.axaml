@@ -8,13 +8,18 @@
 
     <Style Selector="Button">
         <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.12" />
+            </Transitions>
+        </Setter>
     </Style>
 
     <Style Selector="Button:pointerover /template/ ContentPresenter">
         <Setter Property="Background">
             <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                <GradientStop Color="#668B5CF6" Offset="0" />
-                <GradientStop Color="#447C3AED" Offset="1" />
+                <GradientStop Color="#AA8B5CF6" Offset="0" />
+                <GradientStop Color="#667C3AED" Offset="1" />
             </LinearGradientBrush>
         </Setter>
     </Style>
@@ -22,9 +27,10 @@
     <Style Selector="Button:pressed /template/ ContentPresenter">
         <Setter Property="Background">
             <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                <GradientStop Color="#C4B5FD" Offset="0" />
-                <GradientStop Color="#8B5CF6" Offset="0.45" />
-                <GradientStop Color="#5B21B6" Offset="1" />
+                <GradientStop Color="#F5E1FF" Offset="0" />
+                <GradientStop Color="#C4B5FD" Offset="0.35" />
+                <GradientStop Color="#7C3AED" Offset="0.7" />
+                <GradientStop Color="#4C1D95" Offset="1" />
             </LinearGradientBrush>
         </Setter>
     </Style>
@@ -33,9 +39,9 @@
     <Style Selector="Button:pressed ic|Lucide">
         <Setter Property="StrokeBrush">
             <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                <GradientStop Color="#F5E1FF" Offset="0" />
-                <GradientStop Color="#C4B5FD" Offset="0.4" />
-                <GradientStop Color="#8B5CF6" Offset="1" />
+                <GradientStop Color="#FFFFFF" Offset="0" />
+                <GradientStop Color="#E9D5FF" Offset="0.4" />
+                <GradientStop Color="#A78BFA" Offset="1" />
             </LinearGradientBrush>
         </Setter>
     </Style>
@@ -43,8 +49,8 @@
     <Style Selector="Button:pointerover ic|Lucide">
         <Setter Property="StrokeBrush">
             <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                <GradientStop Color="#E9D5FF" Offset="0" />
-                <GradientStop Color="#A78BFA" Offset="1" />
+                <GradientStop Color="#F5E1FF" Offset="0" />
+                <GradientStop Color="#C4B5FD" Offset="1" />
             </LinearGradientBrush>
         </Setter>
     </Style>
@@ -53,9 +59,9 @@
         <Setter Property="Foreground" Value="White" />
         <Setter Property="Background">
             <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
-                <GradientStop Color="#A78BFA" Offset="0" />
-                <GradientStop Color="#7C3AED" Offset="0.55" />
-                <GradientStop Color="#5B21B6" Offset="1" />
+                <GradientStop Color="#C4B5FD" Offset="0" />
+                <GradientStop Color="#8B5CF6" Offset="0.45" />
+                <GradientStop Color="#6D28D9" Offset="1" />
             </LinearGradientBrush>
         </Setter>
     </Style>
@@ -63,9 +69,9 @@
     <Style Selector="Button.eclipse-primary:pointerover /template/ ContentPresenter">
         <Setter Property="Background">
             <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
-                <GradientStop Color="#C4B5FD" Offset="0" />
-                <GradientStop Color="#8B5CF6" Offset="0.5" />
-                <GradientStop Color="#6D28D9" Offset="1" />
+                <GradientStop Color="#E9D5FF" Offset="0" />
+                <GradientStop Color="#A78BFA" Offset="0.45" />
+                <GradientStop Color="#7C3AED" Offset="1" />
             </LinearGradientBrush>
         </Setter>
     </Style>
@@ -73,9 +79,10 @@
     <Style Selector="Button.eclipse-primary:pressed /template/ ContentPresenter">
         <Setter Property="Background">
             <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                <GradientStop Color="#E9D5FF" Offset="0" />
-                <GradientStop Color="#A855F7" Offset="0.4" />
-                <GradientStop Color="#4C1D95" Offset="1" />
+                <GradientStop Color="#FFFFFF" Offset="0" />
+                <GradientStop Color="#E9D5FF" Offset="0.25" />
+                <GradientStop Color="#A855F7" Offset="0.55" />
+                <GradientStop Color="#5B21B6" Offset="1" />
             </LinearGradientBrush>
         </Setter>
     </Style>
@@ -90,20 +97,22 @@
     <Style Selector="Button.eclipse-ghost:pointerover /template/ ContentPresenter">
         <Setter Property="Background">
             <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                <GradientStop Color="#558B5CF6" Offset="0" />
-                <GradientStop Color="#337C3AED" Offset="1" />
+                <GradientStop Color="#778B5CF6" Offset="0" />
+                <GradientStop Color="#447C3AED" Offset="1" />
             </LinearGradientBrush>
         </Setter>
-        <Setter Property="BorderBrush" Value="#A78BFA" />
+        <Setter Property="BorderBrush" Value="#C4B5FD" />
     </Style>
 
     <Style Selector="Button.eclipse-ghost:pressed /template/ ContentPresenter">
         <Setter Property="Background">
             <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                <GradientStop Color="#AA8B5CF6" Offset="0" />
-                <GradientStop Color="#885B21B6" Offset="1" />
+                <GradientStop Color="#E9D5FF" Offset="0" />
+                <GradientStop Color="#A78BFA" Offset="0.4" />
+                <GradientStop Color="#6D28D9" Offset="1" />
             </LinearGradientBrush>
         </Setter>
+        <Setter Property="BorderBrush" Value="#E9D5FF" />
     </Style>
 
     <Style Selector="Button.accent">
