@@ -1,4 +1,4 @@
-"""Assemble dark aurora PNG frames into a looping GIF for Eclipse."""
+"""Build a smooth looping dark aurora GIF from keyframes."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -12,46 +12,50 @@ OUT_DIR = Path(
     r"c:\Users\6xesh\Documents\scripts\vscode\Roblox\Froststrap-2.0.0-beta.10\Froststrap\Assets"
 )
 W, H = 960, 540
+BLENDS_BETWEEN = 4  # intermediate frames for video-like smoothness
+DURATION_MS = 80
 
 
 def main() -> None:
-    frames_paths = sorted(ASSETS.glob("aurora-frame-*.png"))
-    print("frames:", [p.name for p in frames_paths])
+    frames_paths = sorted(ASSETS.glob("aurora-v2-*.png"))
     if len(frames_paths) < 2:
-        raise SystemExit("need at least 2 frames")
+        frames_paths = sorted(ASSETS.glob("aurora-frame-*.png"))
+    print("keyframes:", [p.name for p in frames_paths])
+    if len(frames_paths) < 2:
+        raise SystemExit("need keyframes")
 
-    imgs: list[Image.Image] = []
-    for p in frames_paths:
-        im = Image.open(p).convert("RGB").resize((W, H), Image.Resampling.LANCZOS)
-        imgs.append(im)
+    keys = [
+        Image.open(p).convert("RGB").resize((W, H), Image.Resampling.LANCZOS)
+        for p in frames_paths
+    ]
 
-    # Blend midpoints for a smoother loop
     smooth: list[Image.Image] = []
-    for i in range(len(imgs)):
-        a = imgs[i]
-        b = imgs[(i + 1) % len(imgs)]
-        smooth.append(a)
-        smooth.append(Image.blend(a, b, 0.33))
-        smooth.append(Image.blend(a, b, 0.66))
+    for i in range(len(keys)):
+        a = keys[i]
+        b = keys[(i + 1) % len(keys)]
+        for s in range(BLENDS_BETWEEN):
+            t = s / BLENDS_BETWEEN
+            smooth.append(Image.blend(a, b, t))
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     gif_path = OUT_DIR / "aurora-dark.gif"
     still_path = OUT_DIR / "aurora-dark-still.png"
 
-    # Quantize for smaller GIF while keeping neon look
-    quantized = [im.convert("P", palette=Image.Palette.ADAPTIVE, colors=128) for im in smooth]
+    # Adaptive palette keeps neon without huge file size
+    quantized = [
+        im.convert("P", palette=Image.Palette.ADAPTIVE, colors=128) for im in smooth
+    ]
     quantized[0].save(
         gif_path,
         save_all=True,
         append_images=quantized[1:],
-        duration=160,
+        duration=DURATION_MS,
         loop=0,
         optimize=True,
         disposal=2,
     )
-    smooth[0].save(still_path)
-    print("wrote", gif_path, "size_mb", round(gif_path.stat().st_size / 1024 / 1024, 2))
-    print("still", still_path)
+    smooth[0].save(still_path, optimize=True)
+    print("wrote", gif_path, "frames", len(smooth), "mb", round(gif_path.stat().st_size / 1024 / 1024, 2))
 
 
 if __name__ == "__main__":
