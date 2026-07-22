@@ -20,7 +20,7 @@
     CanResize="True"
     WindowStartupLocation="CenterScreen">
 
-    <Grid Background="#09080F" ColumnDefinitions="200,*" RowDefinitions="56,*,Auto">
+    <Grid Background="#0B0B12" ColumnDefinitions="196,*" RowDefinitions="54,*,Auto">
         <controls:AnimatedAuroraBackground
             x:Name="AuroraBackground"
             Grid.Row="0" Grid.RowSpan="3"
@@ -29,38 +29,40 @@
 
         <!-- FULL-WIDTH TOP BAR (mockup) -->
         <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" ZIndex="2"
-                Background="#CC09080F"
-                BorderBrush="#22FFFFFF"
+                Background="#990B0B12"
+                BorderBrush="#18FFFFFF"
                 BorderThickness="0,0,0,1">
-            <Grid ColumnDefinitions="200,*,Auto" Height="56">
+            <Grid ColumnDefinitions="196,*,Auto" Height="54">
                 <Panel Grid.Column="0" Grid.ColumnSpan="3"
                        WindowDecorationProperties.ElementRole="TitleBar"
                        Background="Transparent" />
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10"
-                            VerticalAlignment="Center" Margin="18,0,0,0" IsHitTestVisible="False">
-                    <Image Width="26" Height="26" Source="avares://Eclipse/Eclipse.png"
+                            VerticalAlignment="Center" Margin="16,0,0,0" IsHitTestVisible="False">
+                    <Image Width="24" Height="24" Source="avares://Eclipse/Eclipse.png"
                            RenderOptions.BitmapInterpolationMode="HighQuality" />
-                    <TextBlock Text="Eclipse" FontSize="16" FontWeight="SemiBold"
+                    <TextBlock Text="Eclipse" FontSize="15" FontWeight="SemiBold"
                                VerticalAlignment="Center" Foreground="White" />
                 </StackPanel>
 
                 <Border Grid.Column="1"
-                        MaxWidth="560"
-                        Height="36"
+                        Width="520"
+                        Height="38"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         CornerRadius="12"
-                        Background="#22101820"
-                        BorderBrush="#33FFFFFF"
+                        Background="#2A12121A"
+                        BorderBrush="#2AFFFFFF"
                         BorderThickness="1"
-                        Padding="4,0">
+                        Padding="6,0,10,0">
                     <Grid ColumnDefinitions="*,Auto">
-                        <elements:SearchBar DataContext="{Binding SearchBar}" />
-                        <Border Grid.Column="1" Margin="0,0,8,0"
-                                Padding="8,2" CornerRadius="6"
-                                Background="#22FFFFFF" VerticalAlignment="Center">
-                            <TextBlock Text="Ctrl K" FontSize="11" Opacity="0.55" />
+                        <elements:SearchBar DataContext="{Binding SearchBar}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Center" />
+                        <Border Grid.Column="1" Margin="8,0,0,0"
+                                Padding="8,3" CornerRadius="6"
+                                Background="#1AFFFFFF" VerticalAlignment="Center">
+                            <TextBlock Text="Ctrl K" FontSize="11" Opacity="0.5" />
                         </Border>
                     </Grid>
                 </Border>
@@ -81,21 +83,21 @@
 
         <!-- SIDEBAR — 6 items only -->
         <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" ZIndex="1"
-                Background="#B309080F"
-                BorderBrush="#1AFFFFFF"
+                Background="#880B0B12"
+                BorderBrush="#14FFFFFF"
                 BorderThickness="0,0,1,0"
-                Padding="12,16,12,16">
+                Padding="10,14,10,14">
             <Grid RowDefinitions="*,Auto">
                 <ItemsControl x:Name="RailItemsControl">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <StackPanel Spacing="6" />
+                            <StackPanel Spacing="4" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="local:RailNavItem">
                             <Button Classes="rail-labeled"
-                                    Height="44"
+                                    Height="42"
                                     HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Stretch"
                                     Padding="10,0"
@@ -103,7 +105,7 @@
                                     ToolTip.Tip="{Binding Title}"
                                     Click="RailItem_Click">
                                 <Panel>
-                                    <Border CornerRadius="12" Background="#557C3AED"
+                                    <Border CornerRadius="12" Background="#667C3AED"
                                             IsVisible="{Binding IsSelected}" />
                                     <StackPanel Orientation="Horizontal" Spacing="12"
                                                 VerticalAlignment="Center" Margin="4,0">
@@ -117,18 +119,18 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <StackPanel Grid.Row="1" Spacing="6" Margin="8,12,8,4">
+                <StackPanel Grid.Row="1" Spacing="5" Margin="10,12,8,4">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <Ellipse Width="8" Height="8" Fill="#34D399" />
                         <TextBlock Text="Online" FontSize="12" Opacity="0.85" />
                     </StackPanel>
-                    <TextBlock Text="{Binding VersionText}" FontSize="11" Opacity="0.45" />
+                    <TextBlock Text="{Binding VersionText}" FontSize="11" Opacity="0.42" />
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- CONTENT -->
-        <Grid Grid.Row="1" Grid.Column="1" ZIndex="1" Margin="8,8,8,0">
+        <Grid Grid.Row="1" Grid.Column="1" ZIndex="1" Margin="4,4,4,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
