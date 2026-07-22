@@ -217,6 +217,13 @@ namespace Froststrap
             // Legacy shortcut names from earlier branding.
             try { Shortcut.Delete(Path.Combine(Paths.Desktop, "Froststrap.lnk")); } catch { /* ignore */ }
             try { Shortcut.Delete(Path.Combine(Paths.WindowsStartMenu, "Froststrap.lnk")); } catch { /* ignore */ }
+            try { Shortcut.Delete(Path.Combine(Paths.Desktop, "Eclipse-QA.lnk")); } catch { /* ignore */ }
+            try { Shortcut.Delete(Path.Combine(Paths.WindowsStartMenu, "Eclipse-QA.lnk")); } catch { /* ignore */ }
+
+            // Prefer wiping the real install root under LocalAppData\Eclipse.
+            string defaultInstallRoot = Path.Combine(Paths.LocalAppData, App.ProjectName);
+            if (string.IsNullOrWhiteSpace(installRoot))
+                installRoot = defaultInstallRoot;
 
             TryDeleteDirectory(Paths.Versions);
             TryDeleteDirectory(Paths.Downloads);
@@ -229,6 +236,7 @@ namespace Froststrap
             TryDeleteDirectory(Path.Combine(installRoot, "WebViewProfiles"));
             TryDeleteDirectory(Path.Combine(installRoot, "Wine"));
             TryDeleteDirectory(Path.Combine(installRoot, "ModBackup"));
+            TryDeleteDirectory(Path.Combine(defaultInstallRoot, "Updates"));
 
             TryDeleteFile(App.State.FileLocation);
             TryDeleteFile(Path.Combine(installRoot, "State.json.bak"));
@@ -263,6 +271,8 @@ namespace Froststrap
 
                 // Best-effort wipe now (EXE may still be locked).
                 TryDeleteLooseFiles(installRoot, preserveExe: true);
+                if (!string.Equals(installRoot, defaultInstallRoot, StringComparison.OrdinalIgnoreCase))
+                    TryDeleteLooseFiles(defaultInstallRoot, preserveExe: true);
             }
 
             if (OperatingSystem.IsWindows())
@@ -380,7 +390,8 @@ namespace Froststrap
 
         /// <summary>
         /// Writes a short batch script that waits for this process to exit, then
-        /// deletes Eclipse.exe and (optionally) the entire install folder.
+        /// deletes Eclipse.exe and (by default) the entire install folder.
+        /// Uses ping delays (timeout.exe is unreliable in hidden/non-interactive sessions).
         /// </summary>
         private static void SchedulePostExitCleanup(string installRoot, string applicationPath, bool wipeFolder)
         {
@@ -391,49 +402,68 @@ namespace Froststrap
                 string scriptPath = Path.Combine(Path.GetTempPath(), $"eclipse-uninstall-{Guid.NewGuid():N}.cmd");
                 int pid = Environment.ProcessId;
                 string tempAppDir = Paths.Temp;
+                string processPath = Paths.Process;
 
-                // Escape for batch: double quotes inside quoted strings.
-                string Safe(string p) => p.Replace("\"", "");
+                // Escape for batch: strip quotes.
+                string Safe(string p) => (p ?? "").Replace("\"", "");
 
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine("@echo off");
-                sb.AppendLine("setlocal");
-                sb.AppendLine($":wait");
+                sb.AppendLine("setlocal EnableExtensions");
+                sb.AppendLine(":wait");
                 sb.AppendLine($"tasklist /FI \"PID eq {pid}\" 2>NUL | find \"{pid}\" >NUL");
                 sb.AppendLine("if not errorlevel 1 (");
-                sb.AppendLine("  timeout /t 1 /nobreak >NUL");
+                sb.AppendLine("  ping 127.0.0.1 -n 2 >NUL");
                 sb.AppendLine("  goto wait");
                 sb.AppendLine(")");
-                sb.AppendLine("timeout /t 1 /nobreak >NUL");
+                sb.AppendLine("ping 127.0.0.1 -n 2 >NUL");
+
+                // Always force-delete the install EXE and the running process path.
+                sb.AppendLine($"set \"EXE1={Safe(applicationPath)}\"");
+                sb.AppendLine($"set \"EXE2={Safe(processPath)}\"");
+                sb.AppendLine("for /L %%i in (1,1,20) do (");
+                sb.AppendLine("  if exist \"%EXE1%\" del /f /q \"%EXE1%\" >NUL 2>&1");
+                sb.AppendLine("  if exist \"%EXE2%\" del /f /q \"%EXE2%\" >NUL 2>&1");
+                sb.AppendLine("  if not exist \"%EXE1%\" if not exist \"%EXE2%\" goto exe_done");
+                sb.AppendLine("  ping 127.0.0.1 -n 2 >NUL");
+                sb.AppendLine(")");
+                sb.AppendLine(":exe_done");
 
                 if (wipeFolder)
                 {
-                    sb.AppendLine($"set \"TARGET={Safe(installRoot)}\"");
-                    sb.AppendLine("for /L %%i in (1,1,15) do (");
-                    sb.AppendLine("  if exist \"%TARGET%\" (");
-                    sb.AppendLine("    attrib -r -s -h \"%TARGET%\\*.*\" /s /d >NUL 2>&1");
-                    sb.AppendLine("    rd /s /q \"%TARGET%\" >NUL 2>&1");
-                    sb.AppendLine("    if exist \"%TARGET%\" (");
-                    sb.AppendLine("      del /f /q \"%TARGET%\\*.*\" >NUL 2>&1");
-                    sb.AppendLine("      timeout /t 1 /nobreak >NUL");
-                    sb.AppendLine("    )");
-                    sb.AppendLine("  )");
-                    sb.AppendLine(")");
-                }
-                else
-                {
-                    sb.AppendLine($"del /f /q \"{Safe(applicationPath)}\" >NUL 2>&1");
+                    void AppendWipe(string label, string path)
+                    {
+                        sb.AppendLine($"set \"{label}={Safe(path)}\"");
+                        sb.AppendLine($"for /L %%i in (1,1,30) do (");
+                        sb.AppendLine($"  if exist \"%{label}%\" (");
+                        sb.AppendLine($"    attrib -r -s -h \"%{label}%\\*.*\" /s /d >NUL 2>&1");
+                        sb.AppendLine($"    del /f /q \"%{label}%\\*.*\" >NUL 2>&1");
+                        sb.AppendLine($"    for /d %%D in (\"%{label}%\\*\") do rd /s /q \"%%~fD\" >NUL 2>&1");
+                        sb.AppendLine($"    rd /s /q \"%{label}%\" >NUL 2>&1");
+                        sb.AppendLine($"  )");
+                        sb.AppendLine($"  if not exist \"%{label}%\" goto {label}_done");
+                        sb.AppendLine($"  ping 127.0.0.1 -n 2 >NUL");
+                        sb.AppendLine($")");
+                        sb.AppendLine($":{label}_done");
+                    }
+
+                    AppendWipe("TARGET", installRoot);
+                    string defaultRoot = Path.Combine(Paths.LocalAppData, App.ProjectName);
+                    if (!string.Equals(installRoot, defaultRoot, StringComparison.OrdinalIgnoreCase))
+                        AppendWipe("TARGET2", defaultRoot);
                 }
 
                 sb.AppendLine($"if exist \"{Safe(tempAppDir)}\" rd /s /q \"{Safe(tempAppDir)}\" >NUL 2>&1");
+                sb.AppendLine($"if exist \"{Safe(Paths.TempUpdates)}\" rd /s /q \"{Safe(Paths.TempUpdates)}\" >NUL 2>&1");
                 sb.AppendLine("del \"%~f0\" >NUL 2>&1");
 
                 File.WriteAllText(scriptPath, sb.ToString());
 
+                // Detach so cleanup survives after this process exits.
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "cmd.exe",
-                    Arguments = $"/c \"{scriptPath}\"",
+                    Arguments = $"/c start \"\" /min cmd /c \"\"{scriptPath}\"\"",
                     UseShellExecute = true,
                     WindowStyle = ProcessWindowStyle.Hidden,
                     CreateNoWindow = true

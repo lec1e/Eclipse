@@ -93,11 +93,12 @@ namespace Froststrap
             }
 
             bool confirmed = false;
-            bool keepData = true;
+            bool keepData = false;
 
             if (App.LaunchSettings.QuietFlag.Active)
             {
                 confirmed = true;
+                keepData = false;
             }
             else
             {

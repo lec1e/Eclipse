@@ -43,8 +43,8 @@
         </StackPanel>
       </StackPanel>
 
-      <!-- RECENTLY PLAYED (hidden when empty — no fake seeded games) -->
-      <StackPanel Spacing="12" IsVisible="{Binding HasRecentGames}">
+      <!-- RECENTLY PLAYED -->
+      <StackPanel Spacing="12">
         <Grid ColumnDefinitions="*,Auto">
           <StackPanel Orientation="Horizontal" Spacing="8">
             <ic:Lucide Icon="Clock" Width="16" Height="16" Opacity="0.75"
@@ -57,7 +57,17 @@
           </Button>
         </Grid>
 
-        <ItemsControl ItemsSource="{Binding RecentGames}">
+        <Border IsVisible="{Binding HasNoRecentGames}" Height="100" CornerRadius="14"
+                BorderBrush="#28FFFFFF" BorderThickness="1" Background="#140B0B12"
+                Padding="18">
+          <StackPanel VerticalAlignment="Center" Spacing="4">
+            <TextBlock Text="No recent games yet" FontSize="14" FontWeight="SemiBold" Foreground="#E2E8F0" />
+            <TextBlock Text="Play something with Eclipse tracking on, or sign in via AltMan to pull Roblox history."
+                       FontSize="12" Foreground="#9AA3B5" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+
+        <ItemsControl ItemsSource="{Binding RecentGames}" IsVisible="{Binding HasRecentGames}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
               <UniformGrid Columns="4" Rows="1" />
