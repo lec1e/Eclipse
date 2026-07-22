@@ -24,19 +24,20 @@ namespace Froststrap.UI.Converters
                 if (_imageCache.TryGetValue(url, out var cachedBitmap))
                     return cachedBitmap;
 
-                using var response = App.HttpClient.GetAsync(url).Result;
-
-                Bitmap? bitmap = null;
-                if (response.IsSuccessStatusCode)
+                // Never block the UI thread on HttpClient (.Result can deadlock Avalonia).
+                Bitmap? bitmap = Task.Run(async () =>
                 {
-                    using var stream = response.Content.ReadAsStreamAsync().Result;
-                    using var memoryStream = new MemoryStream();
-                    stream.CopyTo(memoryStream);
-                    memoryStream.Position = 0;
-                    bitmap = new Bitmap(memoryStream);
-                }
+                    using var response = await App.HttpClient.GetAsync(url).ConfigureAwait(false);
+                    if (!response.IsSuccessStatusCode)
+                        return null;
 
-                // Cache the result (even if null)
+                    await using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    await using var memoryStream = new MemoryStream();
+                    await stream.CopyToAsync(memoryStream).ConfigureAwait(false);
+                    memoryStream.Position = 0;
+                    return new Bitmap(memoryStream);
+                }).GetAwaiter().GetResult();
+
                 _imageCache.TryAdd(url, bitmap);
                 return bitmap;
             }
@@ -55,4 +56,3 @@ namespace Froststrap.UI.Converters
         }
     }
 }
-

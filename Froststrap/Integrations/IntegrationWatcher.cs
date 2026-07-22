@@ -113,10 +113,7 @@ namespace Froststrap.Integrations
                         await UpdateIconToGameIcon();
                     }
 
-                    if (App.Settings.Prop.AutoChangeTitle)
-                    {
-                        await UpdateTitleToGameName();
-                    }
+                    // AutoChangeTitle removed — renaming the Roblox window is disabled.
                 });
             }
 
@@ -161,12 +158,6 @@ namespace Froststrap.Integrations
                         _customGameIconBigHandle?.Dispose();
                         _customGameIconBigHandle = null;
                     }
-
-                    if (App.Settings.Prop.AutoChangeTitle)
-                    {
-                        App.Logger.WriteLine(LOG_IDENT, "Resetting window title back to 'Roblox'");
-                        PInvoke.SetWindowText(_robloxWindowHandle, "Roblox");
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -203,10 +194,17 @@ namespace Froststrap.Integrations
             {
                 foreach (Process proc in Process.GetProcesses())
                 {
-                    if (proc.MainWindowTitle == "Roblox")
+                    try
                     {
-                        nativeHandle = proc.MainWindowHandle;
-                        break;
+                        if (proc.MainWindowTitle == "Roblox")
+                        {
+                            nativeHandle = proc.MainWindowHandle;
+                            break;
+                        }
+                    }
+                    finally
+                    {
+                        proc.Dispose();
                     }
                 }
             }

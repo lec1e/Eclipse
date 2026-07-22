@@ -16,7 +16,7 @@ namespace Froststrap.Models.Persistable
         public bool UseDisableAppPatch { get; set; } = false;
         // Kept for settings migration — Close To Desktop now always force-kills Roblox.
         public bool FullyCloseRobloxOnExit { get; set; } = false;
-        public bool AutoChangeTitle { get; set; } = true;
+        public bool AutoChangeTitle { get; set; } = false;
         public bool AutoChangeIcon { get; set; } = false;
         public bool ShowUsingFroststrapRPC { get; set; } = true;
         public bool UseDiscordRichPresence { get; set; } = true;

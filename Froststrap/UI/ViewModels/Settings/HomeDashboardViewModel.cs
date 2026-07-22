@@ -20,6 +20,8 @@ namespace Froststrap.UI.ViewModels.Settings
         public ObservableCollection<HomeFeaturedItem> FeaturedGames { get; } = [];
         public ObservableCollection<HomeNewsItem> NewsItems { get; } = [];
 
+        public bool HasRecentGames => RecentGames.Count > 0;
+
         public ICommand LaunchRobloxCommand { get; }
         public ICommand OpenFolderCommand { get; }
         public ICommand OpenQuickPlayCommand { get; }
@@ -60,12 +62,10 @@ namespace Froststrap.UI.ViewModels.Settings
             RecentGames.Clear();
             FeaturedGames.Clear();
             NewsItems.Clear();
+            OnPropertyChanged(nameof(HasRecentGames));
 
-            // placeId used for launch; tint matches mockup card moods
-            RecentGames.Add(new HomeGameCard("Midnight Rail", "Last played recently", 4924922222, "#4C1D95"));
-            RecentGames.Add(new HomeGameCard("Deepwoken", "Last played 2h ago", 5735554555, "#1E293B"));
-            RecentGames.Add(new HomeGameCard("Catalog Avatar Creator", "Last played 5h ago", 16617882081, "#9A3412"));
-            RecentGames.Add(new HomeGameCard("Da Hood", "Last played 1d ago", 2788229376, "#0F172A"));
+            // Recently Played stays empty until real activity history is wired —
+            // do not seed fake mockup games (wrong placeIds / wrong titles).
 
             FeaturedGames.Add(new HomeFeaturedItem(
                 "Midnight Rail",
@@ -92,6 +92,9 @@ namespace Froststrap.UI.ViewModels.Settings
             try
             {
                 var cards = RecentGames.Cast<HomeThumbTarget>().Concat(FeaturedGames).ToList();
+                if (cards.Count == 0)
+                    return;
+
                 var requests = cards.Select(c => new ThumbnailRequest
                 {
                     TargetId = (ulong)c.PlaceId,

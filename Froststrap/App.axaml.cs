@@ -473,6 +473,12 @@ public partial class App : Application
 
             _ = Task.Run(RemoteData.LoadData);
             Settings.Load();
+            // Title-change feature removed from UI; force off for existing installs.
+            if (Settings.Prop.AutoChangeTitle)
+            {
+                Settings.Prop.AutoChangeTitle = false;
+                Settings.Save();
+            }
             State.Load();
             FastFlags.Load();
             AppStorage.Load();
