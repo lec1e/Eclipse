@@ -23,14 +23,9 @@
     Background="#030306">
 
     <Grid RowDefinitions="52,*,Auto">
-        <controls:AnimatedAuroraBackground
-            x:Name="AuroraBackground"
-            Grid.Row="0" Grid.RowSpan="3"
-            ZIndex="0" />
-
         <!-- TOP BAR (full width) -->
         <Border Grid.Row="0" ZIndex="3"
-                Background="#22080812"
+                Background="#CC080812"
                 BorderBrush="#10FFFFFF" BorderThickness="0,0,0,1">
             <Grid ColumnDefinitions="Auto,*,Auto" Height="52">
                 <Panel Grid.Column="0" Grid.ColumnSpan="3"
@@ -79,7 +74,7 @@
         <!-- BODY: icon rail + stage -->
         <Grid Grid.Row="1" ZIndex="1" ColumnDefinitions="78,*">
             <Border Grid.Column="0"
-                    Background="#18080812"
+                    Background="#E0080812"
                     BorderBrush="#0CFFFFFF" BorderThickness="0,0,1,0"
                     Padding="8,14,8,12">
                 <Grid RowDefinitions="*,Auto">
@@ -136,48 +131,56 @@
                 </Grid>
             </Border>
 
-            <!-- Content stage — glass over soft aurora -->
+            <!-- Content stage with aurora INSIDE so it actually shows -->
             <Border Grid.Column="1" Margin="10,8,12,8" CornerRadius="16"
-                    Background="#0C080812" BorderBrush="#22FFFFFF" BorderThickness="1"
+                    Background="Transparent" BorderBrush="#33FFFFFF" BorderThickness="1"
                     ClipToBounds="True">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                    <controls:AnimatedAuroraBackground
+                        x:Name="AuroraBackground"
+                        ZIndex="0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" />
 
-                    <StackPanel Margin="22,14,22,0" IsVisible="{Binding ShowPageChrome}">
-                        <ItemsControl IsVisible="{Binding HasBreadcrumbs}" ItemsSource="{Binding BreadcrumbItems}" Margin="0,0,0,8">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" Spacing="8" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="vm:BreadcrumbItemModel">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Padding="0" Background="Transparent" BorderThickness="0"
-                                                Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BreadcrumbItemClickedCommand}"
-                                                CommandParameter="{Binding}" Content="{Binding Content}"
-                                                FontSize="18" FontWeight="SemiBold" IsVisible="{Binding !IsLast}" />
-                                        <TextBlock Text="›" FontSize="18" Opacity="0.5" IsVisible="{Binding !IsLast}" />
-                                        <TextBlock Text="{Binding Content}" FontSize="18" FontWeight="SemiBold" IsVisible="{Binding IsLast}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <TextBlock x:Name="PageTitleText" FontSize="22" FontWeight="SemiBold"
-                                   IsVisible="{Binding ShowPageTitle}" Text="{Binding CurrentPageTitle}" />
-                        <controls:MarkdownTextBlock x:Name="PageDescriptionText" Margin="0,4,0,0"
-                                                    FontSize="13" Opacity="0.7"
-                                                    IsVisible="{Binding CurrentPageDescription, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                                    MarkdownText="{Binding CurrentPageDescription}" />
-                        <ui:FAInfoBar x:Name="AlertBar" Margin="0,8,0,0" IsVisible="False" Severity="Warning" />
-                    </StackPanel>
+                    <Grid ZIndex="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                    <TransitioningContentControl Grid.Row="1" x:Name="PageContentControl"
-                                                 HorizontalAlignment="Stretch"
-                                                 VerticalAlignment="Stretch" />
+                        <StackPanel Margin="22,14,22,0" IsVisible="{Binding ShowPageChrome}">
+                            <ItemsControl IsVisible="{Binding HasBreadcrumbs}" ItemsSource="{Binding BreadcrumbItems}" Margin="0,0,0,8">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="8" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="vm:BreadcrumbItemModel">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Padding="0" Background="Transparent" BorderThickness="0"
+                                                    Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BreadcrumbItemClickedCommand}"
+                                                    CommandParameter="{Binding}" Content="{Binding Content}"
+                                                    FontSize="18" FontWeight="SemiBold" IsVisible="{Binding !IsLast}" />
+                                            <TextBlock Text="›" FontSize="18" Opacity="0.5" IsVisible="{Binding !IsLast}" />
+                                            <TextBlock Text="{Binding Content}" FontSize="18" FontWeight="SemiBold" IsVisible="{Binding IsLast}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock x:Name="PageTitleText" FontSize="22" FontWeight="SemiBold"
+                                       IsVisible="{Binding ShowPageTitle}" Text="{Binding CurrentPageTitle}" />
+                            <controls:MarkdownTextBlock x:Name="PageDescriptionText" Margin="0,4,0,0"
+                                                        FontSize="13" Opacity="0.7"
+                                                        IsVisible="{Binding CurrentPageDescription, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                                        MarkdownText="{Binding CurrentPageDescription}" />
+                            <ui:FAInfoBar x:Name="AlertBar" Margin="0,8,0,0" IsVisible="False" Severity="Warning" />
+                        </StackPanel>
+
+                        <TransitioningContentControl Grid.Row="1" x:Name="PageContentControl"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalAlignment="Stretch" />
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>
