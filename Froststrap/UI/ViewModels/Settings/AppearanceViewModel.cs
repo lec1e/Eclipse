@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
+using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using FluentAvalonia.UI.Controls;
@@ -623,6 +624,16 @@ namespace Froststrap.UI.ViewModels.Settings
                 App.Settings.Prop.EnableAurora = value;
                 global::Froststrap.Utility.ThemeManager.ApplyFromSettings();
                 OnPropertyChanged(nameof(EnableAurora));
+
+                // Push live update to any aurora layers already on screen.
+                if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    foreach (var window in desktop.Windows)
+                    {
+                        foreach (var aurora in window.GetVisualDescendants().OfType<Froststrap.UI.Elements.Controls.AnimatedAuroraBackground>())
+                            aurora.SyncFromSettings();
+                    }
+                }
             }
         }
 

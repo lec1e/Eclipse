@@ -106,10 +106,13 @@ namespace Froststrap.Utility
                 settings.Palette = palette;
             }
 
-            if (Signature(palette) == _lastSignature)
+            // Force re-apply when glass/aurora/glow toggles even if palette hex is unchanged
+            string signature = Signature(palette);
+            if (signature == _lastSignature)
                 return;
 
             Apply(palette);
+            _lastSignature = signature;
         }
 
         public static void ApplyPreset(string name)
@@ -120,6 +123,7 @@ namespace Froststrap.Utility
             App.Settings.Prop.SelectedThemePreset = name;
             App.Settings.Prop.Palette = preset.Clone();
             Apply(App.Settings.Prop.Palette);
+            _lastSignature = Signature(App.Settings.Prop.Palette);
         }
 
         public static void Apply(ThemePalette p)
@@ -146,6 +150,7 @@ namespace Froststrap.Utility
             res["BrandSurfaceColor"] = surface;
             res["BrandHairlineColor"] = hairline;
             res["BrandGlowColor"] = glow;
+            res["BrandGradientEnd"] = gEnd;
 
             res["BrandAccentBrush"] = new SolidColorBrush(accent);
             res["BrandPurpleBrush"] = new SolidColorBrush(purple);
@@ -153,8 +158,18 @@ namespace Froststrap.Utility
             res["BrandSurfaceBrush"] = new SolidColorBrush(surface);
             res["BrandHairlineBrush"] = new SolidColorBrush(hairline);
 
+            // Glass stage — translucent so aurora reads through Midnight Rail chrome
             res["GlassFillBrush"] = glass
-                ? new SolidColorBrush(Color.FromArgb(0x14, 0xFF, 0xFF, 0xFF))
+                ? new SolidColorBrush(Color.FromArgb(0x66, surface.R, surface.G, surface.B))
+                : new SolidColorBrush(surface);
+            res["GlassRailBrush"] = glass
+                ? new SolidColorBrush(Color.FromArgb(0x99, ink.R, ink.G, ink.B))
+                : new SolidColorBrush(ink);
+            res["GlassHeaderBrush"] = glass
+                ? new SolidColorBrush(Color.FromArgb(0xAA, ink.R, ink.G, ink.B))
+                : new SolidColorBrush(Color.FromArgb(0xEE, ink.R, ink.G, ink.B));
+            res["GlassStageBrush"] = glass
+                ? new SolidColorBrush(Color.FromArgb(0x55, surface.R, surface.G, surface.B))
                 : new SolidColorBrush(surface);
 
             res["BrandGradientBrush"] = new LinearGradientBrush
@@ -182,8 +197,6 @@ namespace Froststrap.Utility
                 res["ApplicationBackgroundColor"] = new SolidColorBrush(ink);
                 res["PrimaryBackgroundColor"] = new SolidColorBrush(Color.FromArgb(0xCC, ink.R, ink.G, ink.B));
             }
-
-            _lastSignature = Signature(p);
         }
 
         private static string Signature(ThemePalette p)

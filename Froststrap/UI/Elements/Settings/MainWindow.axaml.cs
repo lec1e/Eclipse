@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -9,10 +10,12 @@ using Avalonia.VisualTree;
 using FluentAvalonia.UI.Controls;
 using Froststrap.UI.Elements.Controls;
 using Froststrap.UI.Utility;
+using Froststrap.UI.ViewModels;
 using Froststrap.UI.ViewModels.Settings;
 using Froststrap.UI.ViewModels.Settings.Mods;
 using LucideAvalonia;
 using LucideAvalonia.Enum;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace Froststrap.UI.Elements.Settings
@@ -23,6 +26,7 @@ namespace Froststrap.UI.Elements.Settings
 
         private static Models.Persistable.WindowState State => App.State.Prop.SettingsWindow;
         private readonly MainWindowViewModel? _viewModel;
+        private readonly ObservableCollection<RailNavItem> _railItems = [];
 
         private Border? _currentNotification;
         private CancellationTokenSource? _notificationCts;
@@ -50,12 +54,10 @@ namespace Froststrap.UI.Elements.Settings
             if (showAlreadyRunningWarning)
                 ShowAlreadyRunningNotification();
 
-            gbs.Opacity = _viewModel.GBSEnabled ? 1 : 0.5;
-            gbs.IsEnabled = _viewModel.GBSEnabled; // binding doesnt work as expected so we are setting it in here instead
+            BuildRailItems();
+            ApplyGbsRailState();
 
             LoadState();
-
-            LoadNavigationPaneState();
 
             App.RemoteData.Subscribe((_, _) => Dispatcher.UIThread.Post(() =>
             {
@@ -73,10 +75,72 @@ namespace Froststrap.UI.Elements.Settings
 
             Dispatcher.UIThread.Post(() =>
             {
-                UpdateSelectedNavigationViewItem(_viewModel.SelectedPage);
+                UpdateSelectedRailItem(_viewModel.SelectedPage);
                 AttachTitleBarButtons();
                 BuildSearchIndex();
+                AuroraBackground?.SyncFromSettings();
             }, DispatcherPriority.Loaded);
+        }
+
+        private void BuildRailItems()
+        {
+            _railItems.Clear();
+
+            void Add(string tag, string title, LucideIconNames icon, bool visible = true)
+                => _railItems.Add(new RailNavItem { Tag = tag, Title = title, Icon = icon, IsVisible = visible });
+
+            void Sep() => _railItems.Add(new RailNavItem { IsSeparator = true, Tag = $"sep-{_railItems.Count}" });
+
+            Add("integrations", Strings.Menu_Integrations_Title, LucideIconNames.Plus);
+            Add("behaviour", Strings.Menu_Behaviour_Title, LucideIconNames.Play);
+            Add("quickplay", Strings.Menu_QuickPlay_Title, LucideIconNames.Gamepad2);
+            Add("channels", Strings.Common_Deployment, LucideIconNames.HardDriveUpload);
+            Add("versions", "Versions Manager", LucideIconNames.Layers);
+            Sep();
+            Add("banasync", "BanAsync", LucideIconNames.Shield, GlobalViewModel.IsWindows);
+            Add("hwidspoofer", "HWID Spoofer", LucideIconNames.FingerprintPattern, GlobalViewModel.IsWindows);
+            Add("altman", "AltMan", LucideIconNames.Users);
+            Add("multiinstance", "Multi Instance", LucideIconNames.Copy);
+            Add("vipserver", "VIP Server", LucideIconNames.Crown);
+            Add("serverbrowser", "Server Browser", LucideIconNames.Server);
+            Add("news", "News", LucideIconNames.Newspaper);
+            Sep();
+            Add("mods", Strings.Menu_PresetMods_Title, LucideIconNames.BookOpen);
+            Add("appearance", Strings.Menu_Appearance_Title, LucideIconNames.Palette);
+            Sep();
+            Add("fastflags", Strings.Menu_FastFlags_Title, LucideIconNames.Flag);
+            Add("globalsettings", Strings.Menu_GlobalSettings_Title, LucideIconNames.PenLine);
+            Add("linuxsettings", Strings.Menu_LinuxSettings_Title, LucideIconNames.Settings, GlobalViewModel.IsLinux);
+            Sep();
+            Add("regionselector", Strings.Menu_RegionSelector_Title, LucideIconNames.Globe);
+            Add("shortcuts", Strings.Common_Shortcuts, LucideIconNames.Link2);
+            Add("about", Strings.Menu_About_Title, LucideIconNames.CircleAlert);
+
+            if (RailItemsControl is not null)
+                RailItemsControl.ItemsSource = _railItems;
+        }
+
+        private void ApplyGbsRailState()
+        {
+            if (_viewModel is null) return;
+            var gbs = _railItems.FirstOrDefault(i => i.Tag == "globalsettings");
+            if (gbs is null) return;
+            gbs.IsEnabled = _viewModel.GBSEnabled;
+        }
+
+        private void RailItem_Click(object? sender, RoutedEventArgs e)
+        {
+            if (sender is not Button { Tag: string tag })
+                return;
+
+            if (tag == "about")
+            {
+                _viewModel?.OpenAboutCommand.Execute(null);
+                return;
+            }
+
+            SaveCurrentPage();
+            GetNavigationAction(tag)?.Invoke();
         }
 
         private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -89,7 +153,7 @@ namespace Froststrap.UI.Elements.Settings
             }
             else if (e.PropertyName == nameof(MainWindowViewModel.SelectedPage))
             {
-                UpdateSelectedNavigationViewItem(_viewModel.SelectedPage);
+                UpdateSelectedRailItem(_viewModel.SelectedPage);
             }
         }
 
@@ -213,49 +277,13 @@ namespace Froststrap.UI.Elements.Settings
             }
         }
 
-        private void NavView_ItemInvoked(object? sender, FANavigationViewItemInvokedEventArgs e)
+        private void UpdateSelectedRailItem(string selectedPage)
         {
-            if (e.InvokedItemContainer is FANavigationViewItem navItem && navItem.Tag is string tag)
+            foreach (var item in _railItems)
             {
-                if (tag == "about")
-                {
-                    _viewModel?.OpenAboutCommand.Execute(null);
-                    return;
-                }
-
-                SaveCurrentPage();
-
-                var action = GetNavigationAction(tag);
-                action?.Invoke();
-            }
-        }
-
-        private void UpdateSelectedNavigationViewItem(string selectedPage)
-        {
-            var navView = this.FindControl<FANavigationView>("NavView");
-            if (navView == null) return;
-
-            foreach (var item in navView.MenuItems)
-            {
-                if (item is FANavigationViewItem navItem && navItem.Tag is string tag)
-                {
-                    if (tag == selectedPage)
-                    {
-                        navView.SelectedItem = navItem;
-                        return;
-                    }
-                }
-            }
-            foreach (var item in navView.FooterMenuItems)
-            {
-                if (item is FANavigationViewItem navItem && navItem.Tag is string tag)
-                {
-                    if (tag == selectedPage)
-                    {
-                        navView.SelectedItem = navItem;
-                        return;
-                    }
-                }
+                if (item.IsSeparator)
+                    continue;
+                item.IsSelected = item.Tag == selectedPage;
             }
         }
 
@@ -772,14 +800,6 @@ namespace Froststrap.UI.Elements.Settings
             }
         }
 
-        private void LoadNavigationPaneState()
-        {
-            var navView = this.FindControl<FANavigationView>("NavView");
-            if (navView == null) return;
-
-            navView.IsPaneOpen = App.State.Prop.IsNavigationPaneOpen;
-        }
-
         #region Event Handlers
 
         private async void MainWindow_Closing(object? sender, CancelEventArgs e)
@@ -808,13 +828,6 @@ namespace Froststrap.UI.Elements.Settings
             State.Height = this.Height;
             State.Left = this.Position.X;
             State.Top = this.Position.Y;
-
-            var navView = this.FindControl<FANavigationView>("NavView");
-            if (navView != null)
-            {
-                App.State.Prop.IsNavigationPaneOpen = navView.IsPaneOpen;
-                App.State.SaveSetting("IsNavigationPaneOpen");
-            }
 
             SaveCurrentPage();
         }
