@@ -5,6 +5,16 @@ namespace Froststrap.Integrations
 {
     public class FroststrapRichPresence : IDisposable
     {
+        /// <summary>
+        /// Eclipse Discord application (name shown as "Playing Eclipse").
+        /// Client IDs are public; create/rename the app at https://discord.com/developers/applications
+        /// </summary>
+        public const string EclipseApplicationId = "1399535282713399418";
+
+        /// <summary>Hosted Eclipse mark — Discord accepts external image URLs for LargeImageKey.</summary>
+        private const string EclipseLogoUrl =
+            "https://cdn.jsdelivr.net/gh/lec1e/Eclipse@main/.resources/rpc/eclipse.png";
+
         private readonly DiscordRpcClient? _rpcClient;
         private readonly Timestamps _startTimestamps;
         private readonly Stopwatch _uptimeStopwatch;
@@ -31,7 +41,7 @@ namespace Froststrap.Integrations
                 return;
             }
 
-            _rpcClient = new DiscordRpcClient("1399535282713399418")
+            _rpcClient = new DiscordRpcClient(EclipseApplicationId)
             {
                 SkipIdenticalPresence = true
             };
@@ -99,23 +109,31 @@ namespace Froststrap.Integrations
 
             string state = !string.IsNullOrEmpty(_currentDialog)
                 ? $"Page: {_currentPage} | Dialog: {_currentDialog}"
-                : $"Page: {_currentPage}";
+                : (_currentPage is "Idle" or "Home"
+                    ? "Customize Roblox to your liking!"
+                    : $"Page: {_currentPage}");
 
-            if (state == _lastState)
+            // Fingerprint includes assets so logo/title updates aren't skipped.
+            string fingerprint = $"{state}|eclipse|{App.Version}";
+            if (fingerprint == _lastState)
                 return;
 
-            _lastState = state;
+            _lastState = fingerprint;
 
             var presence = new DiscordRPC.RichPresence
             {
-                Details = "Customize Roblox to your liking!",
+                // With StatusDisplay=Details, Discord shows "Playing Eclipse" in status.
+                // Profile card title still comes from the Discord Application name — use an
+                // application named "Eclipse" (see EclipseApplicationId).
+                Details = "Eclipse",
                 State = state,
+                Type = ActivityType.Playing,
+                StatusDisplay = StatusDisplayType.Details,
                 Timestamps = _startTimestamps,
                 Assets = new Assets
                 {
-                    LargeImageKey = "froststrap",
+                    LargeImageKey = EclipseLogoUrl,
                     LargeImageText = "Eclipse",
-                    SmallImageKey = "checkmark",
                     SmallImageText = $"v{App.Version}"
                 },
                 Buttons =
