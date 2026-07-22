@@ -9,7 +9,7 @@ namespace Froststrap.UI.Elements.Dialogs
     public partial class UninstallerDialog : AvaloniaWindow
     {
         public bool Confirmed { get; private set; } = false;
-        public bool KeepData { get; private set; } = true;
+        public bool KeepData { get; private set; } = false;
 
         public UninstallerDialog()
         {

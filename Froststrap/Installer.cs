@@ -220,6 +220,9 @@ namespace Froststrap
             try { Shortcut.Delete(Path.Combine(Paths.Desktop, "Eclipse-QA.lnk")); } catch { /* ignore */ }
             try { Shortcut.Delete(Path.Combine(Paths.WindowsStartMenu, "Eclipse-QA.lnk")); } catch { /* ignore */ }
 
+            // Froststrap-style: remove any desktop .lnk that still targets our EXE.
+            TryDeleteShortcutsTargetingApplication();
+
             // Prefer wiping the real install root under LocalAppData\Eclipse.
             string defaultInstallRoot = Path.Combine(Paths.LocalAppData, App.ProjectName);
             if (string.IsNullOrWhiteSpace(installRoot))
@@ -388,10 +391,46 @@ namespace Froststrap
                 TryDeleteDirectory(dir);
         }
 
+        private static void TryDeleteShortcutsTargetingApplication()
+        {
+            const string LOG_IDENT = "Installer::TryDeleteShortcutsTargetingApplication";
+            try
+            {
+                if (!Directory.Exists(Paths.Desktop))
+                    return;
+
+                foreach (string file in Directory.GetFiles(Paths.Desktop, "*.lnk"))
+                {
+                    try
+                    {
+                        var shortcut = ShellLink.Shortcut.ReadFromFile(file);
+                        string? target = shortcut.ExtraData.EnvironmentVariableDataBlock?.TargetUnicode
+                            ?? shortcut.LinkTargetIDList?.Path;
+                        if (string.IsNullOrEmpty(target))
+                            continue;
+
+                        if (target.Equals(Paths.Application, StringComparison.OrdinalIgnoreCase)
+                            || target.Equals(Paths.Process, StringComparison.OrdinalIgnoreCase))
+                        {
+                            File.Delete(file);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        App.Logger.WriteLine(LOG_IDENT, $"Skip shortcut '{file}': {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Logger.WriteLine(LOG_IDENT, $"Desktop shortcut scan failed: {ex.Message}");
+            }
+        }
+
         /// <summary>
-        /// Writes a short batch script that waits for this process to exit, then
-        /// deletes Eclipse.exe and (by default) the entire install folder.
-        /// Uses ping delays (timeout.exe is unreliable in hidden/non-interactive sessions).
+        /// Froststrap-style post-exit delete: detach a cmd that waits for this PID,
+        /// then removes Eclipse.exe and (when wipeFolder) the whole install folder.
+        /// See https://github.com/Froststrap/Froststrap — Installer.DoUninstall.
         /// </summary>
         private static void SchedulePostExitCleanup(string installRoot, string applicationPath, bool wipeFolder)
         {
@@ -401,29 +440,37 @@ namespace Froststrap
             {
                 string scriptPath = Path.Combine(Path.GetTempPath(), $"eclipse-uninstall-{Guid.NewGuid():N}.cmd");
                 int pid = Environment.ProcessId;
-                string tempAppDir = Paths.Temp;
                 string processPath = Paths.Process;
+                string defaultRoot = Path.Combine(Paths.LocalAppData, App.ProjectName);
+                string tempAppDir = Paths.Temp;
+                string tempUpdates = Paths.TempUpdates;
 
-                // Escape for batch: strip quotes.
                 string Safe(string p) => (p ?? "").Replace("\"", "");
 
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine("@echo off");
                 sb.AppendLine("setlocal EnableExtensions");
+                // Wait until Eclipse has fully exited (fixes Froststrap's fixed timeout race).
                 sb.AppendLine(":wait");
                 sb.AppendLine($"tasklist /FI \"PID eq {pid}\" 2>NUL | find \"{pid}\" >NUL");
                 sb.AppendLine("if not errorlevel 1 (");
                 sb.AppendLine("  ping 127.0.0.1 -n 2 >NUL");
                 sb.AppendLine("  goto wait");
                 sb.AppendLine(")");
-                sb.AppendLine("ping 127.0.0.1 -n 2 >NUL");
+                sb.AppendLine("ping 127.0.0.1 -n 3 >NUL");
 
-                // Always force-delete the install EXE and the running process path.
+                // Always delete the installed EXE and the running process path (Froststrap deletes Application).
                 sb.AppendLine($"set \"EXE1={Safe(applicationPath)}\"");
                 sb.AppendLine($"set \"EXE2={Safe(processPath)}\"");
-                sb.AppendLine("for /L %%i in (1,1,20) do (");
-                sb.AppendLine("  if exist \"%EXE1%\" del /f /q \"%EXE1%\" >NUL 2>&1");
-                sb.AppendLine("  if exist \"%EXE2%\" del /f /q \"%EXE2%\" >NUL 2>&1");
+                sb.AppendLine("for /L %%i in (1,1,40) do (");
+                sb.AppendLine("  if exist \"%EXE1%\" (");
+                sb.AppendLine("    attrib -r -s -h \"%EXE1%\" >NUL 2>&1");
+                sb.AppendLine("    del /f /q \"%EXE1%\" >NUL 2>&1");
+                sb.AppendLine("  )");
+                sb.AppendLine("  if exist \"%EXE2%\" (");
+                sb.AppendLine("    attrib -r -s -h \"%EXE2%\" >NUL 2>&1");
+                sb.AppendLine("    del /f /q \"%EXE2%\" >NUL 2>&1");
+                sb.AppendLine("  )");
                 sb.AppendLine("  if not exist \"%EXE1%\" if not exist \"%EXE2%\" goto exe_done");
                 sb.AppendLine("  ping 127.0.0.1 -n 2 >NUL");
                 sb.AppendLine(")");
@@ -433,8 +480,10 @@ namespace Froststrap
                 {
                     void AppendWipe(string label, string path)
                     {
+                        if (string.IsNullOrWhiteSpace(path))
+                            return;
                         sb.AppendLine($"set \"{label}={Safe(path)}\"");
-                        sb.AppendLine($"for /L %%i in (1,1,30) do (");
+                        sb.AppendLine($"for /L %%i in (1,1,40) do (");
                         sb.AppendLine($"  if exist \"%{label}%\" (");
                         sb.AppendLine($"    attrib -r -s -h \"%{label}%\\*.*\" /s /d >NUL 2>&1");
                         sb.AppendLine($"    del /f /q \"%{label}%\\*.*\" >NUL 2>&1");
@@ -448,25 +497,36 @@ namespace Froststrap
                     }
 
                     AppendWipe("TARGET", installRoot);
-                    string defaultRoot = Path.Combine(Paths.LocalAppData, App.ProjectName);
                     if (!string.Equals(installRoot, defaultRoot, StringComparison.OrdinalIgnoreCase))
                         AppendWipe("TARGET2", defaultRoot);
                 }
 
                 sb.AppendLine($"if exist \"{Safe(tempAppDir)}\" rd /s /q \"{Safe(tempAppDir)}\" >NUL 2>&1");
-                sb.AppendLine($"if exist \"{Safe(Paths.TempUpdates)}\" rd /s /q \"{Safe(Paths.TempUpdates)}\" >NUL 2>&1");
+                sb.AppendLine($"if exist \"{Safe(tempUpdates)}\" rd /s /q \"{Safe(tempUpdates)}\" >NUL 2>&1");
                 sb.AppendLine("del \"%~f0\" >NUL 2>&1");
 
                 File.WriteAllText(scriptPath, sb.ToString());
 
-                // Detach so cleanup survives after this process exits.
+                // Froststrap uses UseShellExecute=true so the cleaner outlives this process.
+                // Avoid nested `start` quoting (that was dropping the cleanup script).
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "cmd.exe",
-                    Arguments = $"/c start \"\" /min cmd /c \"\"{scriptPath}\"\"",
+                    Arguments = $"/c \"{scriptPath}\"",
                     UseShellExecute = true,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    CreateNoWindow = true
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+
+                // Froststrap backup: fixed delay delete of the EXE if the script path fails.
+                string frostDelete = wipeFolder
+                    ? $"del /f /q \"{Safe(applicationPath)}\" & del /f /q \"{Safe(processPath)}\" & rd /s /q \"{Safe(installRoot)}\""
+                    : $"del /f /q \"{Safe(applicationPath)}\" & del /f /q \"{Safe(processPath)}\"";
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c timeout /t 8 /nobreak >NUL & {frostDelete}",
+                    UseShellExecute = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
                 });
 
                 App.Logger.WriteLine(LOG_IDENT, $"Scheduled post-exit cleanup (wipeFolder={wipeFolder}) via {scriptPath}");

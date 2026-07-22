@@ -122,7 +122,9 @@ namespace Froststrap
 
             await Installer.DoUninstall(keepData);
             await Frontend.ShowMessageBox(Strings.Bootstrapper_SuccessfullyUninstalled, MessageBoxImage.Information);
+            // Exit immediately so the post-exit cleaner can delete Eclipse.exe (Froststrap pattern).
             App.Terminate();
+            Environment.Exit(0);
         }
 
         public static void LaunchSettings()
