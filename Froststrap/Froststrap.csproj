@@ -6,8 +6,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <Version>2.0.6</Version>
-    <FileVersion>2.0.6</FileVersion>
+    <Version>2.0.7</Version>
+    <FileVersion>2.0.7</FileVersion>
     <Company>Eclipse</Company>
     <Product>Eclipse</Product>
     <AssemblyName>Eclipse</AssemblyName>
@@ -26,6 +26,7 @@
     <AvaloniaResource Include="Froststrap.ico" />
     <AvaloniaResource Include="Froststrap.png" />
     <AvaloniaResource Include="Eclipse.png" />
+    <AvaloniaResource Include="EclipseMark.png" />
     <AvaloniaResource Include="Eclipse.ico" />
   </ItemGroup>
 
