@@ -1,0 +1,9 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Froststrap.UI.Elements.Controls.EclipseLogoMark"
+             Width="28" Height="28">
+  <!-- Prefer painted solar-eclipse mark asset (matches mockup) -->
+  <Image Width="28" Height="28"
+         Source="avares://Eclipse/EclipseMark.png"
+         RenderOptions.BitmapInterpolationMode="HighQuality" />
+</UserControl>

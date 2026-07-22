@@ -16,10 +16,9 @@
           <TextBlock Text="{Binding DisplayName}" FontSize="44" FontWeight="Bold" Margin="0,-2,0,0">
             <TextBlock.Foreground>
               <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
-                <GradientStop Color="#E9D5FF" Offset="0" />
-                <GradientStop Color="#C084FC" Offset="0.35" />
-                <GradientStop Color="#F0ABFC" Offset="0.7" />
-                <GradientStop Color="#67E8F9" Offset="1" />
+                <GradientStop Color="#F3E8FF" Offset="0" />
+                <GradientStop Color="#D8B4FE" Offset="0.4" />
+                <GradientStop Color="#C084FC" Offset="1" />
               </LinearGradientBrush>
             </TextBlock.Foreground>
           </TextBlock>
@@ -54,7 +53,7 @@
         </StackPanel>
 
         <Border Grid.Column="1" CornerRadius="16" Padding="16" VerticalAlignment="Center"
-                Background="#AA101018" BorderBrush="#337C3AED" BorderThickness="1">
+                Background="#77101018" BorderBrush="#447C3AED" BorderThickness="1">
           <StackPanel Spacing="14">
             <Grid ColumnDefinitions="*,Auto">
               <TextBlock Text="System Status" FontSize="14" FontWeight="SemiBold" Foreground="#F8FAFC" />
