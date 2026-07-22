@@ -12,56 +12,52 @@
     xmlns:ui="using:FluentAvalonia.UI.Controls"
     xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
     Title="{x:Static resources:Strings.Menu_Title}"
-    Width="1320"
-    Height="820"
-    MinWidth="1100"
+    Width="1280"
+    Height="800"
+    MinWidth="1080"
     MinHeight="680"
     x:DataType="vm:MainWindowViewModel"
     CanResize="True"
     WindowStartupLocation="CenterScreen"
-    TransparencyLevelHint="None"
-    Background="#0B0B10">
+    Background="#050508">
 
-    <!-- Root: aurora under everything; chrome is translucent so glow shows -->
-    <Grid ColumnDefinitions="188,*" RowDefinitions="52,*,Auto">
+    <Grid RowDefinitions="52,*,Auto">
         <controls:AnimatedAuroraBackground
             x:Name="AuroraBackground"
             Grid.Row="0" Grid.RowSpan="3"
-            Grid.Column="0" Grid.ColumnSpan="2"
             ZIndex="0" />
 
-        <!-- TOP BAR -->
-        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" ZIndex="3"
-                Background="#660B0B10"
-                BorderBrush="#14FFFFFF"
-                BorderThickness="0,0,0,1">
-            <Grid ColumnDefinitions="188,*,Auto" Height="52">
+        <!-- TOP BAR (full width) -->
+        <Border Grid.Row="0" ZIndex="3"
+                Background="#99050508"
+                BorderBrush="#18FFFFFF" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto" Height="52">
                 <Panel Grid.Column="0" Grid.ColumnSpan="3"
                        WindowDecorationProperties.ElementRole="TitleBar"
                        Background="Transparent" />
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="9"
-                            VerticalAlignment="Center" Margin="18,0,0,0" IsHitTestVisible="False">
+                            VerticalAlignment="Center" Margin="16,0,12,0" IsHitTestVisible="False">
                     <Image Width="22" Height="22" Source="avares://Eclipse/Eclipse.png"
                            RenderOptions.BitmapInterpolationMode="HighQuality" />
                     <TextBlock Text="Eclipse" FontSize="15" FontWeight="SemiBold"
-                               VerticalAlignment="Center" Foreground="#F8FAFC" />
+                               VerticalAlignment="Center" Foreground="White" />
                 </StackPanel>
 
                 <Border Grid.Column="1"
                         Width="560" Height="36"
                         HorizontalAlignment="Center" VerticalAlignment="Center"
-                        CornerRadius="11"
-                        Background="#3A0F0F16"
-                        BorderBrush="#22FFFFFF" BorderThickness="1"
-                        Padding="4,0,8,0">
+                        CornerRadius="10"
+                        Background="#2E12121A"
+                        BorderBrush="#28FFFFFF" BorderThickness="1"
+                        Padding="2,0,8,0">
                     <Grid ColumnDefinitions="*,Auto">
                         <elements:SearchBar DataContext="{Binding SearchBar}"
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Center" />
-                        <Border Grid.Column="1" Padding="7,2" CornerRadius="6"
-                                Background="#18FFFFFF" VerticalAlignment="Center">
-                            <TextBlock Text="Ctrl K" FontSize="10.5" Foreground="#99FFFFFF" />
+                        <Border Grid.Column="1" Padding="7,2" CornerRadius="5"
+                                Background="#1AFFFFFF" VerticalAlignment="Center">
+                            <TextBlock Text="Ctrl K" FontSize="10.5" Foreground="#88FFFFFF" />
                         </Border>
                     </Grid>
                 </Border>
@@ -78,102 +74,105 @@
             </Grid>
         </Border>
 
-        <!-- SIDEBAR -->
-        <Border Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" ZIndex="2"
-                Background="#550B0B10"
-                BorderBrush="#12FFFFFF" BorderThickness="0,0,1,0"
-                Padding="12,18,12,16">
-            <Grid RowDefinitions="*,Auto">
-                <ItemsControl x:Name="RailItemsControl">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Spacing="5" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="local:RailNavItem">
-                            <Button Classes="rail-labeled"
-                                    Height="40"
-                                    HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Stretch"
-                                    Padding="10,0"
-                                    Tag="{Binding Tag}"
-                                    ToolTip.Tip="{Binding Title}"
-                                    Click="RailItem_Click">
-                                <Panel>
-                                    <Border CornerRadius="11" Background="#8B5CF6"
-                                            IsVisible="{Binding IsSelected}" Opacity="0.92" />
-                                    <StackPanel Orientation="Horizontal" Spacing="11"
-                                                VerticalAlignment="Center" Margin="6,0">
-                                        <ic:Lucide Icon="{Binding Icon}" Width="17" Height="17"
-                                                   StrokeBrush="White" />
-                                        <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"
-                                                   Foreground="White" VerticalAlignment="Center" />
-                                    </StackPanel>
-                                </Panel>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+        <!-- BODY: icon rail + stage -->
+        <Grid Grid.Row="1" ZIndex="1" ColumnDefinitions="78,*">
+            <Border Grid.Column="0"
+                    Background="#88050508"
+                    BorderBrush="#12FFFFFF" BorderThickness="0,0,1,0"
+                    Padding="8,14,8,12">
+                <Grid RowDefinitions="*,Auto">
+                    <ItemsControl x:Name="RailItemsControl">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="8" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:RailNavItem">
+                                <Button Classes="rail-icon"
+                                        Width="62" Height="58"
+                                        HorizontalAlignment="Center"
+                                        Padding="0"
+                                        Tag="{Binding Tag}"
+                                        ToolTip.Tip="{Binding Title}"
+                                        Click="RailItem_Click">
+                                    <Panel Width="56" Height="54">
+                                        <Border CornerRadius="12" Background="#667C3AED"
+                                                IsVisible="{Binding IsSelected}" />
+                                        <StackPanel VerticalAlignment="Center" Spacing="4">
+                                            <ic:Lucide Icon="{Binding Icon}" Width="20" Height="20"
+                                                       HorizontalAlignment="Center" StrokeBrush="White" />
+                                            <TextBlock Text="{Binding Title}" FontSize="10"
+                                                       FontWeight="SemiBold" Foreground="#E8EDF5"
+                                                       HorizontalAlignment="Center" />
+                                        </StackPanel>
+                                    </Panel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
-                <StackPanel Grid.Row="1" Spacing="5" Margin="10,16,6,2">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <Ellipse Width="7" Height="7" Fill="#34D399" />
-                        <TextBlock Text="Online" FontSize="12" Foreground="#E2E8F0" />
+                    <StackPanel Grid.Row="1" Spacing="4" HorizontalAlignment="Center" Margin="0,12,0,2">
+                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                            <Ellipse Width="7" Height="7" Fill="#34D399" VerticalAlignment="Center" />
+                            <TextBlock Text="Online" FontSize="11" Foreground="#D1D5DB" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding VersionText}" FontSize="10"
+                                   Foreground="#66FFFFFF" HorizontalAlignment="Center" />
                     </StackPanel>
-                    <TextBlock Text="{Binding VersionText}" FontSize="11" Foreground="#66FFFFFF" />
-                </StackPanel>
-            </Grid>
-        </Border>
+                </Grid>
+            </Border>
 
-        <!-- PAGE HOST -->
-        <Grid Grid.Row="1" Grid.Column="1" ZIndex="1" Margin="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+            <Border Grid.Column="1" Margin="10,10,12,8" CornerRadius="18"
+                    Background="#2A050508" BorderBrush="#22FFFFFF" BorderThickness="1"
+                    ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-            <StackPanel Margin="28,14,24,4" IsVisible="{Binding ShowPageChrome}">
-                <ItemsControl IsVisible="{Binding HasBreadcrumbs}" ItemsSource="{Binding BreadcrumbItems}" Margin="0,0,0,8">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" Spacing="8" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="vm:BreadcrumbItemModel">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <Button Padding="0" Background="Transparent" BorderThickness="0"
-                                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BreadcrumbItemClickedCommand}"
-                                        CommandParameter="{Binding}" Content="{Binding Content}"
-                                        FontSize="18" FontWeight="SemiBold" IsVisible="{Binding !IsLast}" />
-                                <TextBlock Text="›" FontSize="18" Opacity="0.5" IsVisible="{Binding !IsLast}" />
-                                <TextBlock Text="{Binding Content}" FontSize="18" FontWeight="SemiBold" IsVisible="{Binding IsLast}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <TextBlock x:Name="PageTitleText" FontSize="22" FontWeight="SemiBold"
-                           IsVisible="{Binding ShowPageTitle}" Text="{Binding CurrentPageTitle}" />
-                <controls:MarkdownTextBlock x:Name="PageDescriptionText" Margin="0,4,0,0"
-                                            FontSize="13" Opacity="0.7"
-                                            IsVisible="{Binding CurrentPageDescription, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                            MarkdownText="{Binding CurrentPageDescription}" />
-                <ui:FAInfoBar x:Name="AlertBar" Margin="0,8,0,0" IsVisible="False" Severity="Warning" />
-            </StackPanel>
+                    <StackPanel Margin="22,14,22,0" IsVisible="{Binding ShowPageChrome}">
+                        <ItemsControl IsVisible="{Binding HasBreadcrumbs}" ItemsSource="{Binding BreadcrumbItems}" Margin="0,0,0,8">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="8" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:BreadcrumbItemModel">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button Padding="0" Background="Transparent" BorderThickness="0"
+                                                Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BreadcrumbItemClickedCommand}"
+                                                CommandParameter="{Binding}" Content="{Binding Content}"
+                                                FontSize="18" FontWeight="SemiBold" IsVisible="{Binding !IsLast}" />
+                                        <TextBlock Text="›" FontSize="18" Opacity="0.5" IsVisible="{Binding !IsLast}" />
+                                        <TextBlock Text="{Binding Content}" FontSize="18" FontWeight="SemiBold" IsVisible="{Binding IsLast}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock x:Name="PageTitleText" FontSize="22" FontWeight="SemiBold"
+                                   IsVisible="{Binding ShowPageTitle}" Text="{Binding CurrentPageTitle}" />
+                        <controls:MarkdownTextBlock x:Name="PageDescriptionText" Margin="0,4,0,0"
+                                                    FontSize="13" Opacity="0.7"
+                                                    IsVisible="{Binding CurrentPageDescription, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                                    MarkdownText="{Binding CurrentPageDescription}" />
+                        <ui:FAInfoBar x:Name="AlertBar" Margin="0,8,0,0" IsVisible="False" Severity="Warning" />
+                    </StackPanel>
 
-            <TransitioningContentControl Grid.Row="1" x:Name="PageContentControl"
-                                         Margin="0"
-                                         HorizontalAlignment="Stretch"
-                                         VerticalAlignment="Stretch" />
+                    <TransitioningContentControl Grid.Row="1" x:Name="PageContentControl"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Stretch" />
+                </Grid>
+            </Border>
         </Grid>
 
-        <!-- FOOTER (hidden on Home) -->
-        <Border Grid.Row="2" Grid.Column="1" ZIndex="2"
+        <Border Grid.Row="2" ZIndex="2"
                 IsVisible="{Binding ShowFooter}"
-                Margin="20,0,20,14" Padding="10,0,12,0" Height="50"
-                CornerRadius="14" Background="#990B0B10"
-                BorderBrush="#448B5CF6" BorderThickness="1">
+                Margin="88,0,16,12" Padding="10,0,12,0" Height="50"
+                CornerRadius="14" Background="#99050508"
+                BorderBrush="#447C3AED" BorderThickness="1">
             <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
                 <local:AccountSelectorView x:Name="AccountSelectorView" Grid.Column="0" />
                 <controls:IconButton Grid.Column="2" Height="36" Padding="20,0"
@@ -203,11 +202,11 @@
         </Border>
 
         <Panel Name="NotificationPanel"
-               Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2"
+               Grid.Row="0" Grid.RowSpan="3"
                Margin="0,0,0,15" VerticalAlignment="Bottom" ZIndex="1000" />
 
         <Border x:Name="OffscreenIndexingCanvas"
-                Grid.Row="1" Grid.Column="1"
+                Grid.Row="1"
                 Width="905" Height="700"
                 IsHitTestVisible="False" IsVisible="False" Opacity="0" ZIndex="-1000" />
     </Grid>

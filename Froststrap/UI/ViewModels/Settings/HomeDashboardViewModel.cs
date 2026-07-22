@@ -68,8 +68,8 @@ namespace Froststrap.UI.ViewModels.Settings
             RecentGames.Add(new HomeGameCard("Da Hood", "Last played 1d ago", 2788229376, "#0F172A"));
 
             FeaturedGames.Add(new HomeFeaturedItem(
-                "Brookhaven",
-                "Build, customize, and drive through the night.",
+                "Midnight Rail",
+                "Neon trains and night city runs.",
                 "94%",
                 "12.4K",
                 4924922222,
@@ -82,9 +82,9 @@ namespace Froststrap.UI.ViewModels.Settings
                 10450266301,
                 "#7F1D1D"));
 
-            NewsItems.Add(new HomeNewsItem("Eclipse v1.0.0 Released", "Midnight Rail UI and Home dashboard", "2 days ago", LucideIconNames.Sparkles));
-            NewsItems.Add(new HomeNewsItem("Roblox Update", "Client and platform notes", "5 days ago", LucideIconNames.Box));
-            NewsItems.Add(new HomeNewsItem("Maintenance Scheduled", "Brief downtime window this week", "1 week ago", LucideIconNames.Wrench));
+            NewsItems.Add(new HomeNewsItem("Eclipse v1.0.0 Released", "Midnight Rail UI and Home dashboard", "2d ago", LucideIconNames.Sparkles));
+            NewsItems.Add(new HomeNewsItem("Roblox Update", "Client and platform notes", "5d ago", LucideIconNames.Box));
+            NewsItems.Add(new HomeNewsItem("Maintenance Scheduled", "Brief downtime window this week", "1w ago", LucideIconNames.Wrench));
         }
 
         private async Task LoadThumbnailsAsync()
