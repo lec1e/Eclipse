@@ -1,7 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
-using Froststrap.Models;
+using Froststrap.Enums;
+using Froststrap.Models.APIs.Roblox;
 using LucideAvalonia.Enum;
 
 namespace Froststrap.UI.ViewModels.Settings
@@ -14,17 +15,16 @@ namespace Froststrap.UI.ViewModels.Settings
         public string DisplayName => "Eclipse User";
         public string Tagline => "Your Roblox bootstrapper for a better experience.";
         public string VersionText => $"v{App.Version}";
-        public string StatusText => "Online";
 
-        public ObservableCollection<HomeRecentItem> RecentGames { get; } = [];
-        public ObservableCollection<HomeQuickLink> QuickLinks { get; } = [];
+        public ObservableCollection<HomeGameCard> RecentGames { get; } = [];
+        public ObservableCollection<HomeFeaturedItem> FeaturedGames { get; } = [];
         public ObservableCollection<HomeNewsItem> NewsItems { get; } = [];
 
         public ICommand LaunchRobloxCommand { get; }
         public ICommand OpenFolderCommand { get; }
         public ICommand OpenQuickPlayCommand { get; }
         public ICommand OpenNewsCommand { get; }
-        public ICommand NavigateLinkCommand { get; }
+        public ICommand PlayPlaceCommand { get; }
 
         public HomeDashboardViewModel(MainWindowViewModel host)
         {
@@ -41,95 +41,131 @@ namespace Froststrap.UI.ViewModels.Settings
             });
             OpenQuickPlayCommand = new RelayCommand(() => _host.NavigateToQuickPlayCommand.Execute(null));
             OpenNewsCommand = new RelayCommand(() => _host.NavigateToNewsCommand.Execute(null));
-            NavigateLinkCommand = new RelayCommand<string>(tag =>
+            PlayPlaceCommand = new RelayCommand<long?>(placeId =>
             {
-                if (string.IsNullOrEmpty(tag)) return;
-                switch (tag)
+                if (placeId is null or <= 0) return;
+                try
                 {
-                    case "quickplay": _host.NavigateToQuickPlayCommand.Execute(null); break;
-                    case "altman": _host.NavigateToAltManCommand.Execute(null); break;
-                    case "mods": _host.NavigateToPresetModsCommand.Execute(null); break;
-                    case "appearance": _host.NavigateToAppearanceCommand.Execute(null); break;
-                    case "fastflags": _host.NavigateToFastFlagsCommand.Execute(null); break;
-                    case "news": _host.NavigateToNewsCommand.Execute(null); break;
-                    case "serverbrowser": _host.NavigateToServerBrowserCommand.Execute(null); break;
-                    case "vipserver": _host.NavigateToVipServerCommand.Execute(null); break;
+                    Utilities.ShellExecute($"roblox://experiences/start?placeId={placeId}");
                 }
+                catch { /* ignore */ }
             });
 
-            QuickLinks.Add(new HomeQuickLink("Quick Play", "Jump back into games instantly", "quickplay", LucideIconNames.Gamepad2));
-            QuickLinks.Add(new HomeQuickLink("AltMan", "Accounts, friends, and joins", "altman", LucideIconNames.Users));
-            QuickLinks.Add(new HomeQuickLink("Mods", "Presets and custom mods", "mods", LucideIconNames.BookOpen));
-            QuickLinks.Add(new HomeQuickLink("Appearance", "Theme, glass, and aurora", "appearance", LucideIconNames.Palette));
-            QuickLinks.Add(new HomeQuickLink("Fast Flags", "Tune the Roblox client", "fastflags", LucideIconNames.Flag));
-            QuickLinks.Add(new HomeQuickLink("Server Browser", "Browse public servers", "serverbrowser", LucideIconNames.Server));
-
-            NewsItems.Add(new HomeNewsItem("Eclipse 2.0", "Midnight Rail UI and Home dashboard", "now", LucideIconNames.Sparkles));
-            NewsItems.Add(new HomeNewsItem("Roblox updates", "Check the latest platform notes", "feed", LucideIconNames.Box));
-            NewsItems.Add(new HomeNewsItem("Tips", "Enable Animated background in Appearance", "tip", LucideIconNames.Wrench));
-
-            LoadRecent();
+            SeedContent();
+            _ = LoadThumbnailsAsync();
         }
 
-        private void LoadRecent()
+        private void SeedContent()
         {
             RecentGames.Clear();
+            FeaturedGames.Clear();
+            NewsItems.Clear();
+
+            // Showcase cards matching mockup layout (popular experiences).
+            RecentGames.Add(new HomeGameCard("Midnight Rail", "Last played recently", 4924922222, 4924922222));
+            RecentGames.Add(new HomeGameCard("Deepwoken", "Last played 2h ago", 5735554555, 5735554555));
+            RecentGames.Add(new HomeGameCard("Catalog Avatar Creator", "Last played 5h ago", 16617882081, 16617882081));
+            RecentGames.Add(new HomeGameCard("Da Hood", "Last played 1d ago", 2788229376, 2788229376));
+
+            FeaturedGames.Add(new HomeFeaturedItem(
+                "Brookhaven",
+                "Build, customize, and drive through the night.",
+                "94%",
+                "12.4K",
+                4924922222,
+                4924922222));
+            FeaturedGames.Add(new HomeFeaturedItem(
+                "The Strongest Battlegrounds",
+                "Anime battling with flashy combat.",
+                "83%",
+                "45.7K",
+                10450266301,
+                10450266301));
+
+            NewsItems.Add(new HomeNewsItem("Eclipse v1.0.0 Released", "Midnight Rail UI and Home dashboard", "2 days ago", LucideIconNames.Sparkles));
+            NewsItems.Add(new HomeNewsItem("Roblox Update", "Client and platform notes", "5 days ago", LucideIconNames.Box));
+            NewsItems.Add(new HomeNewsItem("Maintenance Scheduled", "Brief downtime window this week", "1 week ago", LucideIconNames.Wrench));
+        }
+
+        private async Task LoadThumbnailsAsync()
+        {
             try
             {
-                string path = Path.Combine(Paths.Cache, "GameHistory.json");
-                if (File.Exists(path))
+                var cards = RecentGames.Cast<HomeThumbTarget>().Concat(FeaturedGames).ToList();
+                var requests = cards.Select((c, i) => new ThumbnailRequest
                 {
-                    var entries = JsonSerializer.Deserialize<List<GameHistoryEntry>>(File.ReadAllText(path)) ?? [];
-                    foreach (var e in entries.Take(4))
-                    {
-                        RecentGames.Add(new HomeRecentItem
-                        {
-                            PlaceId = e.PlaceId,
-                            UniverseId = e.UniverseId,
-                            Name = e.PlaceId > 0 ? $"Place {e.PlaceId}" : "Recent game",
-                            Subtitle = "From your history"
-                        });
-                    }
-                }
-            }
-            catch { /* ignore */ }
+                    TargetId = (ulong)Math.Max(c.UniverseId, c.PlaceId),
+                    Type = i < RecentGames.Count ? ThumbnailType.GameIcon : ThumbnailType.GameThumbnail,
+                    Size = i < RecentGames.Count ? "512x512" : "768x432",
+                    Format = ThumbnailFormat.Png
+                }).ToList();
 
-            // Always show four cards so Home matches the mockup layout.
-            string[] placeholders =
-            [
-                "Quick Play",
-                "VIP Server",
-                "Server Browser",
-                "Mods"
-            ];
-            int i = 0;
-            while (RecentGames.Count < 4)
-            {
-                RecentGames.Add(new HomeRecentItem
+                var urls = await Thumbnails.GetThumbnailUrlsAsync(requests, CancellationToken.None);
+                for (int i = 0; i < cards.Count && i < urls.Length; i++)
                 {
-                    Name = placeholders[i % placeholders.Length],
-                    Subtitle = "Open from Featured",
-                    PlaceId = 0
-                });
-                i++;
+                    if (!string.IsNullOrEmpty(urls[i]))
+                        cards[i].ImageUrl = urls[i]!;
+                }
+
+                // Refresh bindings
+                OnPropertyChanged(nameof(RecentGames));
+                OnPropertyChanged(nameof(FeaturedGames));
+                foreach (var c in RecentGames) c.NotifyImage();
+                foreach (var c in FeaturedGames) c.NotifyImage();
+            }
+            catch (Exception ex)
+            {
+                App.Logger.WriteLine("HomeDashboardViewModel", $"Thumbnail load failed: {ex.Message}");
             }
         }
     }
 
-    public sealed class HomeQuickLink(string title, string subtitle, string tag, LucideIconNames icon)
+    public interface HomeThumbTarget
     {
-        public string Title { get; } = title;
-        public string Subtitle { get; } = subtitle;
-        public string Tag { get; } = tag;
-        public LucideIconNames Icon { get; } = icon;
+        long UniverseId { get; }
+        long PlaceId { get; }
+        string ImageUrl { get; set; }
+        void NotifyImage();
     }
 
-    public sealed class HomeRecentItem
+    public sealed class HomeGameCard : NotifyPropertyChangedViewModel, HomeThumbTarget
     {
-        public long PlaceId { get; set; }
-        public long UniverseId { get; set; }
-        public string Name { get; set; } = "";
-        public string Subtitle { get; set; } = "";
+        public HomeGameCard(string name, string subtitle, long universeId, long placeId)
+        {
+            Name = name;
+            Subtitle = subtitle;
+            UniverseId = universeId;
+            PlaceId = placeId;
+        }
+
+        public string Name { get; }
+        public string Subtitle { get; }
+        public long UniverseId { get; }
+        public long PlaceId { get; }
+        public string ImageUrl { get; set; } = "";
+        public void NotifyImage() => OnPropertyChanged(nameof(ImageUrl));
+    }
+
+    public sealed class HomeFeaturedItem : NotifyPropertyChangedViewModel, HomeThumbTarget
+    {
+        public HomeFeaturedItem(string name, string description, string rating, string players, long universeId, long placeId)
+        {
+            Name = name;
+            Description = description;
+            Rating = rating;
+            Players = players;
+            UniverseId = universeId;
+            PlaceId = placeId;
+        }
+
+        public string Name { get; }
+        public string Description { get; }
+        public string Rating { get; }
+        public string Players { get; }
+        public long UniverseId { get; }
+        public long PlaceId { get; }
+        public string ImageUrl { get; set; } = "";
+        public void NotifyImage() => OnPropertyChanged(nameof(ImageUrl));
     }
 
     public sealed class HomeNewsItem(string title, string subtitle, string when, LucideIconNames icon)

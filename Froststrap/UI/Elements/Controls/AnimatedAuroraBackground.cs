@@ -12,12 +12,12 @@ namespace Froststrap.UI.Elements.Controls
     /// </summary>
     public class AnimatedAuroraBackground : Canvas
     {
-        private readonly Ellipse _orbA = CreateOrb(720, 0.55);
-        private readonly Ellipse _orbB = CreateOrb(580, 0.45);
-        private readonly Ellipse _orbC = CreateOrb(500, 0.38);
-        private readonly Ellipse _orbD = CreateOrb(420, 0.32);
-        private readonly Ellipse _streakA = CreateStreak(900, 220, 0.28);
-        private readonly Ellipse _streakB = CreateStreak(760, 180, 0.22);
+        private readonly Ellipse _orbA = CreateOrb(820, 0.72);
+        private readonly Ellipse _orbB = CreateOrb(680, 0.58);
+        private readonly Ellipse _orbC = CreateOrb(560, 0.48);
+        private readonly Ellipse _orbD = CreateOrb(480, 0.40);
+        private readonly Ellipse _streakA = CreateStreak(980, 240, 0.38);
+        private readonly Ellipse _streakB = CreateStreak(820, 200, 0.30);
         private readonly DispatcherTimer _timer;
         private double _t;
 
@@ -110,12 +110,12 @@ namespace Froststrap.UI.Elements.Controls
             Color glow = GetColor("BrandGlowColor", accent);
             Color cyan = GetColor("BrandGradientEnd", Color.FromRgb(0x22, 0xD3, 0xEE));
 
-            _orbA.Fill = Radial(accent, 0xA0);
-            _orbB.Fill = Radial(cyan, 0x78);
-            _orbC.Fill = Radial(purple, 0x70);
-            _orbD.Fill = Radial(glow, 0x58);
-            _streakA.Fill = Radial(accent, 0x55);
-            _streakB.Fill = Radial(cyan, 0x45);
+            _orbA.Fill = Radial(accent, 0xC8);
+            _orbB.Fill = Radial(cyan, 0xA0);
+            _orbC.Fill = Radial(purple, 0x98);
+            _orbD.Fill = Radial(glow, 0x78);
+            _streakA.Fill = Radial(accent, 0x70);
+            _streakB.Fill = Radial(cyan, 0x60);
         }
 
         private static Ellipse CreateOrb(double size, double opacity) => new()
