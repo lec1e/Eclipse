@@ -43,8 +43,8 @@
         </StackPanel>
       </StackPanel>
 
-      <!-- RECENTLY PLAYED -->
-      <StackPanel Spacing="12">
+      <!-- RECENTLY PLAYED (hidden when empty — no fake seeded games) -->
+      <StackPanel Spacing="12" IsVisible="{Binding HasRecentGames}">
         <Grid ColumnDefinitions="*,Auto">
           <StackPanel Orientation="Horizontal" Spacing="8">
             <ic:Lucide Icon="Clock" Width="16" Height="16" Opacity="0.75"

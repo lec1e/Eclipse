@@ -29,6 +29,26 @@
         </Setter>
     </Style>
 
+    <!-- Icon stroke picks up the purple gradient on press -->
+    <Style Selector="Button:pressed ic|Lucide">
+        <Setter Property="StrokeBrush">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#F5E1FF" Offset="0" />
+                <GradientStop Color="#C4B5FD" Offset="0.4" />
+                <GradientStop Color="#8B5CF6" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button:pointerover ic|Lucide">
+        <Setter Property="StrokeBrush">
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#E9D5FF" Offset="0" />
+                <GradientStop Color="#A78BFA" Offset="1" />
+            </LinearGradientBrush>
+        </Setter>
+    </Style>
+
     <Style Selector="Button.eclipse-primary">
         <Setter Property="Foreground" Value="White" />
         <Setter Property="Background">
