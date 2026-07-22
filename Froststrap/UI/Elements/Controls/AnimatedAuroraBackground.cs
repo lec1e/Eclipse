@@ -8,14 +8,16 @@ using Avalonia.Threading;
 namespace Froststrap.UI.Elements.Controls
 {
     /// <summary>
-    /// Soft drifting aurora orbs — Eclipse brand motion background.
+    /// Nebula-style drifting aurora — purple/teal streaks matching Eclipse launcher look.
     /// </summary>
     public class AnimatedAuroraBackground : Canvas
     {
-        private readonly Ellipse _orbA = CreateOrb(640, 0.42);
-        private readonly Ellipse _orbB = CreateOrb(520, 0.34);
-        private readonly Ellipse _orbC = CreateOrb(460, 0.28);
-        private readonly Ellipse _orbD = CreateOrb(380, 0.22);
+        private readonly Ellipse _orbA = CreateOrb(720, 0.55);
+        private readonly Ellipse _orbB = CreateOrb(580, 0.45);
+        private readonly Ellipse _orbC = CreateOrb(500, 0.38);
+        private readonly Ellipse _orbD = CreateOrb(420, 0.32);
+        private readonly Ellipse _streakA = CreateStreak(900, 220, 0.28);
+        private readonly Ellipse _streakB = CreateStreak(760, 180, 0.22);
         private readonly DispatcherTimer _timer;
         private double _t;
 
@@ -32,6 +34,8 @@ namespace Froststrap.UI.Elements.Controls
         {
             IsHitTestVisible = false;
             ClipToBounds = true;
+            Children.Add(_streakA);
+            Children.Add(_streakB);
             Children.Add(_orbA);
             Children.Add(_orbB);
             Children.Add(_orbC);
@@ -60,13 +64,12 @@ namespace Froststrap.UI.Elements.Controls
             if (Opacity <= 0.01)
                 return;
 
-            _t += 0.018;
+            _t += 0.015;
             if (((int)(_t * 10)) % 20 == 0)
                 RefreshBrushes();
             LayoutOrbs(Bounds.Size);
         }
 
-        /// <summary>Reads EnableAurora live so Appearance toggle updates without restart.</summary>
         public void SyncFromSettings()
         {
             bool enabled = App.Settings?.Prop?.EnableAurora ?? true;
@@ -83,10 +86,15 @@ namespace Froststrap.UI.Elements.Controls
             if (size.Width <= 0 || size.Height <= 0)
                 return;
 
-            Place(_orbA, size, 0.16 + Math.Sin(_t * 0.38) * 0.10, 0.20 + Math.Cos(_t * 0.30) * 0.12);
-            Place(_orbB, size, 0.78 + Math.Cos(_t * 0.28) * 0.11, 0.28 + Math.Sin(_t * 0.34) * 0.14);
-            Place(_orbC, size, 0.52 + Math.Sin(_t * 0.24) * 0.16, 0.72 + Math.Cos(_t * 0.32) * 0.10);
-            Place(_orbD, size, 0.30 + Math.Cos(_t * 0.20) * 0.12, 0.55 + Math.Sin(_t * 0.26) * 0.15);
+            Place(_orbA, size, 0.18 + Math.Sin(_t * 0.32) * 0.10, 0.22 + Math.Cos(_t * 0.26) * 0.12);
+            Place(_orbB, size, 0.82 + Math.Cos(_t * 0.24) * 0.10, 0.30 + Math.Sin(_t * 0.30) * 0.14);
+            Place(_orbC, size, 0.55 + Math.Sin(_t * 0.20) * 0.16, 0.70 + Math.Cos(_t * 0.28) * 0.10);
+            Place(_orbD, size, 0.32 + Math.Cos(_t * 0.18) * 0.12, 0.58 + Math.Sin(_t * 0.22) * 0.14);
+
+            Place(_streakA, size, 0.45 + Math.Sin(_t * 0.12) * 0.08, 0.35 + Math.Cos(_t * 0.10) * 0.06);
+            Place(_streakB, size, 0.65 + Math.Cos(_t * 0.14) * 0.10, 0.62 + Math.Sin(_t * 0.11) * 0.08);
+            _streakA.RenderTransform = new RotateTransform(18 + Math.Sin(_t * 0.08) * 6);
+            _streakB.RenderTransform = new RotateTransform(-22 + Math.Cos(_t * 0.09) * 5);
         }
 
         private static void Place(Ellipse orb, Size size, double nx, double ny)
@@ -102,10 +110,12 @@ namespace Froststrap.UI.Elements.Controls
             Color glow = GetColor("BrandGlowColor", accent);
             Color cyan = GetColor("BrandGradientEnd", Color.FromRgb(0x22, 0xD3, 0xEE));
 
-            _orbA.Fill = Radial(accent, 0x88);
-            _orbB.Fill = Radial(purple, 0x70);
-            _orbC.Fill = Radial(glow, 0x60);
-            _orbD.Fill = Radial(cyan, 0x50);
+            _orbA.Fill = Radial(accent, 0xA0);
+            _orbB.Fill = Radial(cyan, 0x78);
+            _orbC.Fill = Radial(purple, 0x70);
+            _orbD.Fill = Radial(glow, 0x58);
+            _streakA.Fill = Radial(accent, 0x55);
+            _streakB.Fill = Radial(cyan, 0x45);
         }
 
         private static Ellipse CreateOrb(double size, double opacity) => new()
@@ -116,16 +126,25 @@ namespace Froststrap.UI.Elements.Controls
             IsHitTestVisible = false
         };
 
+        private static Ellipse CreateStreak(double width, double height, double opacity) => new()
+        {
+            Width = width,
+            Height = height,
+            Opacity = opacity,
+            IsHitTestVisible = false,
+            RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative)
+        };
+
         private static IBrush Radial(Color color, byte alpha) => new RadialGradientBrush
         {
             GradientOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative),
             Center = new RelativePoint(0.5, 0.5, RelativeUnit.Relative),
-            RadiusX = new RelativeScalar(0.55, RelativeUnit.Relative),
-            RadiusY = new RelativeScalar(0.55, RelativeUnit.Relative),
+            RadiusX = new RelativeScalar(0.6, RelativeUnit.Relative),
+            RadiusY = new RelativeScalar(0.6, RelativeUnit.Relative),
             GradientStops =
             [
                 new Avalonia.Media.GradientStop(Color.FromArgb(alpha, color.R, color.G, color.B), 0),
-                new Avalonia.Media.GradientStop(Color.FromArgb((byte)(alpha / 3), color.R, color.G, color.B), 0.45),
+                new Avalonia.Media.GradientStop(Color.FromArgb((byte)(alpha / 2), color.R, color.G, color.B), 0.4),
                 new Avalonia.Media.GradientStop(Color.FromArgb(0, color.R, color.G, color.B), 1)
             ]
         };

@@ -12,45 +12,40 @@
     xmlns:ui="using:FluentAvalonia.UI.Controls"
     xmlns:vm="clr-namespace:Froststrap.UI.ViewModels.Settings"
     Title="{x:Static resources:Strings.Menu_Title}"
-    Width="1125"
-    Height="700"
-    MinWidth="750"
-    MinHeight="415"
+    Width="1200"
+    Height="760"
+    MinWidth="900"
+    MinHeight="520"
     x:DataType="vm:MainWindowViewModel"
     CanResize="True"
     WindowStartupLocation="CenterScreen">
 
-    <Grid Background="{DynamicResource BrandInkBrush}" RowDefinitions="48,*,56">
+    <Grid Background="#08070E" ColumnDefinitions="236,*" RowDefinitions="48,*,64">
         <controls:AnimatedAuroraBackground
             x:Name="AuroraBackground"
             Grid.Row="0" Grid.RowSpan="3"
+            Grid.Column="0" Grid.ColumnSpan="2"
             ZIndex="0" />
 
-        <!-- Title bar -->
-        <Border Grid.Row="0" ZIndex="1"
-                Background="{DynamicResource GlassHeaderBrush}"
-                BorderBrush="{DynamicResource BrandHairlineBrush}"
-                BorderThickness="0,0,0,1">
-            <controls:TitleBar
-                Title="Eclipse"
-                Icon="avares://Eclipse/Eclipse.png">
-                <elements:SearchBar Width="400" DataContext="{Binding SearchBar}" />
-            </controls:TitleBar>
-        </Border>
+        <!-- Labeled left sidebar (mockup-style) -->
+        <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" ZIndex="1"
+                Background="#CC0B0A12"
+                BorderBrush="#33A855F7"
+                BorderThickness="0,0,1,0"
+                Padding="18,16,14,16">
+            <Grid RowDefinitions="Auto,*,Auto">
+                <!-- Brand -->
+                <StackPanel Orientation="Horizontal" Spacing="12" Margin="4,4,4,20">
+                    <Image Width="32" Height="32" Source="avares://Eclipse/Eclipse.png"
+                           RenderOptions.BitmapInterpolationMode="HighQuality" />
+                    <TextBlock Text="Eclipse"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               Foreground="White" />
+                </StackPanel>
 
-        <!-- Midnight rail + glass stage -->
-        <Grid Grid.Row="1" ZIndex="1" ColumnDefinitions="72,*" Margin="10,10,10,0">
-            <!-- Icon rail -->
-            <Border Grid.Column="0"
-                    Width="64"
-                    Margin="0,0,10,0"
-                    CornerRadius="16"
-                    Background="{DynamicResource GlassRailBrush}"
-                    BorderBrush="{DynamicResource BrandHairlineBrush}"
-                    BorderThickness="1"
-                    Padding="6,10">
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled">
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl x:Name="RailItemsControl">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -61,35 +56,38 @@
                             <DataTemplate x:DataType="local:RailNavItem">
                                 <Panel IsVisible="{Binding IsVisible}">
                                     <Border Height="1"
-                                            Margin="10,6"
-                                            Background="{DynamicResource BrandHairlineBrush}"
-                                            IsVisible="{Binding IsSeparator}"
-                                            Opacity="0.7" />
-                                    <Button Classes="rail"
-                                            Width="48" Height="48"
-                                            Padding="0"
-                                            HorizontalAlignment="Center"
+                                            Margin="8,10"
+                                            Background="#33FFFFFF"
+                                            IsVisible="{Binding IsSeparator}" />
+                                    <Button Classes="rail-labeled"
+                                            Height="42"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Padding="8,0"
                                             ToolTip.Tip="{Binding Title}"
                                             Tag="{Binding Tag}"
                                             IsEnabled="{Binding IsEnabled}"
                                             IsVisible="{Binding !IsSeparator}"
                                             Click="RailItem_Click">
-                                        <Panel Width="48" Height="48">
+                                        <Panel>
                                             <Border CornerRadius="12"
-                                                    Background="#33C084FC"
+                                                    Background="#44A855F7"
                                                     IsVisible="{Binding IsSelected}" />
-                                            <Border Classes="rail-indicator"
-                                                    Width="3" Height="22"
-                                                    CornerRadius="2"
-                                                    HorizontalAlignment="Left"
-                                                    VerticalAlignment="Center"
-                                                    Margin="2,0,0,0"
-                                                    Background="{DynamicResource BrandAccentBrush}"
-                                                    IsVisible="{Binding IsSelected}" />
-                                            <ic:Lucide Icon="{Binding Icon}"
-                                                       Width="22" Height="22"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center" />
+                                            <Grid ColumnDefinitions="Auto,*,Auto" Margin="4,0">
+                                                <Border Width="3" Height="20" CornerRadius="2"
+                                                        Background="{DynamicResource BrandAccentBrush}"
+                                                        Margin="0,0,10,0"
+                                                        IsVisible="{Binding IsSelected}" />
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12"
+                                                            VerticalAlignment="Center">
+                                                    <ic:Lucide Icon="{Binding Icon}" Width="18" Height="18" />
+                                                    <TextBlock Text="{Binding Title}"
+                                                               FontSize="13"
+                                                               FontWeight="SemiBold"
+                                                               VerticalAlignment="Center"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                            </Grid>
                                         </Panel>
                                     </Button>
                                 </Panel>
@@ -97,123 +95,100 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-            </Border>
 
-            <!-- Glass content stage -->
-            <Border Grid.Column="1"
-                    CornerRadius="16"
-                    Background="{DynamicResource GlassStageBrush}"
-                    BorderBrush="{DynamicResource BrandHairlineBrush}"
+                <!-- Online + version -->
+                <StackPanel Grid.Row="2" Spacing="6" Margin="8,16,8,4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse Width="8" Height="8" Fill="#34D399" VerticalAlignment="Center" />
+                        <TextBlock Text="Online" FontSize="12" Opacity="0.85" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding VersionText}" FontSize="11" Opacity="0.45" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Top search bar -->
+        <Border Grid.Row="0" Grid.Column="1" ZIndex="1"
+                Background="#660B0A12"
+                BorderBrush="#22FFFFFF"
+                BorderThickness="0,0,0,1">
+            <controls:TitleBar Title="" ShowMinimize="True" ShowMaximize="True">
+                <elements:SearchBar Width="420" DataContext="{Binding SearchBar}" />
+            </controls:TitleBar>
+        </Border>
+
+        <!-- Floating content (no heavy glass cage) -->
+        <Grid Grid.Row="1" Grid.Column="1" ZIndex="1" Margin="24,16,24,8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Margin="0,0,0,12"
+                        IsVisible="{Binding ShowPageChrome}">
+                <ItemsControl
+                    Margin="0,0,0,8"
+                    IsVisible="{Binding HasBreadcrumbs}"
+                    ItemsSource="{Binding BreadcrumbItems}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="8" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="vm:BreadcrumbItemModel">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Padding="0" Background="Transparent" BorderThickness="0"
+                                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BreadcrumbItemClickedCommand}"
+                                        CommandParameter="{Binding}"
+                                        Content="{Binding Content}"
+                                        FontSize="18" FontWeight="SemiBold"
+                                        IsVisible="{Binding !IsLast}" />
+                                <TextBlock Text="›" FontSize="18" Opacity="0.5" IsVisible="{Binding !IsLast}" />
+                                <TextBlock Text="{Binding Content}" FontSize="18" FontWeight="SemiBold" IsVisible="{Binding IsLast}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock x:Name="PageTitleText"
+                           FontSize="22" FontWeight="SemiBold"
+                           IsVisible="{Binding ShowPageTitle}"
+                           Text="{Binding CurrentPageTitle}" />
+                <controls:MarkdownTextBlock x:Name="PageDescriptionText"
+                                            Margin="0,4,0,0"
+                                            FontSize="13" Opacity="0.7"
+                                            IsVisible="{Binding CurrentPageDescription, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                            MarkdownText="{Binding CurrentPageDescription}" />
+                <ui:FAInfoBar x:Name="AlertBar" Margin="0,8,0,0" IsVisible="False" Severity="Warning" />
+            </StackPanel>
+
+            <Border Grid.Row="1"
+                    CornerRadius="18"
+                    Background="#3A0B0A14"
+                    BorderBrush="#28A855F7"
                     BorderThickness="1"
+                    Padding="18"
                     ClipToBounds="True">
-                <Grid RowDefinitions="Auto,*">
-                    <Border
-                        Grid.Row="0"
-                        Padding="22,20,22,14"
-                        BorderThickness="0,0,0,1"
-                        Background="{DynamicResource GlassHeaderBrush}"
-                        BorderBrush="{DynamicResource BrandHairlineBrush}">
-                        <StackPanel>
-                            <ItemsControl
-                                Margin="0,0,0,10"
-                                IsVisible="{Binding HasBreadcrumbs}"
-                                ItemsSource="{Binding BreadcrumbItems}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel
-                                            VerticalAlignment="Center"
-                                            Orientation="Horizontal"
-                                            Spacing="8" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="vm:BreadcrumbItemModel">
-                                        <StackPanel
-                                            VerticalAlignment="Center"
-                                            Orientation="Horizontal"
-                                            Spacing="8">
-                                            <Button
-                                                Padding="0"
-                                                Background="Transparent"
-                                                BorderThickness="0"
-                                                Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).BreadcrumbItemClickedCommand}"
-                                                CommandParameter="{Binding}"
-                                                Content="{Binding Content}"
-                                                FontSize="20"
-                                                FontWeight="SemiBold"
-                                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                                IsVisible="{Binding !IsLast}" />
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                FontSize="20"
-                                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                                IsVisible="{Binding !IsLast}"
-                                                Text="›" />
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                FontSize="20"
-                                                FontWeight="SemiBold"
-                                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                                IsVisible="{Binding IsLast}"
-                                                Text="{Binding Content}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <TextBlock
-                                x:Name="PageTitleText"
-                                Margin="0,0,0,4"
-                                FontSize="22"
-                                FontWeight="SemiBold"
-                                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                IsVisible="{Binding ShowPageTitle}"
-                                Text="{Binding CurrentPageTitle}" />
-
-                            <controls:MarkdownTextBlock
-                                x:Name="PageDescriptionText"
-                                Margin="0,0,0,2"
-                                FontSize="13"
-                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                IsVisible="{Binding CurrentPageDescription, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                                MarkdownText="{Binding CurrentPageDescription}" />
-
-                            <ui:FAInfoBar
-                                x:Name="AlertBar"
-                                Margin="0,8,0,0"
-                                IsVisible="False"
-                                Severity="Warning" />
-                        </StackPanel>
-                    </Border>
-
-                    <Panel Grid.Row="1">
-                        <TransitioningContentControl
-                            x:Name="PageContentControl"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch" />
-                    </Panel>
-                </Grid>
+                <TransitioningContentControl
+                    x:Name="PageContentControl"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch" />
             </Border>
         </Grid>
 
-        <!-- Footer -->
-        <Border
-            Grid.Row="2"
-            ZIndex="1"
-            Height="56"
-            Margin="10,8,10,8"
-            Padding="8,0,12,0"
-            CornerRadius="14"
-            Background="{DynamicResource GlassHeaderBrush}"
-            BorderBrush="{DynamicResource BrandHairlineBrush}"
-            BorderThickness="1">
-            <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto, Auto" ColumnSpacing="8">
-                <local:AccountSelectorView
-                    x:Name="AccountSelectorView"
-                    Grid.Column="0" />
+        <!-- Footer actions -->
+        <Border Grid.Row="2" Grid.Column="1" ZIndex="1"
+                Margin="24,0,24,12"
+                Padding="10,0,12,0"
+                CornerRadius="14"
+                Background="#990B0A12"
+                BorderBrush="#28A855F7"
+                BorderThickness="1">
+            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
+                <local:AccountSelectorView x:Name="AccountSelectorView" Grid.Column="0" />
                 <controls:IconButton Grid.Column="2"
-                                     Height="36"
-                                     Padding="20,0"
+                                     Height="36" Padding="20,0"
                                      Classes="DropDownButton Primary"
                                      Command="{Binding SaveAndLaunchSettingsCommand}"
                                      Content="{Binding LaunchButtonText}">
@@ -221,59 +196,31 @@
                         <MenuFlyout Placement="TopEdgeAlignedRight">
                             <MenuItem Header="{Binding PlayerMenuItemText}" Command="{Binding SetLaunchModeCommand}"
                                       CommandParameter="{x:Static enums:LaunchMode.Player}">
-                                <MenuItem.Icon>
-                                    <ic:Lucide Icon="Gamepad2" />
-                                </MenuItem.Icon>
+                                <MenuItem.Icon><ic:Lucide Icon="Gamepad2" /></MenuItem.Icon>
                             </MenuItem>
                             <MenuItem Header="{x:Static resources:Strings.Common_Studio}" Command="{Binding SetLaunchModeCommand}"
                                       CommandParameter="{x:Static enums:LaunchMode.Studio}">
-                                <MenuItem.Icon>
-                                    <ic:Lucide Icon="Wrench" />
-                                </MenuItem.Icon>
+                                <MenuItem.Icon><ic:Lucide Icon="Wrench" /></MenuItem.Icon>
                             </MenuItem>
                         </MenuFlyout>
                     </controls:IconButton.Flyout>
                 </controls:IconButton>
-                <Button
-                    Grid.Column="3"
-                    Height="36"
-                    Padding="20,0"
-                    Classes="accent"
-                    Command="{Binding RestartAppCommand}"
-                    Content="{x:Static resources:Strings.Menu_Restart}" />
-                <Button
-                    Grid.Column="4"
-                    Height="36"
-                    Padding="20,0"
-                    Classes="accent"
-                    Command="{Binding SaveSettingsCommand}"
-                    Content="{x:Static resources:Strings.Menu_Save}" />
-                <Button
-                    Grid.Column="5"
-                    Height="36"
-                    Padding="20,0"
-                    Command="{Binding CloseWindowCommand}"
-                    Content="{x:Static resources:Strings.Common_Close}" />
+                <Button Grid.Column="3" Height="36" Padding="20,0" Classes="accent"
+                        Command="{Binding RestartAppCommand}" Content="{x:Static resources:Strings.Menu_Restart}" />
+                <Button Grid.Column="4" Height="36" Padding="20,0" Classes="accent"
+                        Command="{Binding SaveSettingsCommand}" Content="{x:Static resources:Strings.Menu_Save}" />
+                <Button Grid.Column="5" Height="36" Padding="20,0"
+                        Command="{Binding CloseWindowCommand}" Content="{x:Static resources:Strings.Common_Close}" />
             </Grid>
         </Border>
 
-        <Panel
-            Name="NotificationPanel"
-            Grid.Row="0"
-            Grid.RowSpan="3"
-            Margin="0,0,0,15"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Bottom"
-            ZIndex="1000" />
+        <Panel Name="NotificationPanel"
+               Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="2"
+               Margin="0,0,0,15" VerticalAlignment="Bottom" ZIndex="1000" />
 
-        <Border
-            x:Name="OffscreenIndexingCanvas"
-            Grid.Row="1"
-            Width="905"
-            Height="700"
-            IsHitTestVisible="False"
-            IsVisible="False"
-            Opacity="0"
-            ZIndex="-1000" />
+        <Border x:Name="OffscreenIndexingCanvas"
+                Grid.Row="1" Grid.Column="1"
+                Width="905" Height="700"
+                IsHitTestVisible="False" IsVisible="False" Opacity="0" ZIndex="-1000" />
     </Grid>
 </base:AvaloniaWindow>

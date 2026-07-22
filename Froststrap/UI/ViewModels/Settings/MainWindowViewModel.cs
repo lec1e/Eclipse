@@ -39,14 +39,16 @@ namespace Froststrap.UI.ViewModels.Settings
             App.GlobalSettings.HasUnsavedChanges ||
             App.PendingSettingTasks.Count > 0;
 
-        private string _selectedPage = "integrations";
+        private string _selectedPage = "home";
         public string SelectedPage { get => _selectedPage; set => SetProperty(ref _selectedPage, value); }
 
-        private string _currentPageTitle = Strings.Menu_Integrations_Title;
+        private string _currentPageTitle = "Home";
         public string CurrentPageTitle { get => _currentPageTitle; set => SetProperty(ref _currentPageTitle, value); }
 
         private string _currentPageDescription = "";
         public string CurrentPageDescription { get => _currentPageDescription; set => SetProperty(ref _currentPageDescription, value); }
+
+        public string VersionText => $"v{App.Version}";
 
         public SearchBarViewModel SearchBar { get; }
 
@@ -98,13 +100,16 @@ namespace Froststrap.UI.ViewModels.Settings
         {
             OnPropertyChanged(nameof(HasBreadcrumbs));
             OnPropertyChanged(nameof(ShowPageTitle));
+            OnPropertyChanged(nameof(ShowPageChrome));
         }
 
         public bool HasBreadcrumbs => BreadcrumbItems.Count > 0;
-        public bool ShowPageTitle => !HasBreadcrumbs;
+        public bool ShowPageTitle => !HasBreadcrumbs && SelectedPage != "home";
+        public bool ShowPageChrome => SelectedPage != "home" || HasBreadcrumbs;
 
         public ICommand SetLaunchModeCommand { get; }
 
+        public IRelayCommand NavigateToHomeCommand { get; }
         public IRelayCommand NavigateToIntegrationsCommand { get; }
         public IRelayCommand NavigateToBehaviourCommand { get; }
         public IRelayCommand NavigateToLinuxSettingsCommand { get; }
@@ -156,6 +161,8 @@ namespace Froststrap.UI.ViewModels.Settings
             BreadcrumbItemClickedCommand = new RelayCommand<BreadcrumbItemModel>(HandleBreadcrumbItemClicked);
             SearchBar = new();
 
+            NavigateToHomeCommand = new RelayCommand(() =>
+                Navigate("home", "Home", "", new HomeDashboardViewModel(this)));
             NavigateToIntegrationsCommand = new RelayCommand(() => Navigate("integrations", Strings.Menu_Integrations_Title, Strings.Menu_Integrations_Description, new IntegrationsViewModel()));
             NavigateToBehaviourCommand = new RelayCommand(() => Navigate("behaviour", Strings.Menu_Behaviour_Title, Strings.Menu_Behaviour_Description, new BehaviourViewModel()));
             NavigateToLinuxSettingsCommand = new RelayCommand(() => Navigate("linuxsettings", Strings.Menu_LinuxSettings_Title, null!, new LinuxSettingsViewModel()));
@@ -232,7 +239,7 @@ namespace Froststrap.UI.ViewModels.Settings
             if (lastPageName != null)
                 NavigateToLastPage(lastPageName);
             else
-                NavigateToIntegrationsCommand.Execute(null);
+                NavigateToHomeCommand.Execute(null);
 
             _navigationPaneDisplayMode = App.Settings.Prop.NavigationPaneDisplayMode;
 
@@ -252,6 +259,8 @@ namespace Froststrap.UI.ViewModels.Settings
                 BreadcrumbItems = customBreadcrumbs ?? [];
                 CurrentPage = viewModel;
                 SearchBar.Clear();
+                OnPropertyChanged(nameof(ShowPageTitle));
+                OnPropertyChanged(nameof(ShowPageChrome));
             }
             catch (Exception ex)
             {
@@ -263,6 +272,9 @@ namespace Froststrap.UI.ViewModels.Settings
         {
             switch (pageTypeName)
             {
+                case "Froststrap.UI.ViewModels.Settings.HomeDashboardViewModel":
+                    NavigateToHomeCommand.Execute(null);
+                    break;
                 case "Froststrap.UI.ViewModels.Settings.IntegrationsViewModel":
                     NavigateToIntegrationsCommand.Execute(null);
                     break;
@@ -345,7 +357,7 @@ namespace Froststrap.UI.ViewModels.Settings
                         NavigateToIntegrationsCommand.Execute(null);
                     break;
                 default:
-                    NavigateToIntegrationsCommand.Execute(null);
+                    NavigateToHomeCommand.Execute(null);
                     break;
             }
         }

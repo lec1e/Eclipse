@@ -91,27 +91,28 @@ namespace Froststrap.UI.Elements.Settings
 
             void Sep() => _railItems.Add(new RailNavItem { IsSeparator = true, Tag = $"sep-{_railItems.Count}" });
 
+            // Mockup-style primary group
+            Add("home", "Home", LucideIconNames.House);
+            Add("quickplay", "Games", LucideIconNames.Gamepad2);
+            Add("mods", "Library", LucideIconNames.BookOpen);
+            Add("altman", "Profiles", LucideIconNames.Users);
+            Add("appearance", "Settings", LucideIconNames.Settings);
+            Sep();
             Add("integrations", Strings.Menu_Integrations_Title, LucideIconNames.Plus);
             Add("behaviour", Strings.Menu_Behaviour_Title, LucideIconNames.Play);
-            Add("quickplay", Strings.Menu_QuickPlay_Title, LucideIconNames.Gamepad2);
             Add("channels", Strings.Common_Deployment, LucideIconNames.HardDriveUpload);
-            Add("versions", "Versions Manager", LucideIconNames.Layers);
+            Add("versions", "Versions", LucideIconNames.Layers);
             Sep();
             Add("banasync", "BanAsync", LucideIconNames.Shield, GlobalViewModel.IsWindows);
             Add("hwidspoofer", "HWID Spoofer", LucideIconNames.FingerprintPattern, GlobalViewModel.IsWindows);
-            Add("altman", "AltMan", LucideIconNames.Users);
             Add("multiinstance", "Multi Instance", LucideIconNames.Copy);
             Add("vipserver", "VIP Server", LucideIconNames.Crown);
-            Add("serverbrowser", "Server Browser", LucideIconNames.Server);
+            Add("serverbrowser", "Servers", LucideIconNames.Server);
             Add("news", "News", LucideIconNames.Newspaper);
-            Sep();
-            Add("mods", Strings.Menu_PresetMods_Title, LucideIconNames.BookOpen);
-            Add("appearance", Strings.Menu_Appearance_Title, LucideIconNames.Palette);
             Sep();
             Add("fastflags", Strings.Menu_FastFlags_Title, LucideIconNames.Flag);
             Add("globalsettings", Strings.Menu_GlobalSettings_Title, LucideIconNames.PenLine);
-            Add("linuxsettings", Strings.Menu_LinuxSettings_Title, LucideIconNames.Settings, GlobalViewModel.IsLinux);
-            Sep();
+            Add("linuxsettings", Strings.Menu_LinuxSettings_Title, LucideIconNames.Cpu, GlobalViewModel.IsLinux);
             Add("regionselector", Strings.Menu_RegionSelector_Title, LucideIconNames.Globe);
             Add("shortcuts", Strings.Common_Shortcuts, LucideIconNames.Link2);
             Add("about", Strings.Menu_About_Title, LucideIconNames.CircleAlert);
@@ -181,6 +182,7 @@ namespace Froststrap.UI.Elements.Settings
         {
             return pageTag switch
             {
+                "home" => () => _viewModel?.NavigateToHomeCommand.Execute(null),
                 "integrations" => () => _viewModel?.NavigateToIntegrationsCommand.Execute(null),
                 "behaviour" => () => _viewModel?.NavigateToBehaviourCommand.Execute(null),
                 "linuxsettings" => () => _viewModel?.NavigateToLinuxSettingsCommand.Execute(null),
@@ -206,9 +208,10 @@ namespace Froststrap.UI.Elements.Settings
 
         private readonly Dictionary<string, (string Title, LucideIconNames Icon)> _pageInfo = new()
         {
+            ["home"] = ("Home", LucideIconNames.House),
             ["integrations"] = (Strings.Menu_Integrations_Title, LucideIconNames.Plus),
             ["behaviour"] = (Strings.Menu_Behaviour_Title, LucideIconNames.Play),
-            ["linuxsettings"] = (Strings.Menu_LinuxSettings_Title, LucideIconNames.Settings),
+            ["linuxsettings"] = (Strings.Menu_LinuxSettings_Title, LucideIconNames.Cpu),
             ["mods"] = (Strings.Menu_PresetMods_Title, LucideIconNames.BookOpen),
             ["fastflags"] = (Strings.Menu_FastFlags_Title, LucideIconNames.Flag),
             ["appearance"] = (Strings.Menu_Appearance_Title, LucideIconNames.Palette),
