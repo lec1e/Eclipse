@@ -5,41 +5,49 @@
              x:Class="Froststrap.UI.Elements.Settings.Pages.HomeDashboardPage"
              x:DataType="vm:HomeDashboardViewModel">
 
-  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-    <StackPanel Margin="8,4,8,24" Spacing="22">
+  <ScrollViewer VerticalScrollBarVisibility="Auto"
+                HorizontalScrollBarVisibility="Disabled"
+                Padding="4,0,8,8">
+    <StackPanel Spacing="28">
 
-      <!-- Hero -->
-      <Grid ColumnDefinitions="*,Auto" MinHeight="200">
-        <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="8" MaxWidth="520">
+      <!-- HERO -->
+      <Grid ColumnDefinitions="*,260" ColumnSpacing="20" MinHeight="190">
+        <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="6">
           <TextBlock Text="{Binding Greeting}"
-                     FontSize="15"
-                     Opacity="0.75"
-                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                     FontSize="16"
+                     Opacity="0.7" />
           <TextBlock Text="{Binding DisplayName}"
-                     FontSize="42"
+                     FontSize="40"
                      FontWeight="Bold"
-                     Foreground="{DynamicResource BrandAccentBrush}" />
+                     Foreground="#C084FC" />
           <TextBlock Text="{Binding Tagline}"
                      FontSize="14"
+                     Opacity="0.72"
                      TextWrapping="Wrap"
-                     Opacity="0.8"
-                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-          <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,12,0,0">
-            <Button Classes="accent"
-                    Height="42"
-                    Padding="18,0"
-                    CornerRadius="12"
+                     MaxWidth="480" />
+
+          <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,14,0,0">
+            <Button Height="44"
+                    Padding="20,0"
+                    CornerRadius="14"
+                    Background="#A855F7"
+                    Foreground="White"
+                    BorderThickness="0"
                     Command="{Binding LaunchRobloxCommand}">
               <StackPanel Orientation="Horizontal" Spacing="8">
-                <ic:Lucide Icon="Play" Width="18" Height="18" />
-                <TextBlock Text="Launch Roblox" VerticalAlignment="Center" FontWeight="SemiBold" />
+                <ic:Lucide Icon="Play" Width="18" Height="18" StrokeBrush="White" />
+                <TextBlock Text="Launch Roblox"
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+                           Foreground="White" />
               </StackPanel>
             </Button>
-            <Button Height="42"
-                    Padding="16,0"
-                    CornerRadius="12"
-                    Background="Transparent"
-                    BorderBrush="{DynamicResource BrandHairlineBrush}"
+
+            <Button Height="44"
+                    Padding="18,0"
+                    CornerRadius="14"
+                    Background="#22FFFFFF"
+                    BorderBrush="#55FFFFFF"
                     BorderThickness="1"
                     Command="{Binding OpenFolderCommand}">
               <StackPanel Orientation="Horizontal" Spacing="8">
@@ -50,147 +58,203 @@
           </StackPanel>
         </StackPanel>
 
-        <!-- Status card -->
         <Border Grid.Column="1"
-                Width="240"
-                Padding="16"
-                CornerRadius="16"
+                Padding="18"
+                CornerRadius="18"
                 VerticalAlignment="Center"
-                Background="#6612101A"
-                BorderBrush="{DynamicResource BrandHairlineBrush}"
+                Background="#990B0A14"
+                BorderBrush="#44A855F7"
                 BorderThickness="1">
-          <StackPanel Spacing="12">
+          <StackPanel Spacing="14">
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Text="System Status" FontWeight="SemiBold" />
+              <TextBlock Text="System Status" FontWeight="SemiBold" FontSize="14" />
               <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                <Ellipse Width="8" Height="8" Fill="#34D399" VerticalAlignment="Center" />
-                <TextBlock Text="operational" FontSize="12" Opacity="0.8" VerticalAlignment="Center" />
+                <Ellipse Width="8" Height="8" Fill="#34D399" />
+                <TextBlock Text="operational" FontSize="12" Opacity="0.85" />
               </StackPanel>
             </Grid>
-            <StackPanel Spacing="8">
-              <Grid ColumnDefinitions="Auto,*,Auto">
-                <ic:Lucide Icon="Shield" Width="16" Height="16" Opacity="0.7" />
-                <TextBlock Grid.Column="1" Margin="8,0,0,0" Text="Safety" Opacity="0.75" />
-                <TextBlock Grid.Column="2" Text="Ready" FontWeight="SemiBold" Foreground="#34D399" />
-              </Grid>
-              <Grid ColumnDefinitions="Auto,*,Auto">
-                <ic:Lucide Icon="Activity" Width="16" Height="16" Opacity="0.7" />
-                <TextBlock Grid.Column="1" Margin="8,0,0,0" Text="Service" Opacity="0.75" />
-                <TextBlock Grid.Column="2" Text="{Binding StatusText}" FontWeight="SemiBold" Foreground="#34D399" />
-              </Grid>
-              <Grid ColumnDefinitions="Auto,*,Auto">
-                <ic:Lucide Icon="Package" Width="16" Height="16" Opacity="0.7" />
-                <TextBlock Grid.Column="1" Margin="8,0,0,0" Text="Version" Opacity="0.75" />
-                <TextBlock Grid.Column="2" Text="{Binding VersionText}" FontWeight="SemiBold" />
-              </Grid>
-            </StackPanel>
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <ic:Lucide Icon="Shield" Width="16" Height="16" Opacity="0.65" />
+              <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="Safety" Opacity="0.7" />
+              <TextBlock Grid.Column="2" Text="Ready" FontWeight="SemiBold" Foreground="#34D399" />
+            </Grid>
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <ic:Lucide Icon="Activity" Width="16" Height="16" Opacity="0.65" />
+              <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="Service" Opacity="0.7" />
+              <TextBlock Grid.Column="2" Text="{Binding StatusText}" FontWeight="SemiBold" Foreground="#34D399" />
+            </Grid>
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <ic:Lucide Icon="Package" Width="16" Height="16" Opacity="0.65" />
+              <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="Version" Opacity="0.7" />
+              <TextBlock Grid.Column="2" Text="{Binding VersionText}" FontWeight="SemiBold" />
+            </Grid>
           </StackPanel>
         </Border>
       </Grid>
 
-      <!-- Recently played -->
-      <StackPanel Spacing="12" IsVisible="{Binding HasRecentGames}">
+      <!-- RECENTLY PLAYED -->
+      <StackPanel Spacing="12">
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Text="Recently Played" FontSize="18" FontWeight="SemiBold" />
           <Button Grid.Column="1"
                   Background="Transparent"
                   BorderThickness="0"
                   Padding="0"
-                  Command="{Binding OpenQuickPlayCommand}"
-                  Content="View All ›"
-                  Foreground="{DynamicResource BrandAccentBrush}" />
+                  Cursor="Hand"
+                  Command="{Binding OpenQuickPlayCommand}">
+            <TextBlock Text="View All ›" Foreground="#C084FC" />
+          </Button>
         </Grid>
+
         <ItemsControl ItemsSource="{Binding RecentGames}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-              <WrapPanel Orientation="Horizontal" />
+              <UniformGrid Columns="4" />
             </ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:HomeRecentItem">
-              <Border Width="200" Height="110" Margin="0,0,12,12"
-                      CornerRadius="14"
-                      Background="#5512101A"
-                      BorderBrush="{DynamicResource BrandHairlineBrush}"
+              <Border Height="128"
+                      Margin="0,0,12,0"
+                      CornerRadius="16"
+                      Background="#880B0A14"
+                      BorderBrush="#33A855F7"
                       BorderThickness="1"
-                      Padding="14">
-                <Grid RowDefinitions="*,Auto">
-                  <StackPanel Spacing="4">
-                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Text="{Binding Subtitle}" FontSize="12" Opacity="0.65" />
-                  </StackPanel>
-                  <Border Grid.Row="1"
-                          Width="32" Height="32"
-                          CornerRadius="16"
-                          HorizontalAlignment="Right"
-                          Background="{DynamicResource BrandAccentBrush}">
-                    <ic:Lucide Icon="Play" Width="14" Height="14"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                  </Border>
-                </Grid>
+                      ClipToBounds="True">
+                <Panel>
+                  <Border Background="#33A855F7" Opacity="0.35" />
+                  <Border Background="#2222D3EE" Opacity="0.12"
+                          HorizontalAlignment="Right" Width="80" />
+                  <Grid Margin="14" RowDefinitions="*,Auto">
+                    <StackPanel Spacing="4" VerticalAlignment="Bottom">
+                      <TextBlock Text="{Binding Name}"
+                                 FontWeight="SemiBold"
+                                 FontSize="14"
+                                 TextTrimming="CharacterEllipsis" />
+                      <TextBlock Text="{Binding Subtitle}"
+                                 FontSize="11"
+                                 Opacity="0.65" />
+                    </StackPanel>
+                    <Border Grid.Row="1"
+                            Width="30" Height="30"
+                            CornerRadius="15"
+                            HorizontalAlignment="Right"
+                            Margin="0,8,0,0"
+                            Background="#A855F7">
+                      <ic:Lucide Icon="Play" Width="13" Height="13"
+                                 StrokeBrush="White"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center" />
+                    </Border>
+                  </Grid>
+                </Panel>
               </Border>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </StackPanel>
 
-      <!-- Quick links + news teaser -->
-      <Grid ColumnDefinitions="2*,*" ColumnSpacing="16">
-        <StackPanel Spacing="12">
-          <TextBlock Text="Featured" FontSize="18" FontWeight="SemiBold" />
-          <TextBlock Text="Hand-picked Eclipse tools" FontSize="12" Opacity="0.65" Margin="0,-6,0,0" />
-          <ItemsControl ItemsSource="{Binding QuickLinks}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vm:HomeQuickLink">
-                <Border Margin="0,0,0,8"
-                        Padding="14,12"
-                        CornerRadius="14"
-                        Background="#4412101A"
-                        BorderBrush="{DynamicResource BrandHairlineBrush}"
-                        BorderThickness="1">
-                  <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                    <Border Width="40" Height="40" CornerRadius="12"
-                            Background="#33C084FC">
-                      <ic:Lucide Icon="{Binding Icon}" Width="18" Height="18"
-                                 HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
-                      <TextBlock Text="{Binding Subtitle}" FontSize="12" Opacity="0.65" />
-                    </StackPanel>
-                    <Button Grid.Column="2"
-                            Classes="accent"
-                            Height="32"
-                            Padding="14,0"
-                            CornerRadius="10"
-                            Content="Open"
-                            Command="{Binding $parent[ItemsControl].((vm:HomeDashboardViewModel)DataContext).NavigateLinkCommand}"
-                            CommandParameter="{Binding Tag}" />
-                  </Grid>
-                </Border>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </StackPanel>
+      <!-- FEATURED + NEWS (explicit columns — fixes overlap) -->
+      <Grid ColumnDefinitions="1.4*,*" ColumnSpacing="18" MinHeight="280">
+        <!-- Featured -->
+        <Border Grid.Column="0"
+                Padding="16"
+                CornerRadius="18"
+                Background="#770B0A14"
+                BorderBrush="#33A855F7"
+                BorderThickness="1">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,14">
+              <TextBlock Text="Featured" FontSize="18" FontWeight="SemiBold" />
+              <TextBlock Text="Hand-picked Eclipse tools" FontSize="12" Opacity="0.6" />
+            </StackPanel>
 
-        <Border Padding="16"
-                CornerRadius="16"
-                Background="#5512101A"
-                BorderBrush="{DynamicResource BrandHairlineBrush}"
-                BorderThickness="1"
-                VerticalAlignment="Top">
-          <StackPanel Spacing="12">
-            <TextBlock Text="News" FontSize="18" FontWeight="SemiBold" />
-            <TextBlock Text="Stay up to date with Roblox and Eclipse."
-                       FontSize="13" Opacity="0.7" TextWrapping="Wrap" />
-            <Button Classes="accent"
-                    HorizontalAlignment="Left"
+            <ItemsControl ItemsSource="{Binding QuickLinks}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:HomeQuickLink">
+                  <Border Margin="0,0,0,8"
+                          Padding="12"
+                          CornerRadius="14"
+                          Background="#440B0A14"
+                          BorderBrush="#22FFFFFF"
+                          BorderThickness="1">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                      <Border Width="42" Height="42" CornerRadius="12" Background="#55A855F7">
+                        <ic:Lucide Icon="{Binding Icon}" Width="18" Height="18"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding Subtitle}" FontSize="12" Opacity="0.6" TextTrimming="CharacterEllipsis" />
+                      </StackPanel>
+                      <Button Grid.Column="2"
+                              Height="32"
+                              MinWidth="72"
+                              Padding="14,0"
+                              CornerRadius="10"
+                              Background="#A855F7"
+                              Foreground="White"
+                              BorderThickness="0"
+                              Content="Open"
+                              Command="{Binding $parent[UserControl].((vm:HomeDashboardViewModel)DataContext).NavigateLinkCommand}"
+                              CommandParameter="{Binding Tag}" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </DockPanel>
+        </Border>
+
+        <!-- News -->
+        <Border Grid.Column="1"
+                Padding="16"
+                CornerRadius="18"
+                Background="#770B0A14"
+                BorderBrush="#33A855F7"
+                BorderThickness="1">
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,14">
+              <TextBlock Text="News" FontSize="18" FontWeight="SemiBold" />
+              <TextBlock Text="Stay up to date" FontSize="12" Opacity="0.6" />
+            </StackPanel>
+
+            <Button DockPanel.Dock="Bottom"
+                    Margin="0,12,0,0"
                     Height="36"
-                    Padding="14,0"
-                    CornerRadius="10"
-                    Content="Open News"
+                    HorizontalAlignment="Stretch"
+                    CornerRadius="12"
+                    Background="#22FFFFFF"
+                    BorderBrush="#44FFFFFF"
+                    BorderThickness="1"
+                    Content="View All News"
                     Command="{Binding OpenNewsCommand}" />
-          </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding NewsItems}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:HomeNewsItem">
+                  <Border Margin="0,0,0,10"
+                          Padding="10"
+                          CornerRadius="12"
+                          Background="#330B0A14">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                      <Border Width="36" Height="36" CornerRadius="10" Background="#44A855F7">
+                        <ic:Lucide Icon="{Binding Icon}" Width="16" Height="16"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" Spacing="2">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                          <TextBlock Grid.Column="1" Text="{Binding When}" FontSize="11" Opacity="0.5" />
+                        </Grid>
+                        <TextBlock Text="{Binding Subtitle}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </DockPanel>
         </Border>
       </Grid>
     </StackPanel>

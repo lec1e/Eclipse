@@ -164,12 +164,9 @@
             </StackPanel>
 
             <Border Grid.Row="1"
-                    CornerRadius="18"
-                    Background="#3A0B0A14"
-                    BorderBrush="#28A855F7"
-                    BorderThickness="1"
-                    Padding="18"
-                    ClipToBounds="True">
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="4,0">
                 <TransitioningContentControl
                     x:Name="PageContentControl"
                     HorizontalAlignment="Stretch"
